@@ -1,0 +1,36 @@
+:root {
+    --primary-color: #030213;
+}
+
+body {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1a1a2e 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #020111;
+    border-color: #020111;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(3, 2, 19, 0.25);
+}

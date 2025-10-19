@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{user/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${post.title} + ' - WOMTech'">Bài viết</title>
+    <link th:href="@{/css/user/posts.css}" rel="stylesheet">
+</head>
+<body>
+<div layout:fragment="content">
+    <section class="container py-5">
+        <div class="mb-4">
+            <h2 th:text="${post.title}" class="fw-bold"></h2>
+            <!-- Sửa #dates thành #temporals -->
+            <p class="text-muted small" th:text="${#temporals.format(post.createAt,'dd/MM/yyyy')}"></p>
+        </div>
+
+        <div class="mb-4">
+            <img th:src="${post.thumbnail != null ? post.thumbnail : '/images/default-post.jpg'}"
+                 th:alt="${post.title}" class="img-fluid w-100 mb-3">
+            <div th:utext="${post.content}"></div>
+        </div>
+
+        <a th:href="@{/posts}" class="btn btn-outline-primary">« Quay lại danh sách bài viết</a>
+    </section>
+</div>
+</body>
+</html>

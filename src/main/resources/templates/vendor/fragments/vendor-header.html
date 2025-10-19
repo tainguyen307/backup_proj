@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header th:fragment="vendorHeader">
+        <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" th:href="@{/}"> 
+			<img alt="Logo" th:src="@{/img/logo/womtech.png}">
+			WomTech Vendor
+		</a>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a href="/vendor/dashboard" class="nav-link">Dashboard</a></li>
+                    <li class="nav-item"><a href="/vendor/products" class="nav-link">Sản phẩm</a></li>
+                    <li class="nav-item"><a href="/vendor/orders" class="nav-link">Đơn hàng</a></li>
+                    <li class="nav-item"><a href="/vendor/vouchers" class="nav-link">Voucher</a></li>
+                    <li class="nav-item"><a href="/vendor/posts" class="nav-link">Bài viết</a></li>
+                    <li class="nav-item"><a th:href="@{/vendor/chat}" class="nav-link">Nhận tin nhắn từ khách hàng</a></li>
+                    <li class="nav-item"><a href="/auth/manual-logout" class="nav-link text-danger">Đăng xuất</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{vendor/layout}">
+<head>
+    <title>Quản Lý Voucher - Vendor</title>
+    <link rel="stylesheet" href="/css/vendor/vouchers.css">
+</head>
+<body>
+<h1 layout:fragment="page-title">Quản Lý Voucher</h1>
+
+<div layout:fragment="content">
+
+    <!-- 🔍 Thanh tìm kiếm và bộ lọc -->
+    <div class="filter-bar mb-3">
+        <form id="filterForm" th:action="@{/vendor/vouchers}" method="get" class="row g-2 align-items-end">
+
+            <!-- Ô tìm kiếm -->
+            <div class="col-md-4 col-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text"
+                           name="search"
+                           id="searchInput"
+                           class="form-control border-start-0"
+                           placeholder="Tìm theo mã voucher..."
+                           th:value="${param.search}"
+                           autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Lọc theo trạng thái -->
+            <div class="col-md-2 col-6">
+                <select name="status" id="statusSelect" class="form-select">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="1" th:selected="${param.status != null && param.status[0] == '1'}">Hoạt động</option>
+                    <option value="0" th:selected="${param.status != null && param.status[0] == '0'}">Không hoạt động</option>
+                </select>
+            </div>
+
+            <!-- Nút Tìm và Reset -->
+            <div class="col-md-2 col-12">
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary" title="Tìm kiếm">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button type="button" id="resetBtn" class="btn btn-outline-secondary" title="Xóa bộ lọc">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bảng Voucher -->
+    <div class="admin-table">
+        <div class="table-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-ticket-alt me-2"></i>
+                Danh Sách Voucher
+            </h5>
+            <a th:href="@{/vendor/vouchers/new}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Thêm Voucher
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>Mã Voucher</th>
+                    <th>Tên Voucher</th>
+                    <th>Giá trị (Discount)</th>
+                    <th>Giá tối thiểu</th>
+                    <th>Hạn sử dụng</th>
+                    <th>Trạng Thái</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="voucher : ${vouchers}">
+                    <td th:text="${voucher.voucherID}">VOUCHER01</td>
+                    <td th:text="${voucher.code}">Tên voucher</td>
+                    <td th:text="${voucher.discount != null ? voucher.discount + '%' : ''}">10%</td>
+                    <td th:text="${voucher.min_price != null ? voucher.min_price + ' ₫' : '-'}">-</td>
+                    <td th:text="${voucher.expire_date != null ? voucher.expire_date.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm')) : '-'}">-</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${voucher.status == 1 ? 'bg-success' : 'bg-danger'}"
+                              th:text="${voucher.status == 1 ? 'Hoạt động' : 'Không hoạt động'}">Status</span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a th:href="@{/vendor/vouchers/edit/{id}(id=${voucher.voucherID})}" 
+                               class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a th:href="@{/vendor/vouchers/delete/{id}(id=${voucher.voucherID})}" 
+                               class="btn btn-sm btn-outline-danger" title="Xóa"
+                               onclick="return confirm('Bạn có chắc muốn xóa voucher này?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    <div th:replace="~{vendor/fragments/pagination :: pagination(${page}, '/vendor/vouchers')}"></div>
+
+    <!-- Script -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            initAutoSubmit();
+            initResetButtons();
+        });
+
+        function initAutoSubmit() {
+            ['statusSelect'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => setTimeout(() => document.getElementById('filterForm').submit(), 100));
+            });
+        }
+
+        function initResetButtons() {
+            document.getElementById('resetBtn')?.addEventListener('click', resetFilters);
+        }
+
+        function resetFilters() {
+            window.location.href = '/vendor/vouchers';
+        }
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{user/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Bài viết - WOMTech</title>
+    <link th:href="@{/css/user/posts.css}" rel="stylesheet">
+</head>
+<body>
+<div layout:fragment="content">
+    <section class="container py-5">
+        <h2 class="text-center mb-4">Tất cả bài viết</h2>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-4 col-sm-6" th:each="post : ${postPage.content}">
+                <div class="card h-100 shadow-sm">
+                    <a th:href="@{/post/{id}(id=${post.postID})}">
+                        <img th:src="${post.thumbnail != null ? post.thumbnail : '/images/default-post.jpg'}"
+                             th:alt="${post.title}" class="card-img-top" loading="lazy">
+                    </a>
+                    <div class="card-body p-2">
+                        <h6 th:text="${post.title}" class="text-center mb-1"></h6>
+                        <!-- Fix ngày tháng -->
+                        <p class="text-muted text-center small"
+                           th:text="${#temporals.format(post.createAt,'dd/MM/yyyy')}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-4" aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${postPage.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/posts(page=${postPage.number-1})}">Trước</a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, postPage.totalPages-1)}"
+                    th:classappend="${i == postPage.number} ? 'active'">
+                    <a class="page-link" th:href="@{/posts(page=${i})}" th:text="${i + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${postPage.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/posts(page=${postPage.number+1})}">Sau</a>
+                </li>
+            </ul>
+        </nav>
+    </section>
+</div>
+</body>
+</html>

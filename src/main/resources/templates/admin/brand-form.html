@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title th:text="${brand.brandID != null ? 'Chỉnh Sửa Thương Hiệu' : 'Thêm Thương Hiệu Mới'}">Brand Form</title>
+</head>
+<body>
+    <h1 layout:fragment="page-title" th:text="${brand.brandID != null ? 'Chỉnh Sửa Thương Hiệu' : 'Thêm Thương Hiệu Mới'}">Brand Form</h1>
+    
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="stat-card">
+                    <form th:action="@{/admin/brands/save}" method="post" th:object="${brand}">
+                        <input type="hidden" th:field="*{brandID}">
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                <i class="fas fa-tag me-2"></i>Tên Thương Hiệu *
+                            </label>
+                            <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                   placeholder="Nhập tên thương hiệu (VD: Dell, HP, Lenovo...)" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-toggle-on me-2"></i>Trạng Thái
+                            </label>
+                            <select class="form-select" id="status" th:field="*{status}" required>
+                                <option value="1">Hoạt động</option>
+                                <option value="0">Ẩn</option>
+                            </select>
+                            <small class="text-muted">Chọn "Ẩn" nếu muốn tạm thời ẩn thương hiệu này</small>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin/brands" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>
+                                <span th:text="${brand.brandID != null ? 'Cập Nhật' : 'Tạo Mới'}">Lưu</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h6 class="mb-3">
+                        <i class="fas fa-info-circle me-2"></i>Hướng Dẫn
+                    </h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Tên thương hiệu nên là tên chính thức
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Sử dụng tên tiếng Anh chuẩn quốc tế
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Trạng thái "Ẩn" sẽ ẩn sản phẩm của thương hiệu
+                        </li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">
+                        <i class="fas fa-brands me-2"></i>Thương Hiệu Phổ Biến
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-success">Dell</span>
+                        <span class="badge bg-success">HP</span>
+                        <span class="badge bg-success">Lenovo</span>
+                        <span class="badge bg-success">Asus</span>
+                        <span class="badge bg-success">Acer</span>
+                        <span class="badge bg-success">MSI</span>
+                        <span class="badge bg-success">Apple</span>
+                        <span class="badge bg-success">Samsung</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

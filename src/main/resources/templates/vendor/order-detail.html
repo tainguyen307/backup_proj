@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{vendor/layout}">
+<head>
+<title>Chi Tiết Đơn Hàng - Vendor Panel</title>
+    <link rel="stylesheet" href="/css/vendor/order-detail.css">
+
+<style>
+	.item-status-form {
+		display: flex;
+		gap: 8px;
+		align-items: flex-end;
+	}
+	.item-status-select {
+		min-width: 180px;
+	}
+</style>
+</head>
+<body>
+	<h1 layout:fragment="page-title">Chi Tiết Đơn Hàng</h1>
+
+	<div layout:fragment="content">
+
+		<!-- Quay lại -->
+		<div class="mb-4">
+			<a href="/vendor/orders" class="btn btn-outline-secondary"> <i
+				class="fas fa-arrow-left me-2"></i>Quay Lại Danh Sách
+			</a>
+		</div>
+
+		<!-- Thông báo -->
+		<div th:if="${success}" class="alert alert-success"
+			th:text="${success}"></div>
+		<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+		<!-- Thông tin đơn hàng -->
+		<div class="row g-4 mb-4">
+			<div class="col-md-8">
+				<div class="admin-table">
+					<div class="table-header">
+						<h5>
+							<i class="fas fa-info-circle me-2"></i>Thông Tin Đơn Hàng
+						</h5>
+					</div>
+					<div class="p-4">
+						<div class="row g-3">
+							<div class="col-md-6">
+								<p>
+									<strong>Mã đơn:</strong> <span th:text="${order.orderID}"></span>
+								</p>
+								<p>
+									<strong>Trạng thái:</strong> <span class="badge"
+										th:text="${OrderStatusHelper.getStatusLabel(order.status)}"
+										th:classappend="' ' + ${OrderStatusHelper.getStatusBadgeClass(order.status)}">
+									</span>
+								</p>
+								<p>
+									<strong>Thanh toán:</strong> <span
+										th:text="${order.paymentMethod}"></span>
+								</p>
+							</div>
+							<div class="col-md-6">
+								<p>
+									<strong>Ngày đặt:</strong> <span
+										th:text="${#temporals.format(order.createAt, 'dd/MM/yyyy HH:mm')}"></span>
+								</p>
+								<p>
+									<strong>Trạng thái thanh toán:</strong> <span class="badge"
+										th:text="${OrderStatusHelper.getPaymentStatusLabel(order.paymentStatus)}"
+										th:classappend="' ' + ${OrderStatusHelper.getPaymentBadgeClass(order.paymentStatus)}">
+									</span>
+								</p>
+							</div>
+						</div>				
+					</div>
+				</div>
+			</div>
+
+			<!-- Thông tin khách hàng -->
+			<div class="col-md-4">
+				<div class="admin-table p-3 border rounded shadow-sm">
+					<div class="table-header mb-3 border-bottom pb-2">
+						<h5 class="mb-0">
+							<i class="fas fa-user me-2 text-primary"></i>Thông Tin Khách Hàng
+						</h5>
+					</div>
+
+					<!-- Customer Info -->
+					<div class="mb-2">
+						<p class="mb-1">
+							<i class="fas fa-id-badge me-2 text-secondary"></i> <strong>Tài
+								khoản:</strong> <span th:text="${order.user.username}">username</span>
+						</p>
+						<p class="mb-1">
+							<i class="fas fa-envelope me-2 text-secondary"></i> <strong>Email:</strong>
+							<span th:text="${order.user.email}">email@example.com</span>
+						</p>
+					</div>
+
+					<hr>
+
+					<!-- Shipping Info -->
+					<div class="mt-2">
+						<p class="mb-1">
+							<i class="fas fa-user-tag me-2 text-secondary"></i> <strong>Tên
+								người nhận:</strong> <span th:text="${order.address.fullname}">Nguyễn
+								Văn A</span>
+						</p>
+						<p class="mb-1">
+							<i class="fas fa-phone me-2 text-secondary"></i> <strong>Số
+								điện thoại:</strong> <span th:text="${order.address.phone}">0123456789</span>
+						</p>
+						<p class="mb-1">
+							<i class="fas fa-map-marker-alt me-2 text-secondary"></i> <strong>Địa
+								chỉ:</strong> <span
+								th:text="${order.address.street} + ', ' + ${order.address.ward} + ', ' + ${order.address.district} + ', ' + ${order.address.city}">
+								123 Lê Lợi, Phường 1, Quận 3, TP.HCM </span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Sản phẩm của vendor với cập nhật trạng thái -->
+		<div class="admin-table mb-4">
+			<div class="table-header">
+				<h5>
+					<i class="fas fa-box me-2"></i>Sản Phẩm Của Bạn Trong Đơn Hàng
+				</h5>
+			</div>
+			<div class="table-responsive">
+				<table class="table mb-0">
+					<thead>
+						<tr>
+							<th>Hình</th>
+							<th>Sản phẩm</th>
+							<th>Thương hiệu</th>
+							<th>Đơn giá</th>
+							<th>Số lượng</th>
+							<th>Thành tiền</th>
+							<th>Trạng thái</th>
+							<th>Hành động</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="item : ${vendorItems}">
+							<td><img
+								th:if="${item.product.thumbnail != null && !item.product.thumbnail.isEmpty()}"
+								th:src="${item.product.thumbnail}" alt="item.product"
+								class="rounded"
+								style="width: 60px; height: 60px; object-fit: cover;">
+								<div
+									th:if="${item.product.thumbnail == null || item.product.thumbnail.isEmpty()}"
+									class="bg-light rounded d-flex align-items-center justify-content-center"
+									style="width: 60px; height: 60px;">
+									<i class="fas fa-image fa-2x text-muted"></i>
+								</div></td>
+							<td>
+								<div>
+									<strong th:text="${item.product.name}">item.product
+										Name</strong>
+								</div> 
+							</td>
+							<td><span class="badge bg-secondary"
+								th:text="${item.product.brand.name}"> Brand </span></td>
+							<td
+								th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+							<td th:text="${item.quantity}"></td>
+							<td
+								th:text="${#numbers.formatDecimal(item.price.multiply(item.quantity),0,'COMMA',0,'POINT')} + ' ₫'"></td>
+							<td>
+								<span class="badge"
+									th:text="${OrderStatusHelper.getItemStatusLabel(item.status)}"
+									th:classappend="' ' + ${OrderStatusHelper.getItemStatusBadgeClass(item.status)}">
+								</span>
+							</td>
+							<td>
+								<form th:action="@{'/vendor/orders/update-item-status/' + ${order.orderID} + '/' + ${item.orderItemID}}"
+									method="post" class="item-status-form">
+									<input type="hidden" name="vendorId" th:value="${currentUser.userID}" />
+									
+									<select name="newStatus" class="form-select form-select-sm item-status-select" required>
+										<option value="">-- Chọn trạng thái --</option>
+										<option 
+											th:value="${OrderStatusHelper.ITEM_STATUS_CANCELLED}"
+											th:text="'Hủy'"
+											th:disabled="${item.status == OrderStatusHelper.ITEM_STATUS_CANCELLED}">
+										</option>
+										<option 
+											th:value="${OrderStatusHelper.ITEM_STATUS_CONFIRMED}"
+											th:text="'Xác Nhận'"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_CONFIRMED}">
+										</option>
+										<option 
+											th:value="${OrderStatusHelper.ITEM_STATUS_PREPARING}"
+											th:text="'Chuẩn Bị'"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_PREPARING}">
+										</option>
+										<option 
+											th:value="${OrderStatusHelper.ITEM_STATUS_PACKED}"
+											th:text="'Đóng Gói'"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_PACKED}">
+										</option>
+										<option 
+											th:value="${OrderStatusHelper.ITEM_STATUS_SHIPPED}"
+											th:text="'Đang Giao'"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_SHIPPED}">
+										</option>
+										<option 
+											th:value="${OrderStatusHelper.ITEM_STATUS_DELIVERED}"
+											th:text="'Đã Giao'"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_DELIVERED}">
+										</option>
+										
+									</select>
+									
+									<button type="submit" class="btn btn-sm btn-primary">
+										<i class="fas fa-save"></i>
+									</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="7" class="text-end"><strong>Tổng tiền
+									của bạn:</strong></td>
+							<td
+								th:text="${#numbers.formatDecimal(vendorSubtotal,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

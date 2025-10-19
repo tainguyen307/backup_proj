@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header th:fragment="adminHeader">
+        <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" th:href="@{/}"> 
+			<img alt="Logo" th:src="@{/img/logo/womtech.png}">
+			WomTech Admin
+		</a>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
+                    <li class="nav-item"><a href="/admin/products" class="nav-link">Sản phẩm</a></li>
+                    <li class="nav-item"><a href="/admin/inventory" class="nav-link">Tồn kho</a></li>
+                    <li class="nav-item"><a href="/admin/brands" class="nav-link">Thương hiệu</a></li>
+                    <li class="nav-item"><a href="/admin/users" class="nav-link">Người dùng</a></li>
+                    <li class="nav-item"><a href="/admin/posts" class="nav-link">Bài viết</a></li>
+                    <li class="nav-item"><a href="/admin/vouchers" class="nav-link">Khuyến mãi toàn sàn</a></li>
+                    <li class="nav-item"><a href="/auth/manual-logout" class="nav-link text-danger">Đăng xuất</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+</body>
+</html>

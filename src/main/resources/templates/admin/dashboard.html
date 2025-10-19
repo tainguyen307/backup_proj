@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/layout}">
+<head>
+<title>Admin Dashboard - WomTech.com</title>
+<link rel="stylesheet" href="/css/admin/dashboard.css">
+</head>
+<body>
+	<h1 layout:fragment="page-title">Dashboard</h1>
+
+	<div layout:fragment="content">
+		<div class="dashboard-container">
+			<!-- Statistics Cards -->
+			<div class="row g-4 mb-4">
+				<!-- Categories Card -->
+				<div class="col-md-3">
+					<div class="dashboard-stat-card">
+						<div class="stat-icon primary">
+							<i class="fas fa-th-large"></i>
+						</div>
+						<div class="stat-label">Tổng Danh Mục</div>
+						<h2 class="stat-value" th:text="${totalCategories}">0</h2>
+						<a href="/admin/categories"
+							class="btn btn-sm btn-outline-primary mt-3"> Quản Lý <i
+							class="fas fa-arrow-right ms-1"></i>
+						</a>
+					</div>
+				</div>
+
+				<!-- Brands Card -->
+				<div class="col-md-3">
+					<div class="dashboard-stat-card">
+						<div class="stat-icon success">
+							<i class="fas fa-tags"></i>
+						</div>
+						<div class="stat-label">Tổng Thương Hiệu</div>
+						<h2 class="stat-value" th:text="${totalBrands}">0</h2>
+						<a href="/admin/brands"
+							class="btn btn-sm btn-outline-success mt-3"> Quản Lý <i
+							class="fas fa-arrow-right ms-1"></i>
+						</a>
+					</div>
+				</div>
+
+				<!-- Products Card -->
+				<div class="col-md-3">
+					<div class="dashboard-stat-card">
+						<div class="stat-icon info">
+							<i class="fas fa-laptop"></i>
+						</div>
+						<div class="stat-label">Tổng Sản Phẩm</div>
+						<h2 class="stat-value" th:text="${totalProducts}">0</h2>
+						<a href="/admin/products" class="btn btn-sm btn-outline-info mt-3">
+							Quản Lý <i class="fas fa-arrow-right ms-1"></i>
+						</a>
+					</div>
+				</div>
+
+				<!-- Specifications Card -->
+				<div class="col-md-3">
+					<div class="dashboard-stat-card">
+						<div class="stat-icon warning">
+							<i class="fas fa-clipboard-list"></i>
+						</div>
+						<div class="stat-label">Thông Số Kỹ Thuật</div>
+						<h2 class="stat-value" th:text="${totalSpecifications}">0</h2>
+						<a href="/admin/specifications"
+							class="btn btn-sm btn-outline-warning mt-3"> Quản Lý <i
+							class="fas fa-arrow-right ms-1"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Inventory Alerts -->
+			<div class="row g-4 mb-4">
+				<!-- Low Stock Alert -->
+				<div class="col-md-6">
+					<div class="dashboard-alert-card warning">
+						<div
+							class="d-flex align-items-center justify-content-between mb-3">
+							<div>
+								<div class="alert-stat-icon warning d-inline-flex">
+									<i class="fas fa-exclamation-triangle"></i>
+								</div>
+							</div>
+							<div class="text-end">
+								<div class="stat-label">Sắp Hết Hàng</div>
+								<h2 class="stat-value text-warning"
+									th:text="${lowStockCount != null ? lowStockCount : 0}">0</h2>
+							</div>
+						</div>
+						<a href="/admin/inventory?filter=low-stock"
+							class="btn btn-warning w-100"> <i class="fas fa-boxes me-2"></i>Kiểm
+							Tra Tồn Kho
+						</a>
+					</div>
+				</div>
+
+				<!-- Out of Stock Alert -->
+				<div class="col-md-6">
+					<div class="dashboard-alert-card danger">
+						<div
+							class="d-flex align-items-center justify-content-between mb-3">
+							<div>
+								<div class="alert-stat-icon danger d-inline-flex">
+									<i class="fas fa-times-circle"></i>
+								</div>
+							</div>
+							<div class="text-end">
+								<div class="stat-label">Hết Hàng</div>
+								<h2 class="stat-value text-danger"
+									th:text="${outOfStockCount != null ? outOfStockCount : 0}">0</h2>
+							</div>
+						</div>
+						<a href="/admin/inventory?filter=out-of-stock"
+							class="btn btn-danger w-100"> <i class="fas fa-box-open me-2"></i>Nhập
+							Hàng Ngay
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Danh sách sản phẩm sắp hết hàng -->
+			<div class="admin-table mt-5">
+				<div
+					class="table-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0 text-warning">
+						<i class="fas fa-exclamation-triangle me-2"></i> Danh Sách Sản
+						Phẩm Sắp Hết Hàng
+					</h5>
+					<a href="/admin/inventory" class="btn btn-outline-primary"> <i
+						class="fas fa-warehouse me-2"></i>Quản Lý Tồn Kho
+					</a>
+				</div>
+
+				<div class="table-responsive">
+					<table class="table mb-0">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Sản Phẩm</th>
+								<th>Kho</th>
+								<th>Số Lượng</th>
+								<th>Cập Nhật</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="item, iterStat : ${lowStockItems}"
+								th:if="${iterStat.index < 5}">
+								<td><code
+										th:text="${#strings.abbreviate(item.product.productID, 12)}">ID</code></td>
+								<td>
+									<div class="d-flex align-items-center">
+										<img th:if="${item.product.thumbnail}"
+											th:src="${item.product.thumbnail}" alt="Product"
+											class="rounded me-3"
+											style="width: 45px; height: 45px; object-fit: cover;">
+										<div>
+											<div class="fw-bold" th:text="${item.product.name}">Product
+												Name</div>
+											<small class="text-muted"
+												th:text="${item.product.brand.name}">Brand</small>
+										</div>
+									</div>
+								</td>
+								<td><span class="badge bg-secondary"
+									th:text="${item.location.name}">Kho</span></td>
+								<td class="text-warning fw-bold" th:text="${item.quantity}">0</td>
+								<td><small
+									th:text="${#temporals.format(item.updateAt, 'dd/MM/yyyy HH:mm')}">Date</small>
+								</td>
+							</tr>
+							<tr th:if="${lowStockItems == null || lowStockItems.empty}">
+								<td colspan="5" class="text-center py-4 text-muted"><i
+									class="fas fa-check-circle me-2 text-success"></i>Không có sản
+									phẩm nào sắp hết hàng.</td>
+							</tr>
+							<!-- Nếu có hơn 5 sản phẩm thì hiển thị dòng này -->
+							<tr th:if="${#lists.size(lowStockItems) > 5}">
+								<td colspan="5" class="text-center py-3 text-muted">
+									<h6 class="mb-0">
+										<i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+										Còn nhiều sản phẩm khác, xem chi tiết ở <a
+											href="/admin/inventory"
+											class="text-primary fw-bold text-decoration-none"> Quản
+											Lý Tồn Kho </a>
+									</h6>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+			<!-- No Low Stock Items Message -->
+			<div class="alert alert-success d-flex align-items-center"
+				th:if="${lowStockItems == null or lowStockItems.isEmpty()}">
+				<i class="fas fa-check-circle fs-4 me-3"></i>
+				<div>
+					<strong>Tuyệt vời!</strong> Tất cả sản phẩm đều còn đủ hàng trong
+					kho.
+					<div class="small text-muted mt-1">Không có sản phẩm nào cần
+						cảnh báo về tồn kho.</div>
+				</div>
+			</div>
+
+
+			<!-- Quick Actions -->
+			<div class="row g-4 mt-4">
+				<div class="col-md-12">
+					<div class="dashboard-quick-actions">
+						<h5 class="mb-4">
+							<i class="fas fa-bolt text-primary me-2"></i> Thao Tác Nhanh
+						</h5>
+						<div class="row g-3">
+							<div class="col-md-3">
+								<a href="/admin/categories/new" class="dashboard-action-btn">
+									<i class="fas fa-plus-circle me-2"></i>Thêm Danh Mục
+								</a>
+							</div>
+							<div class="col-md-3">
+								<a href="/admin/brands/new" class="dashboard-action-btn"> <i
+									class="fas fa-plus-circle me-2"></i>Thêm Thương Hiệu
+								</a>
+							</div>
+							<div class="col-md-3">
+								<a href="/admin/specifications/new" class="dashboard-action-btn">
+									<i class="fas fa-plus-circle me-2"></i>Thêm Thông Số
+								</a>
+							</div>
+							<div class="col-md-3">
+								<a href="/admin/inventory" class="dashboard-action-btn"> <i
+									class="fas fa-boxes me-2"></i>Quản Lý Tồn Kho
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="/js/admin/dashboard.js"></script>
+</body>
+</html>

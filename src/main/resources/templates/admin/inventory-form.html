@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/layout}">
+<head>
+<title
+	th:text="${inventory.inventoryID != null ? 'Cập Nhật Tồn Kho' : 'Thêm Tồn Kho Mới'}">Inventory
+	Form</title>
+</head>
+<body>
+	<h1 layout:fragment="page-title"
+		th:text="${inventory.inventoryID != null ? 'Cập Nhật Tồn Kho' : 'Thêm Tồn Kho Mới'}">Inventory
+		Form</h1>
+
+	<div layout:fragment="content">
+		<div class="row">
+			<div class="col-md-8">
+				<div class="stat-card">
+					<form th:action="@{/admin/inventory/save}" method="post"
+						th:object="${inventory}">
+						<input type="hidden" th:field="*{inventoryID}">
+
+						<!-- Product Selection -->
+						<div class="mb-3">
+							<label for="productID" class="form-label"> <i
+								class="fas fa-laptop me-2"></i>Sản Phẩm *
+							</label> <select class="form-select" ID="productID"
+								th:field="*{product.productID}"
+								th:disabled="${inventory.inventoryID != null}" required>
+								<option value="">Chọn sản phẩm...</option>
+								<option th:each="product : ${products}"
+									th:value="${product.productID}" th:text="${product.name}">
+									Product Name</option>
+							</select> 
+							<input type="hidden" th:if="${inventory.inventoryID != null}"
+								th:field="*{product.productID}"><small class="text-muted"
+								th:if="${inventory.inventoryID != null}"> Không thể thay
+								đổi sản phẩm sau khi tạo </small>
+						</div>
+
+						<!-- Location Selection -->
+						<div class="mb-3">
+							<label for="locationID" class="form-label"> <i
+								class="fas fa-warehouse me-2"></i>Vị Trí Kho *
+							</label> <select class="form-select" id="locationID"
+								th:field="*{location.locationID}"
+								th:disabled="${inventory.inventoryID != null}" required>
+								<option value="">Chọn vị trí kho...</option>
+								<option th:each="location : ${locations}"
+									th:value="${location.locationID}" th:text="${location.name}">
+									Location Name</option>
+							</select>
+
+							<!-- ✅ thêm dòng này để giữ locationID khi edit -->
+							<input type="hidden" th:if="${inventory.inventoryID != null}"
+								th:field="*{location.locationID}"> <small
+								class="text-muted" th:if="${inventory.inventoryID != null}">
+								Không thể thay đổi vị trí sau khi tạo </small>
+						</div>
+
+						<!-- Quantity -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<label for="quantity" class="form-label"> <i
+									class="fas fa-boxes me-2"></i>Số Lượng *
+								</label> <input type="number" class="form-control" ID="quantity"
+									th:field="*{quantity}" min="0" required>
+							</div>
+
+							<div class="col-md-6">
+								<label for="status" class="form-label"> <i
+									class="fas fa-toggle-on me-2"></i>Trạng Thái
+								</label> <select class="form-select" ID="status" th:field="*{status}"
+									required>
+									<option value="1">Hoạt động</option>
+									<option value="0">Ngừng</option>
+								</select>
+							</div>
+						</div>
+
+						<hr class="my-4">
+
+						<div class="d-flex justify-content-between">
+							<a href="/admin/inventory" class="btn btn-outline-secondary">
+								<i class="fas fa-arrow-left me-2"></i>Quay Lại
+							</a>
+							<button type="submit" class="btn btn-primary">
+								<i class="fas fa-save me-2"></i> <span
+									th:text="${inventory.inventoryID != null ? 'Cập Nhật' : 'Tạo Mới'}">Lưu</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="stat-card" th:if="${inventory.inventoryID != null}">
+					<h6 class="mb-3">
+						<i class="fas fa-chart-line me-2"></i>Thông Tin Hiện Tại
+					</h6>
+					<div class="mb-3">
+						<div class="d-flex justify-content-between mb-2">
+							<span>Sản Phẩm:</span> <strong
+								th:text="${inventory.product.name}">Product</strong>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span>Vị Trí:</span> <strong th:text="${inventory.location.name}">Location</strong>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span>Số Lượng:</span> <strong class="text-primary"
+								th:text="${inventory.quantity}">0</strong>
+						</div>
+					</div>
+				</div>
+
+				<div class="stat-card">
+					<h6 class="mb-3">
+						<i class="fas fa-info-circle me-2"></i>Hướng Dẫn
+					</h6>
+					<ul class="list-unstyled">
+						<li class="mb-2"><i
+							class="fas fa-check-circle text-success me-2"></i> Chọn sản phẩm
+							và vị trí kho</li>
+						<li class="mb-2"><i
+							class="fas fa-check-circle text-success me-2"></i> Nhập số lượng
+							tồn kho chính xác</li>
+						<li class="mb-2"><i
+							class="fas fa-check-circle text-success me-2"></i> Một sản phẩm
+							có thể có tồn kho ở nhiều vị trí khác nhau</li>
+						<li class="mb-2"><i
+							class="fas fa-check-circle text-success me-2"></i> Trạng thái
+							"Ngừng" để tạm dừng bán hàng</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

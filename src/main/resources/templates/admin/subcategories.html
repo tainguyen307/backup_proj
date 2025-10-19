@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Quản Lý Danh Mục Con - WomTech Admin</title>
+    <link rel="stylesheet" href="/css/admin/subcategories.css">
+    
+</head>
+<body>
+    <h1 layout:fragment="page-title" th:text="'Danh Mục Con: ' + ${category.name}">Subcategories</h1>
+    
+    <div layout:fragment="content">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin/categories">
+                        <i class="fas fa-th-large me-2"></i>Danh Mục
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="${category.name}">
+                    Category Name
+                </li>
+            </ol>
+        </nav>
+        <!-- Category Info Card -->
+        <div class="stat-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">
+                        <i class="fas fa-folder me-2 text-primary"></i>
+                        <span th:text="${category.name}">Category Name</span>
+                    </h5>
+                    <p class="text-muted mb-0">
+                        <span class="badge" 
+                              th:classappend="${category.status == 1 ? 'bg-success' : 'bg-danger'}"
+                              th:text="${category.status == 1 ? 'Hoạt động' : 'Ẩn'}">
+                            Active
+                        </span>
+                        <span class="ms-3">
+                            <i class="fas fa-list me-1"></i>
+                            <span th:text="${subcategories.size()}">0</span> danh mục con
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="@{/admin/subcategories/new/{categoryID}(categoryID=${category.categoryID})}" 
+                       class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Thêm Danh Mục Con
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subcategories Table -->
+        <div class="admin-table">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Danh Sách Danh Mục Con
+                </h5>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Danh Mục Con</th>
+                            <th>Số Sản Phẩm</th>
+                            <th>Trạng Thái</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="subcategory : ${subcategories}">
+                            <td>
+                                <code th:text="${#strings.abbreviate(subcategory.subcategoryID, 12)}">ID</code>
+                            </td>
+                            <td>
+                                <strong th:text="${subcategory.name}">Subcategory Name</strong>
+                            </td>
+                            <td>
+                                <a th:href="@{/admin/products/subcategory/{id}(id=${subcategory.subcategoryID})}" 
+                                   class="badge bg-primary text-decoration-none" 
+                                   th:text="${subcategory.products != null ? subcategory.products.size() : 0} + ' sản phẩm'">
+                                    0 sản phẩm
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${subcategory.status == 1 ? 'bg-success' : 'bg-danger'}"
+                                      th:text="${subcategory.status == 1 ? 'Hoạt động' : 'Ẩn'}">
+                                    Active
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a th:href="@{/admin/subcategories/{id}/products(id=${subcategory.subcategoryID})}"
+                                       class="btn btn-sm btn-outline-success"
+                                       title="Xem sản phẩm">
+                                        <i class="fas fa-box"></i> Xem
+                                    </a>
+                                    <a th:href="@{/admin/subcategories/edit/{id}(id=${subcategory.subcategoryID})}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i> Chỉnh sửa
+                                    </a>
+                                    <a th:href="@{/admin/subcategories/delete/{id}(id=${subcategory.subcategoryID})}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       title="Xóa"
+                                       onclick="return confirm('Bạn có chắc muốn xóa danh mục con này?')">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${subcategories.empty}">
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">
+                                    Chưa có danh mục con nào cho "<strong th:text="${category.name}">category</strong>".
+                                </p>
+                                <a th:href="@{/admin/subcategories/new/{categoryID}(categoryID=${category.categoryID})}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Thêm Danh Mục Con Đầu Tiên
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

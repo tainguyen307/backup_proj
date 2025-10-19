@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{user/layout}">
+
+<head>
+<meta charset="UTF-8">
+<title>Thông tin cá nhân - WOMTech</title>
+
+<th:block layout:fragment="css">
+	<!-- Custom CSS -->
+	<link th:href="@{/css/user/profile.css}" rel="stylesheet">
+	<!-- Bootstrap Icons -->
+	<link
+		href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+		rel="stylesheet">
+</th:block>
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<!-- Hero Section -->
+		<section class="hero-section py-5">
+			<div class="container">
+				<div class="row align-items-center">
+					<div class="col-md-8">
+						<h1 class="display-5 fw-bold text-white mb-3">
+							<i class="bi bi-person-circle me-3"></i>Thông Tin Cá Nhân
+						</h1>
+						<p class="lead text-white-50 mb-0">Quản lý thông tin tài khoản
+							và cài đặt cá nhân của bạn</p>
+					</div>
+					<div class="col-md-4 text-end">
+						<div class="profile-stats d-none d-md-block">
+							<div class="stat-item text-white text-center">
+								<i class="bi bi-shield-check fa-2x mb-2 text-warning"></i>
+								<div class="fw-bold">Tài Khoản Được Xác Thực</div>
+								<small class="text-white-50">Bảo mật cao</small>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Profile Content -->
+		<section class="py-5">
+			<div class="container">
+
+				<!-- Alert Messages -->
+				<div th:if="${success}"
+					class="alert alert-success alert-dismissible fade show"
+					role="alert">
+					<i class="bi bi-check-circle me-2"></i> <span th:text="${success}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+
+				<div th:if="${error}"
+					class="alert alert-danger alert-dismissible fade show" role="alert">
+					<i class="bi bi-exclamation-circle me-2"></i> <span
+						th:text="${error}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+
+				<div th:if="${passwordSuccess}"
+					class="alert alert-success alert-dismissible fade show"
+					role="alert">
+					<i class="bi bi-key me-2"></i> <span th:text="${passwordSuccess}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+
+				<div th:if="${passwordError}"
+					class="alert alert-danger alert-dismissible fade show" role="alert">
+					<i class="bi bi-exclamation-triangle me-2"></i> <span
+						th:text="${passwordError}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+
+				<div class="row">
+					<!-- Sidebar Navigation -->
+					<div class="col-lg-3 mb-4">
+						<div class="card profile-sidebar">
+							<div class="card-body text-center">
+								<!-- Profile Avatar -->
+								<div class="profile-avatar mb-3">
+									<div class="avatar-circle">
+										<i class="bi bi-person-fill fa-3x text-primary"></i>
+									</div>
+								</div>
+
+								<h5 class="card-title mb-1"
+									th:text="${defaultAddress != null ? defaultAddress.fullname : user.username}">
+									Tên Người Dùng</h5>
+
+								<p class="text-muted mb-3" th:text="${user.email}">email@example.com</p>
+
+								<div class="badge bg-primary mb-3">
+									<i class="bi bi-award me-1"></i> <span
+										th:text="${isAdmin} ? 'Quản Trị Viên' : 'Khách Hàng'">Khách
+										Hàng</span>
+								</div>
+							</div>
+
+							<!-- Navigation Menu -->
+							<div class="list-group list-group-flush">
+								<a href="#profile-info"
+									class="list-group-item list-group-item-action profile-nav-item active"
+									data-tab="info"> <i class="bi bi-person me-3"></i>Thông Tin
+									Cá Nhân
+								</a> <a href="#profile-password"
+									class="list-group-item list-group-item-action profile-nav-item"
+									data-tab="password"> <i class="bi bi-lock me-3"></i>Đổi Mật
+									Khẩu
+								</a> <a href="#profile-orders"
+									class="list-group-item list-group-item-action profile-nav-item"
+									data-tab="orders"> <i class="bi bi-bag me-3"></i>Lịch Sử
+									Đơn Hàng <span class="badge bg-secondary ms-auto"
+									th:text="${orderCount}">0 </span>
+								</a> <a href="#profile-address"
+									class="list-group-item list-group-item-action profile-nav-item"
+									data-tab="address"> <i class="bi bi-geo-alt me-3"></i>Địa
+									Chỉ Giao Hàng
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<!-- Main Content -->
+					<div class="col-lg-9">
+
+						<!-- Personal Information Tab -->
+						<div class="profile-tab-content active" id="info-tab">
+							<div class="card">
+								<div class="card-header bg-gradient-primary text-white">
+									<h5 class="mb-0">
+										<i class="bi bi-person me-2"></i>Thông Tin Cá Nhân
+									</h5>
+								</div>
+								<div class="card-body">
+									<form th:action="@{/user/update-info}" method="post"
+										th:object="${defaultAddress}">
+										<input type="hidden" th:field=${user.userID}> <input
+											type="hidden" th:field=*{addressID}>
+										<div class="row">
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i
+													class="bi bi-person me-2"></i>Họ và tên</label> <input type="text"
+													class="form-control" th:field="*{fullname}">
+											</div>
+
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i
+													class="bi bi-envelope me-2"></i>Email</label> <input type="email"
+													class="form-control" th:field="${user.email}">
+											</div>
+
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i
+													class="bi bi-telephone me-2"></i>Số Điện Thoại</label> <input
+													type="tel" class="form-control" th:field="*{phone}">
+											</div>
+
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i
+													class="bi bi-building me-2"></i>Tỉnh/Thành Phố</label> <input
+													type="text" class="form-control" th:field="*{city}">
+											</div>
+
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i class="bi bi-map me-2"></i>Quận/Huyện</label>
+												<input type="text" class="form-control"
+													th:field="*{district}">
+											</div>
+
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i class="bi bi-geo me-2"></i>Phường/Xã</label>
+												<input type="text" class="form-control" th:field="*{ward}">
+											</div>
+
+											<div class="col-12 mb-4">
+												<label class="form-label"><i
+													class="bi bi-house-door me-2"></i>Địa Chỉ Chi Tiết</label>
+												<textarea class="form-control" rows="3" th:field="*{street}"></textarea>
+											</div>
+										</div>
+
+										<div class="d-flex justify-content-between">
+											<div class="text-muted">
+												<i class="bi bi-calendar me-2"></i> Tham gia từ: <span
+													th:text="${#temporals.format(user.createAt, 'dd/MM/yyyy')}"></span>
+											</div>
+											<button type="submit" class="btn btn-primary">
+												<i class="bi bi-save me-2"></i>Cập Nhật Thông Tin
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<!-- Change Password Tab -->
+						<div class="profile-tab-content" id="password-tab">
+							<div class="card">
+								<div class="card-header bg-gradient-primary text-white">
+									<h5 class="mb-0">
+										<i class="bi bi-shield-lock me-2"></i>Đổi Mật Khẩu
+									</h5>
+								</div>
+								<div class="card-body">
+									<form th:action="@{/user/change-password}" method="post">
+										<div class="row">
+											<div class="col-12 mb-3">
+												<label class="form-label"><i class="bi bi-key me-2"></i>Mật
+													Khẩu Hiện Tại</label>
+												<div class="input-group">
+													<input type="password" class="form-control"
+														id="currentPassword" name="currentPassword" required>
+													<button class="btn btn-outline-secondary" type="button"
+														onclick="togglePassword('currentPassword')">
+														<i class="bi bi-eye"></i>
+													</button>
+												</div>
+											</div>
+
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i class="bi bi-lock me-2"></i>Mật
+													Khẩu Mới</label>
+												<div class="input-group">
+													<input type="password" class="form-control"
+														id="newPassword" name="newPassword" minlength="6" required>
+													<button class="btn btn-outline-secondary" type="button"
+														onclick="togglePassword('newPassword')">
+														<i class="bi bi-eye"></i>
+													</button>
+												</div>
+												<div class="form-text">Mật khẩu phải có ít nhất 6 ký
+													tự</div>
+											</div>
+
+											<div class="col-md-6 mb-3">
+												<label class="form-label"><i
+													class="bi bi-check-circle me-2"></i>Xác Nhận Mật Khẩu</label>
+												<div class="input-group">
+													<input type="password" class="form-control"
+														id="confirmPassword" name="confirmPassword" minlength="6"
+														required>
+													<button class="btn btn-outline-secondary" type="button"
+														onclick="togglePassword('confirmPassword')">
+														<i class="bi bi-eye"></i>
+													</button>
+												</div>
+											</div>
+										</div>
+
+										<div class="mb-4">
+											<div class="password-strength">
+												<div class="progress" style="height: 5px;">
+													<div class="progress-bar" id="passwordStrength"
+														role="progressbar" style="width: 0%"></div>
+												</div>
+												<small class="text-muted" id="passwordStrengthText">Nhập
+													mật khẩu để kiểm tra độ mạnh</small>
+											</div>
+										</div>
+
+										<div class="d-flex justify-content-between align-items-center">
+											<div class="text-muted">
+												<i class="bi bi-shield-lock-fill me-2"></i> Mật khẩu được mã
+												hóa an toàn
+											</div>
+											<button type="submit" class="btn btn-warning">
+												<i class="bi bi-key-fill me-2"></i>Đổi Mật Khẩu
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<!-- Order History Tab -->
+						<div class="profile-tab-content" id="orders-tab">
+							<div class="card">
+								<div class="card-header bg-gradient-primary text-white">
+									<h5 class="mb-0">
+										<i class="bi bi-bag-check me-2"></i>Lịch Sử Đơn Hàng
+									</h5>
+								</div>
+
+								<div class="card-body">
+									<!-- Nếu không có đơn hàng -->
+									<div th:if="${orderCount==0}"
+										class="text-center py-5">
+										<i class="bi bi-cart4 display-4 text-muted mb-3"></i>
+										<h5 class="text-muted">Chưa Có Đơn Hàng Nào</h5>
+										<p class="text-muted mb-4">Bạn chưa thực hiện đơn hàng
+											nào. Hãy khám phá sản phẩm của chúng tôi!</p>
+										<a th:href="@{/products}" class="btn btn-primary"> <i
+											class="bi bi-bag me-2"></i>Mua Sắm Ngay
+										</a>
+									</div>
+
+									<!-- Nếu có đơn hàng -->
+									<div th:if="${orderCount!=0}">
+										<div class="mb-3">
+											<small class="text-muted">Tổng <span
+												th:text="${orderCount}"></span> đơn hàng
+											</small>
+											<!-- Bộ lọc trạng thái -->
+											<form th:action="@{/user/profile}" method="get"
+												class="d-flex align-items-center gap-2 mb-3">
+												<input type="hidden" name="tab" value="orders" /> <label
+													class="text-muted small me-2 mb-0">Lọc theo trạng
+													thái:</label> <select name="status"
+													class="form-select form-select-sm w-auto"
+													onchange="this.form.submit()">
+													<option th:each="entry : ${statuses.entrySet()}"
+														th:value="${entry.key}" th:text="${entry.value}"
+														th:selected="${entry.key == selectedStatus}"></option>
+												</select> <input type="hidden" name="page" th:value="${currentPage}" />
+											</form>
+										</div>
+
+										<div class="list-group">
+											<div th:each="order : ${listOrder}"
+												class="list-group-item list-group-item-action mb-3">
+												<div class="row align-items-center">
+													<div class="col-md-8">
+														<div class="d-flex flex-column">
+															<div class="d-flex align-items-center mb-1">
+																<h6 class="me-3 mb-0">
+																	Mã đơn: <span class="fw-bold"
+																		th:text="${order.orderID}">ORDER001</span>
+																</h6>
+																<small class="text-muted ms-2"
+																	th:text="${#temporals.format(order.createAt, 'dd/MM/yyyy HH:mm')}">01/01/2025</small>
+															</div>
+
+															<div class="text-muted small">
+																<span
+																	th:text="${order.items != null ? order.items.size() : 0}">0</span>
+																sản phẩm &nbsp;•&nbsp; Phương thức: <span
+																	th:text="${order.paymentMethod}">COD</span>
+															</div>
+														</div>
+													</div>
+
+													<div class="col-md-2 text-end">
+														<div class="fw-semibold"
+															th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
+															₫</div>
+														<div class="small text-muted">Tổng tiền</div>
+													</div>
+
+													<div class="col-md-2 text-end">
+														<!-- badge trạng thái -->
+														<div class="d-inline-block">
+															<span class="badge px-3 py-2"
+																th:classappend="${T(com.womtech.util.OrderStatusHelper).getOrderStatusBadgeClass(order.status)}"
+																th:text="${T(com.womtech.util.OrderStatusHelper).getOrderStatusLabel(order.status)}">
+																Trạng thái </span>
+														</div>
+
+														<div class="mt-2">
+															<a th:href="@{/order/{id}(id=${order.orderID})}"
+																class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+														</div>
+													</div>
+												</div>
+
+											</div>
+											<!-- end order item -->
+										</div>
+										<!-- end list-group -->
+									</div>
+									<!-- end if listOrder not empty -->
+									<!-- Pagination -->
+									<div th:if="${totalPages > 1}"
+										class="d-flex justify-content-center mt-4">
+										<nav>
+											<ul class="pagination">
+												<li class="page-item"
+													th:classappend="${currentPage == 0} ? 'disabled'"><a
+													class="page-link"
+													th:href="@{/user/profile(tab='orders', page=${currentPage - 1}, status=${selectedStatus})}">«</a>
+												</li>
+
+												<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+													class="page-item"
+													th:classappend="${i == currentPage} ? 'active'"><a
+													class="page-link"
+													th:href="@{/user/profile(tab='orders', page=${i}, status=${selectedStatus})}"
+													th:text="${i + 1}"> </a></li>
+
+												<li class="page-item"
+													th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+													<a class="page-link"
+													th:href="@{/user/profile(tab='orders', page=${currentPage - 1}, status=${selectedStatus})}">»</a>
+												</li>
+											</ul>
+										</nav>
+									</div>
+
+								</div>
+								<!-- card-body -->
+							</div>
+							<!-- card -->
+						</div>
+						<!-- orders-tab -->
+
+
+						<!-- Address Tab -->
+						<div class="profile-tab-content" id="address-tab">
+							<div class="card">
+								<div class="card-header bg-gradient-primary text-white">
+									<h5 class="mb-0">
+										<i class="bi bi-geo-alt me-2"></i>Địa Chỉ Giao Hàng
+									</h5>
+								</div>
+								<div class="card-body">
+
+									<!-- Nút thêm địa chỉ -->
+									<div class="d-flex justify-content-end mb-3">
+										<button class="btn btn-success btn-sm" type="button"
+											onclick="toggleAddAddressForm()">
+											<i class="bi bi-plus-circle me-2"></i>Thêm Địa Chỉ
+										</button>
+									</div>
+
+									<!-- Form ẩn thêm địa chỉ mới -->
+									<div id="add-address-form" class="card p-4 mb-4 d-none">
+										<h6 class="mb-3">
+											<i class="bi bi-geo-alt me-2 text-primary"></i>Thêm Địa Chỉ
+											Mới
+										</h6>
+										<form th:action="@{/user/add-address}" method="post">
+											<div class="row">
+												<div class="mb-2">
+													<label class="form-label">Họ Tên</label> <input type="text"
+														class="form-control" name="fullname" required>
+												</div>
+
+												<div class="mb-2">
+													<label class="form-label">Số Điện Thoại</label> <input
+														type="tel" class="form-control" name="phone" required>
+												</div>
+
+												<div class="mb-2">
+													<label class="form-label">Tỉnh/Thành Phố</label> <input
+														type="text" class="form-control" name="city" required>
+												</div>
+
+												<div class="mb-2">
+													<label class="form-label">Quận/Huyện</label> <input
+														type="text" class="form-control" name="district" required>
+												</div>
+
+												<div class="mb-2">
+													<label class="form-label">Phường/Xã</label> <input
+														type="text" class="form-control" name="ward" required>
+												</div>
+
+												<div class="mb-2">
+													<label class="form-label">Số Nhà, Đường</label> <input
+														type="text" class="form-control" name="street" required>
+												</div>
+											</div>
+
+											<div class="d-flex justify-content-end">
+												<button type="button" class="btn btn-secondary me-2"
+													onclick="toggleAddAddressForm()">Hủy</button>
+												<button type="submit" class="btn btn-primary">
+													<i class="bi bi-save me-1"></i>Lưu Địa Chỉ
+												</button>
+											</div>
+										</form>
+									</div>
+
+									<!-- Lặp qua danh sách địa chỉ -->
+									<div class="mb-4" th:each="addr : ${listAddress}">
+										<div class="row">
+											<div
+												class="address-card p-4 border rounded-3 position-relative">
+
+												<!-- Badge hoặc nút đặt mặc định -->
+												<div class="position-absolute top-0 end-0 m-2">
+
+													<!-- Badge mặc định -->
+													<span class="badge bg-primary" th:if="${addr.isDefault}">Địa
+														chỉ mặc định</span>
+
+													<!-- Nút đặt làm mặc định -->
+													<form th:if="${!addr.isDefault}"
+														th:action="@{/user/setdefault-address}" method="post">
+														<input type="hidden" name="addressID"
+															th:value="${addr.addressID}">
+														<button type="submit"
+															class="btn btn-sm btn-outline-secondary">Đặt làm
+															mặc định</button>
+													</form>
+												</div>
+
+												<!-- Thông tin địa chỉ -->
+												<div class="address-details"
+													th:id="'view-' + ${addr.addressID}">
+													<p class="mb-2">
+														<i class="bi bi-person me-2"></i><strong
+															th:text="${addr.fullname}">Họ Tên</strong>
+													</p>
+													<p class="mb-2">
+														<i class="bi bi-telephone me-2"></i><span
+															th:text="${addr.phone}">Số điện thoại</span>
+													</p>
+													<p class="mb-3">
+														<i class="bi bi-geo-alt me-2"></i> <span
+															th:text="${addr.street + ', ' + addr.ward + ', ' + addr.district + ', ' + addr.city}">Địa
+															chỉ</span>
+													</p>
+
+													<div class="d-flex gap-2">
+														<!-- Nút chỉnh sửa -->
+														<button class="btn btn-sm btn-outline-primary"
+															th:attr="onclick=|showEditForm('${addr.addressID}')|">
+															<i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+														</button>
+
+														<!-- Nút xóa địa chỉ -->
+														<form th:action="@{/user/delete-address}" method="post"
+															onsubmit="return confirm('Bạn có chắc muốn xóa địa chỉ này không?')"
+															class="m-0">
+															<input type="hidden" name="addressID"
+																th:value="${addr.addressID}">
+															<button type="submit"
+																class="btn btn-sm btn-outline-danger">
+																<i class="bi bi-trash me-1"></i>Xóa
+															</button>
+														</form>
+													</div>
+												</div>
+
+												<!-- Form chỉnh sửa ẩn -->
+												<form th:id="'form-' + ${addr.addressID}"
+													th:action="@{/user/update-address}" method="post"
+													class="edit-form mt-3 d-none">
+													<input type="hidden" name="addressID"
+														th:value="${addr.addressID}">
+
+													<div class="mb-2">
+														<label class="form-label">Họ Tên</label> <input
+															type="text" class="form-control" name="fullname"
+															th:value="${addr.fullname}">
+													</div>
+
+													<div class="mb-2">
+														<label class="form-label">Số Điện Thoại</label> <input
+															type="text" class="form-control" name="phone"
+															th:value="${addr.phone}">
+													</div>
+
+													<div class="mb-2">
+														<label class="form-label">Thành Phố</label> <input
+															type="text" class="form-control" name="city"
+															th:value="${addr.city}">
+													</div>
+
+													<div class="mb-2">
+														<label class="form-label">Quận/Huyện</label> <input
+															type="text" class="form-control" name="district"
+															th:value="${addr.district}">
+													</div>
+
+													<div class="mb-2">
+														<label class="form-label">Phường/Xã</label> <input
+															type="text" class="form-control" name="ward"
+															th:value="${addr.ward}">
+													</div>
+
+													<div class="mb-3">
+														<label class="form-label">Số Nhà, Đường</label> <input
+															type="text" class="form-control" name="street"
+															th:value="${addr.street}">
+													</div>
+
+													<!-- Nút hành động -->
+													<div class="d-flex justify-content-end">
+														<button type="button" class="btn btn-secondary me-2"
+															th:attr="onclick=|cancelEdit('${addr.addressID}')|">Hủy
+														</button>
+														<button type="submit" class="btn btn-primary">Lưu</button>
+													</div>
+												</form>
+											</div>
+										</div>
+
+										<!-- Nếu không có địa chỉ nào -->
+										<div th:if="${#lists.isEmpty(listAddress)}"
+											class="text-center py-4">
+											<i class="bi bi-plus-circle display-4 text-muted mb-3"></i>
+											<h6 class="text-muted">Chưa Có Địa Chỉ</h6>
+											<p class="text-muted mb-3">Vui lòng thêm địa chỉ giao
+												hàng để tiện đặt hàng</p>
+											<a href="#profile-info"
+												class="btn btn-primary profile-nav-item" data-tab="info">
+												<i class="bi bi-plus-lg me-2"></i>Thêm Địa Chỉ
+											</a>
+										</div>
+									</div>
+
+
+									<div class="alert alert-info">
+										<h6 class="alert-heading">
+											<i class="bi bi-info-circle me-2"></i>Lưu Ý Về Địa Chỉ Giao
+											Hàng
+										</h6>
+										<ul class="mb-0">
+											<li>Vui lòng cung cấp địa chỉ chi tiết và chính xác</li>
+											<li>Số điện thoại phải sẵn sàng để nhận cuộc gọi từ
+												shipper</li>
+											<li>Chúng tôi hỗ trợ giao hàng toàn quốc</li>
+											<li>Thời gian giao hàng: 2–5 ngày làm việc</li>
+										</ul>
+									</div>
+
+								</div>
+							</div>
+						</div>
+
+
+					</div>
+					<!-- /col-lg-9 -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</section>
+	</div>
+
+	<!-- Custom JavaScript -->
+	<div layout:fragment="scripts">
+		<script th:src="@{/js/user/profile.js}"></script>
+	</div>
+</body>
+</html>

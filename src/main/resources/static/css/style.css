@@ -1,0 +1,107 @@
+/* =============================
+   WomTech.com - Global Styles
+   ============================= */
+
+:root {
+  --womtech-primary: #111827; /* đen ánh xanh than */
+  --womtech-accent: #2563eb;  /* xanh lam sáng */
+  --womtech-success: #10b981;
+  --womtech-danger: #ef4444;
+  --womtech-light: #f9fafb;
+  --womtech-dark: #1f2937;
+}
+
+/* Base */
+body {
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  color: #1e293b;
+  background-color: var(--womtech-light);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: var(--womtech-accent);
+}
+
+a:hover {
+  color: #1d4ed8;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--womtech-primary);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: #fff !important;
+  letter-spacing: -0.5px;
+}
+
+.navbar-brand img {
+    width: 60px;
+    height: auto;
+    background-color: transparent;
+}
+
+.nav-link {
+  color: #e5e7eb !important;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #60a5fa !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  transform: translateY(-2px);
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Footer */
+.footer {
+  background: var(--womtech-primary);
+  color: #f9fafb;
+  padding: 60px 0 30px;
+}
+
+.footer a {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.footer a:hover {
+  color: white;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--womtech-accent);
+  border-radius: 4px;
+}

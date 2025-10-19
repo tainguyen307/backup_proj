@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title th:text="${voucher.voucherID != null} ? 'Edit Voucher' : 'Add Voucher'">Voucher Form</title>
+    <link rel="stylesheet" href="/css/admin/vouchers.css">
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="voucher-form mt-5">
+
+        <h3 th:text="${voucher.voucherID != null} ? 'Chỉnh sửa Voucher' : 'Thêm Voucher'">Voucher Form</h3>
+
+        <form th:object="${voucher}" 
+              th:action="@{${voucher.voucherID != null} ? '/admin/vouchers/update/' + ${voucher.voucherID} : '/admin/vouchers/save'}" 
+              method="post">
+
+            <div class="mb-3">
+                <label for="code" class="form-label">Mã Voucher</label>
+                <input type="text" class="form-control" id="code" placeholder="Nhập mã voucher"
+                       th:field="*{code}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="discount" class="form-label">Giá trị giảm (%) hoặc tiền</label>
+                <input type="number" class="form-control" id="discount" placeholder="Nhập giá trị"
+                       th:field="*{discount}" min="0" step="0.01" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="minPrice" class="form-label">Giá trị đơn tối thiểu</label>
+                <input type="number" class="form-control" id="minPrice" placeholder="Nhập giá trị tối thiểu"
+                       th:field="*{min_price}" min="0" step="0.01">
+            </div>
+
+            <div class="mb-3">
+                <label for="expireDate" class="form-label">Ngày hết hạn</label>
+                <input type="datetime-local" class="form-control" id="expireDate"
+                       th:field="*{expire_date}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Trạng thái</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" th:field="*{status}" id="active" value="1">
+                    <label class="form-check-label" for="active">Hoạt động</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" th:field="*{status}" id="inactive" value="0">
+                    <label class="form-check-label" for="inactive">Không hoạt động</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-submit mt-3" 
+                    th:text="${voucher.voucherID != null} ? 'Cập nhật' : 'Thêm mới'">Submit</button>
+        </form>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,192 @@
+/* === HERO === */
+.hero-with-categories {
+  display: flex;
+  align-items: center;
+  min-height: 60vh;
+  padding: 2rem 0;
+  color: #fff;
+  background: linear-gradient(135deg, #0f172a, #1e3a8a 50%, #1e40af);
+  overflow: hidden;
+}
+
+.hero-area {
+  position: relative;
+  z-index: 2;
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 5rem 2rem;
+  background: url('/images/hero-banner.jpg') center/cover no-repeat;
+}
+
+.hero-content {
+  max-width: 650px;
+  margin: auto;
+  text-align: center;
+  animation: fadeInUp 1s ease-out;
+}
+
+.hero-content h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: #e0e7ff;
+}
+
+/* === BUTTON === */
+.btn-glow {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(45deg, #2563eb, #3b82f6);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  transition: all 0.3s ease;
+}
+
+.btn-glow:hover {
+  color: #fff;
+  background: linear-gradient(45deg, #1d4ed8, #2563eb);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+}
+
+.chat-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: transform 0.2s;
+}
+.chat-btn:hover {
+    transform: scale(1.1);
+}
+
+/* ===== DANH MỤC NỔI BẬT ===== */
+.category-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 25px 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    height: 100%;
+}
+
+.category-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 123, 255, 0.15);
+    background: linear-gradient(135deg, #f0f8ff, #ffffff);
+}
+
+.category-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007bff, #00bfff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.category-name {
+    font-size: 0.95rem;
+    color: #333;
+    letter-spacing: 0.5px;
+}
+
+.category-card:hover .category-name {
+    color: #007bff;
+}
+
+/* === PRODUCT GRID === */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  background: #fff;
+  color: #000;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.product-info h5 {
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.5rem;
+}
+
+.price {
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 1.25rem;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 992px) {
+  .hero-area {
+    padding: 3rem 1.5rem;
+  }
+
+  .category-icon img {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* === ANIMATION === */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

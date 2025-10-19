@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{vendor/layout}">
+<head>
+    <title>Quản Lý Bài Viết - WomTech Vendor</title>
+</head>
+<body>
+<h1 layout:fragment="page-title">Quản Lý Bài Viết của Bạn</h1>
+
+<div layout:fragment="content">
+
+    <!-- 🔍 Thanh tìm kiếm và bộ lọc -->
+    <div class="filter-bar mb-3">
+        <form id="filterForm" th:action="@{/vendor/posts}" method="get" class="row g-2 align-items-end">
+
+            <!-- Ô tìm kiếm theo tiêu đề -->
+            <div class="col-md-4 col-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text"
+                           name="search"
+                           id="searchInput"
+                           class="form-control border-start-0"
+                           placeholder="Tìm theo tiêu đề..."
+                           th:value="${param.search}"
+                           autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Lọc theo trạng thái -->
+            <div class="col-md-2 col-6">
+                <select name="status" id="statusSelect" class="form-select">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="1" th:selected="${param.status != null && param.status[0] == '1'}">Hoạt động</option>
+                    <option value="0" th:selected="${param.status != null && param.status[0] == '0'}">Không hoạt động</option>
+                </select>
+            </div>
+
+            <!-- Nút Tìm và Reset -->
+            <div class="col-md-2 col-12">
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary" title="Tìm kiếm">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button type="button" id="resetBtn" class="btn btn-outline-secondary" title="Xóa bộ lọc">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Active filters -->
+        <div id="activeFilters" class="mt-2" style="display: none;">
+            <small class="text-muted">
+                <i class="fas fa-filter me-1"></i>
+                Đang lọc: <span id="filterTags"></span>
+                <a href="#" class="ms-2 text-decoration-none" id="clearAllFilters">
+                    <i class="fas fa-times-circle"></i> Xóa tất cả
+                </a>
+            </small>
+        </div>
+    </div>
+
+    <!-- Bảng Bài Viết -->
+    <div class="admin-table">
+        <div class="table-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-newspaper me-2"></i>
+                Danh Sách Bài Viết
+                <span id="filterCount" class="filter-badge" style="display: none;">0</span>
+            </h5>
+            <a th:href="@{/vendor/posts/new}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Thêm Bài Viết
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>Tiêu đề</th>
+                    <th>Loại</th>
+                    <th>Ngày tạo</th>
+                    <th>Ngày cập nhật</th>
+                    <th>Trạng Thái</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${posts}">
+                    <td th:text="${post.title}">Tiêu đề bài viết</td>
+                    <td th:text="${post.type}">Loại bài viết</td>
+                    <td th:text="${post.createAt != null ? post.createAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm')) : '-'}">-</td>
+                    <td th:text="${post.updateAt != null ? post.updateAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm')) : '-'}">-</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${post.status == 1 ? 'bg-success' : 'bg-danger'}"
+                              th:text="${post.status == 1 ? 'Hoạt động' : 'Không hoạt động'}">Status</span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a th:href="@{/vendor/posts/edit/{id}(id=${post.postID})}" 
+                               class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a th:href="@{/vendor/posts/delete/{id}(id=${post.postID})}" 
+                               class="btn btn-sm btn-outline-danger" title="Xóa"
+                               onclick="return confirm('Bạn có chắc muốn xóa bài viết này?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${posts.empty}">
+                    <td colspan="6" class="text-center py-5">
+                        <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Không tìm thấy bài viết nào phù hợp với bộ lọc.</p>
+                        <button type="button" class="btn btn-outline-primary me-2" id="resetEmptyBtn">
+                            <i class="fas fa-redo me-2"></i>Xóa bộ lọc
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    <div th:replace="~{vendor/fragments/pagination :: pagination(${page}, '/vendor/posts')}"></div>
+
+    <!-- Script (giữ nguyên như admin) -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            updateActiveFilters();
+            initAutoSubmit();
+            checkResetButton();
+            initResetButtons();
+        });
+
+        function initAutoSubmit() {
+            ['statusSelect'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => setTimeout(() => document.getElementById('filterForm').submit(), 100));
+            });
+        }
+
+        function initResetButtons() {
+            document.getElementById('resetBtn')?.addEventListener('click', resetFilters);
+            document.getElementById('clearAllFilters')?.addEventListener('click', e => { e.preventDefault(); resetFilters(); });
+            document.getElementById('resetEmptyBtn')?.addEventListener('click', resetFilters);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusSelect').selectedIndex = 0;
+            window.location.href = '/vendor/posts';
+        }
+
+        function updateActiveFilters() {
+            const search = document.getElementById('searchInput').value.trim();
+            const statusSelect = document.getElementById('statusSelect');
+            const filters = [];
+            let count = 0;
+
+            if (search) { filters.push(`<span class="badge bg-info me-1">Từ khóa: "${search}"</span>`); count++; }
+            if (statusSelect.value) { filters.push(`<span class="badge bg-warning text-dark me-1">Trạng thái: ${statusSelect.options[statusSelect.selectedIndex].text}</span>`); count++; }
+
+            const activeDiv = document.getElementById('activeFilters');
+            const tagsSpan = document.getElementById('filterTags');
+            const countBadge = document.getElementById('filterCount');
+
+            if (filters.length > 0) {
+                activeDiv.style.display = 'block';
+                tagsSpan.innerHTML = filters.join('');
+                countBadge.style.display = 'inline-block';
+                countBadge.textContent = count;
+            } else {
+                activeDiv.style.display = 'none';
+                countBadge.style.display = 'none';
+            }
+        }
+
+        function checkResetButton() {
+            const hasFilters = window.location.search.length > 0;
+            const resetBtn = document.getElementById('resetBtn');
+            if (hasFilters && resetBtn) { resetBtn.classList.add('btn-warning'); resetBtn.classList.remove('btn-outline-secondary'); }
+        }
+
+        document.getElementById('searchInput')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('filterForm').submit(); }
+        });
+    </script>
+</div>
+</body>
+</html>

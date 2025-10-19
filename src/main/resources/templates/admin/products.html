@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Quản Lý Sản Phẩm - WomTech Admin</title>
+    <link rel="stylesheet" href="/css/admin/products.css">
+</head>
+<body>
+<h1 layout:fragment="page-title">Quản Lý Sản Phẩm</h1>
+
+<div layout:fragment="content">
+
+    <!-- 🔍 Thanh tìm kiếm và bộ lọc -->
+    <div class="filter-bar mb-3">
+        <form id="filterForm" th:action="@{/admin/products}" method="get" class="row g-2 align-items-end">
+
+            <!-- Ô tìm kiếm -->
+            <div class="col-md-3 col-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" 
+                           name="search" 
+                           id="searchInput"
+                           class="form-control border-start-0" 
+                           placeholder="Tìm theo tên hoặc ID..."
+                           th:value="${param.search}"
+                           autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Lọc theo danh mục -->
+            <div class="col-md-2 col-6">
+                <select name="categoryId" 
+                        id="categoryId" 
+                        class="form-select">
+                    <option value="">-- Danh mục --</option>
+                    <option th:each="cat : ${categories}" 
+                            th:value="${cat.categoryID}" 
+                            th:text="${cat.name}"
+                            th:selected="${param.categoryId != null && param.categoryId[0] == cat.categoryID.toString()}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- Lọc theo danh mục con -->
+            <div class="col-md-2 col-6">
+                <select name="subcategoryId" 
+                        id="subcategoryId" 
+                        class="form-select">
+                    <option value="">-- Danh mục con --</option>
+                    <option th:each="sub : ${subcategories}" 
+                            th:value="${sub.subcategoryID}" 
+                            th:text="${sub.name}"
+                            th:selected="${param.subcategoryId != null && param.subcategoryId[0] == sub.subcategoryID.toString()}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- Lọc theo thương hiệu -->
+            <div class="col-md-2 col-6">
+                <select name="brandId" 
+                        id="brandId"
+                        class="form-select">
+                    <option value="">-- Thương hiệu --</option>
+                    <option th:each="brand : ${brands}" 
+                            th:value="${brand.brandID}" 
+                            th:text="${brand.name}"
+                            th:selected="${param.brandId != null && param.brandId[0] == brand.brandID.toString()}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- Lọc theo trạng thái -->
+            <div class="col-md-2 col-6">
+                <select name="status" 
+                        id="statusSelect"
+                        class="form-select">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="1" th:selected="${param.status != null && param.status[0] == '1'}">Hoạt động</option>
+                    <option value="2" th:selected="${param.status != null && param.status[0] == '2'}">Hết hàng</option>
+                    <option value="0" th:selected="${param.status != null && param.status[0] == '0'}">Ẩn</option>
+                </select>
+            </div>
+
+            <!-- Nút Tìm và Reset -->
+            <div class="col-md-1 col-12">
+                <div class="action-buttons">
+                    <button type="submit" 
+                            class="btn btn-primary" 
+                            title="Tìm kiếm">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button type="button" 
+                            id="resetBtn"
+                            class="btn btn-outline-secondary" 
+                            title="Xóa bộ lọc">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Hiển thị các bộ lọc đang active -->
+        <div id="activeFilters" class="mt-2" style="display: none;">
+            <small class="text-muted">
+                <i class="fas fa-filter me-1"></i>
+                Đang lọc: <span id="filterTags"></span>
+                <a href="#" class="ms-2 text-decoration-none" id="clearAllFilters">
+                    <i class="fas fa-times-circle"></i> Xóa tất cả
+                </a>
+            </small>
+        </div>
+    </div>
+
+    <!-- Bảng hiển thị sản phẩm -->
+    <div class="admin-table">
+        <div class="table-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-box me-2"></i>
+                Danh Sách Sản Phẩm
+                <span id="filterCount" class="filter-badge" style="display: none;">0</span>
+            </h5>
+            <a href="/admin/products/new" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Thêm Sản Phẩm Mới
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th style="width: 80px;">Hình</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Danh Mục</th>
+                    <th>Thương Hiệu</th>
+                    <th>Giá Gốc</th>
+                    <th>Giá KM</th>
+                    <th>Trạng Thái</th>
+                    <th style="width: 140px;">Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td>
+                        <img th:if="${product.thumbnail != null && !product.thumbnail.isEmpty()}"
+                             th:src="${product.thumbnail}" alt="Product"
+                             class="product-thumbnail">
+                        <div th:if="${product.thumbnail == null || product.thumbnail.isEmpty()}"
+                             class="product-thumbnail-placeholder">
+                            <i class="fas fa-image fa-2x text-muted"></i>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="product-name">
+                            <strong th:text="${product.name}">Product Name</strong>
+                        </div>
+                        <small class="product-id">
+                            <code th:text="${#strings.abbreviate(product.productID, 20)}">ID</code>
+                        </small>
+                    </td>
+                    <td>
+                        <div class="category-badges">
+                            <span class="badge bg-primary mb-1"
+                                  th:text="${product.subcategory.category.name}">Category</span>
+                            <br>
+                            <small class="subcategory-name" th:text="${product.subcategory.name}">Subcategory</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary" th:text="${product.brand.name}">Brand</span>
+                    </td>
+                    <td>
+                        <strong class="product-price"
+                                th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
+                    </td>
+                    <td>
+                        <div th:if="${product.discount_price != null}" class="discount-info">
+                            <strong class="discount-price"
+                                    th:text="${#numbers.formatDecimal(product.discount_price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
+                            <br>
+                            <small class="badge bg-danger discount-badge">
+                                -<span th:text="${#numbers.formatDecimal((1 - product.discount_price.doubleValue() / product.price.doubleValue()) * 100, 0, 0)}">0</span>%
+                            </small>
+                        </div>
+                        <span th:if="${product.discount_price == null}" class="text-muted">-</span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${product.status == 1 ? 'bg-success' : (product.status == 2 ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${product.status == 1 ? 'Hoạt động' : (product.status == 2 ? 'Hết hàng' : 'Ẩn')}">
+                            Status
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a th:href="@{/admin/specifications/product/{id}(id=${product.productID})}"
+                               class="btn btn-sm btn-outline-info" title="Xem thông số kỹ thuật">
+                                <i class="fas fa-clipboard-list"></i>
+                            </a>
+                            <a th:href="@{/admin/products/edit/{id}(id=${product.productID})}"
+                               class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a th:href="@{/admin/products/delete/{id}(id=${product.productID})}"
+                               class="btn btn-sm btn-outline-danger" title="Xóa"
+                               onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${products.empty}">
+                    <td colspan="8" class="text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</p>
+                        <button type="button" class="btn btn-outline-primary me-2" id="resetEmptyBtn">
+                            <i class="fas fa-redo me-2"></i>Xóa bộ lọc
+                        </button>
+                        <a href="/admin/products/new" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Thêm Sản Phẩm
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Phân trang -->
+    <div th:replace="~{admin/fragments/pagination :: pagination(${page}, '/admin/products')}"></div>
+    
+    <!-- Script cải tiến -->
+    <script th:inline="javascript">
+        // Dữ liệu subcategories theo category (được render từ server)
+        const subcategoriesData = /*[[${subcategoriesMap}]]*/ {};
+        
+        // Khởi tạo khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateActiveFilters();
+            initCategoryChange();
+            initAutoSubmit();
+            checkResetButton();
+            initResetButtons();
+        });
+
+        // Khởi tạo tất cả nút reset
+        function initResetButtons() {
+            // Nút reset chính
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', resetFilters);
+            }
+
+            // Link "Xóa tất cả" trong active filters
+            const clearAllBtn = document.getElementById('clearAllFilters');
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    resetFilters();
+                });
+            }
+
+            // Nút reset khi không có kết quả
+            const resetEmptyBtn = document.getElementById('resetEmptyBtn');
+            if (resetEmptyBtn) {
+                resetEmptyBtn.addEventListener('click', resetFilters);
+            }
+        }
+
+        // Xử lý thay đổi category
+        function initCategoryChange() {
+            const categorySelect = document.getElementById('categoryId');
+            const subcategorySelect = document.getElementById('subcategoryId');
+            
+            if (!categorySelect || !subcategorySelect) return;
+
+            categorySelect.addEventListener('change', function() {
+                const categoryId = this.value;
+                
+                // Reset subcategory
+                subcategorySelect.innerHTML = '<option value="">-- Danh mục con --</option>';
+                
+                if (categoryId && subcategoriesData && subcategoriesData[categoryId]) {
+                    // Nếu có dữ liệu subcategories từ server
+                    subcategoriesData[categoryId].forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub.id;
+                        option.textContent = sub.name;
+                        subcategorySelect.appendChild(option);
+                    });
+                    subcategorySelect.disabled = false;
+                } else if (categoryId) {
+                    // Fallback: tải subcategories qua AJAX
+                    loadSubcategories(categoryId);
+                } else {
+                    subcategorySelect.disabled = true;
+                }
+            });
+        }
+
+        // Tải subcategories qua AJAX
+        function loadSubcategories(categoryId) {
+            const subcategorySelect = document.getElementById('subcategoryId');
+            subcategorySelect.disabled = true;
+            
+            fetch(`/api/categories/${categoryId}/subcategories`)
+                .then(response => response.json())
+                .then(data => {
+                    subcategorySelect.innerHTML = '<option value="">-- Danh mục con --</option>';
+                    data.forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub.subcategoryID;
+                        option.textContent = sub.name;
+                        subcategorySelect.appendChild(option);
+                    });
+                    subcategorySelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading subcategories:', error);
+                    subcategorySelect.disabled = false;
+                });
+        }
+
+        // Auto submit khi thay đổi select (trừ search input)
+        function initAutoSubmit() {
+            const selects = ['categoryId', 'subcategoryId', 'brandId', 'statusSelect'];
+            selects.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', function() {
+                        // Delay nhỏ để UX tốt hơn
+                        setTimeout(() => {
+                            document.getElementById('filterForm').submit();
+                        }, 100);
+                    });
+                }
+            });
+        }
+
+        // Reset tất cả bộ lọc
+        function resetFilters() {
+            // Xóa tất cả giá trị
+            const searchInput = document.getElementById('searchInput');
+            const categorySelect = document.getElementById('categoryId');
+            const subcategorySelect = document.getElementById('subcategoryId');
+            const brandSelect = document.getElementById('brandId');
+            const statusSelect = document.getElementById('statusSelect');
+            
+            if (searchInput) searchInput.value = '';
+            if (categorySelect) categorySelect.selectedIndex = 0;
+            if (subcategorySelect) {
+                subcategorySelect.selectedIndex = 0;
+                subcategorySelect.disabled = true;
+            }
+            if (brandSelect) brandSelect.selectedIndex = 0;
+            if (statusSelect) statusSelect.selectedIndex = 0;
+            
+            // Redirect về trang products không có params
+            window.location.href = '/admin/products';
+        }
+
+        // Hiển thị các filter đang active
+        function updateActiveFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const categorySelect = document.getElementById('categoryId');
+            const subcategorySelect = document.getElementById('subcategoryId');
+            const brandSelect = document.getElementById('brandId');
+            const statusSelect = document.getElementById('statusSelect');
+            
+            const filters = [];
+            let count = 0;
+
+            if (searchInput && searchInput.value.trim()) {
+                filters.push(`<span class="badge bg-info me-1">Từ khóa: "${searchInput.value.trim()}"</span>`);
+                count++;
+            }
+
+            if (categorySelect && categorySelect.value) {
+                const text = categorySelect.options[categorySelect.selectedIndex].text;
+                filters.push(`<span class="badge bg-primary me-1">Danh mục: ${text}</span>`);
+                count++;
+            }
+
+            if (subcategorySelect && subcategorySelect.value) {
+                const text = subcategorySelect.options[subcategorySelect.selectedIndex].text;
+                filters.push(`<span class="badge bg-primary me-1">DM Con: ${text}</span>`);
+                count++;
+            }
+
+            if (brandSelect && brandSelect.value) {
+                const text = brandSelect.options[brandSelect.selectedIndex].text;
+                filters.push(`<span class="badge bg-secondary me-1">Thương hiệu: ${text}</span>`);
+                count++;
+            }
+
+            if (statusSelect && statusSelect.value) {
+                const text = statusSelect.options[statusSelect.selectedIndex].text;
+                filters.push(`<span class="badge bg-warning text-dark me-1">Trạng thái: ${text}</span>`);
+                count++;
+            }
+
+            // Hiển thị hoặc ẩn filter tags
+            const activeFiltersDiv = document.getElementById('activeFilters');
+            const filterTagsSpan = document.getElementById('filterTags');
+            const filterCountBadge = document.getElementById('filterCount');
+
+            if (filters.length > 0) {
+                activeFiltersDiv.style.display = 'block';
+                filterTagsSpan.innerHTML = filters.join('');
+                filterCountBadge.style.display = 'inline-block';
+                filterCountBadge.textContent = count;
+            } else {
+                activeFiltersDiv.style.display = 'none';
+                filterCountBadge.style.display = 'none';
+            }
+        }
+
+        // Kiểm tra và hiển thị reset button
+        function checkResetButton() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasFilters = urlParams.toString().length > 0;
+            const resetBtn = document.getElementById('resetBtn');
+            
+            if (hasFilters && resetBtn) {
+                resetBtn.classList.add('btn-warning');
+                resetBtn.classList.remove('btn-outline-secondary');
+            }
+        }
+
+        // Enter key để submit form
+        document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('filterForm').submit();
+            }
+        });
+    </script>
+</div>
+
+</body>
+</html>

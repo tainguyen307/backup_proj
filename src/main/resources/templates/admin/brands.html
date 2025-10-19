@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{admin/layout}">
+<head>
+<title>Quản Lý Thương Hiệu - WomTech Admin</title>
+<link rel="stylesheet" href="/css/admin/brands.css">
+
+</head>
+<body>
+	<h1 layout:fragment="page-title">Quản Lý Thương Hiệu</h1>
+
+	<div layout:fragment="content">
+		<div class="admin-table">
+			<div
+				class="table-header d-flex justify-content-between align-items-center">
+				<h5 class="mb-0">
+					<i class="fas fa-tags me-2"></i> Danh Sách Thương Hiệu
+				</h5>
+				<a href="/admin/brands/new" class="btn btn-success"> <i
+					class="fas fa-plus me-2"></i>Thêm Thương Hiệu Mới
+				</a>
+			</div>
+
+			<div class="table-responsive">
+				<table class="table mb-0">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Tên Thương Hiệu</th>
+							<th>Trạng Thái</th>
+							<th>Thao Tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="brand : ${brands}">
+							<td><code
+									th:text="${#strings.abbreviate(brand.brandID, 12)}">ID</code></td>
+							<td><strong th:text="${brand.name}">Brand Name</strong></td>
+							<td><span class="badge"
+								th:classappend="${brand.status == 1 ? 'bg-success' : 'bg-danger'}"
+								th:text="${brand.status == 1 ? 'Hoạt động' : 'Ẩn'}">
+									Active </span></td>
+							<td>
+								<div class="btn-group">
+									<a th:href="@{/admin/brands/edit/{id}(id=${brand.brandID})}"
+										class="btn btn-sm btn-outline-primary"> <i
+										class="fas fa-edit"></i> Chỉnh sửa
+									</a> <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandID})}"
+										class="btn btn-sm btn-outline-danger"
+										onclick="return confirm('Bạn có chắc muốn xóa thương hiệu này?')">
+										<i class="fas fa-trash"></i> Xóa
+									</a>
+								</div>
+							</td>
+						</tr>
+						<tr th:if="${brands.empty}">
+							<td colspan="4" class="text-center py-5"><i
+								class="fas fa-tags fa-3x text-muted mb-3"></i>
+								<p class="text-muted">Chưa có thương hiệu nào. Hãy thêm
+									thương hiệu đầu tiên!</p> <a href="/admin/brands/new"
+								class="btn btn-success"> <i class="fas fa-plus me-2"></i>Thêm
+									Thương Hiệu
+							</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>			
+		</div>
+		<div th:if="${error}"
+				class="alert alert-info alert-dismissible fade show" role="alert">
+				<span th:text="${error}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert"
+					aria-label="Close"></button>
+			</div>
+			<!-- Pagination -->
+            <div th:replace="~{admin/fragments/pagination :: pagination(${page}, '/admin/brands')}"></div>
+	</div>
+	
+</body>
+</html>

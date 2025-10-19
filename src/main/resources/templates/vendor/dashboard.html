@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{vendor/layout}">
+<head>
+    <title>Dashboard - Vendor Panel</title>
+    <link rel="stylesheet" href="/css/vendor/dashboard.css">
+</head>
+<body>
+    <h1 layout:fragment="page-title">Dashboard</h1>
+    
+    <div layout:fragment="content">
+        <!-- Welcome Section -->
+        <div class="mb-4">
+            <h2>Xin chào, <span th:text="${currentUser.username}">Vendor</span>! 👋</h2>
+            <p class="text-muted">Chào mừng bạn đến với trang quản lý sản phẩm của mình.</p>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white;">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalProducts}">0</div>
+                    <div class="stat-label">Tổng Sản Phẩm</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #34d399); color: white;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalOrders}">0</div>
+                    <div class="stat-label">Tổng Đơn Hàng</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #34d399); color: white;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-value" th:text="${activeProducts}">0</div>
+                    <div class="stat-label">Đang Hoạt Động</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-value" th:text="${outOfStockProducts}">0</div>
+                    <div class="stat-label">Hết Hàng</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white;">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-value" th:text="${#numbers.formatDecimal(totalValue, 0, 'COMMA', 0, 'POINT')}">0</div>
+                    <div class="stat-label">Tổng Giá Trị (₫)</div>
+                </div>
+            </div>
+        </div>
+        <!-- Quick Actions -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-12">
+                <div class="admin-table">
+                    <div class="table-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>
+                            Thao Tác Nhanh
+                        </h5>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <a href="/vendor/orders" class="btn btn-primary w-100">
+                                    <i class="fas fa-shopping-cart me-2"></i>Quản Lý Đơn Hàng
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="/vendor/products" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-box me-2"></i>Quản Lý Sản Phẩm
+                                </a>
+                            </div>                        
+                            <div class="col-md-3">
+                                <a href="/vendor/revenue" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-chart-line me-2"></i>Báo Cáo Doanh Thu
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 	
+        <!-- Recent Orders -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-12">
+                <div class="admin-table">
+                    <div class="table-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            Đơn Hàng Gần Đây
+                        </h5>
+                        <a href="/vendor/orders" class="btn btn-sm btn-outline-primary">
+                            Xem Tất Cả <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Mã Đơn</th>
+                                    <th>Khách Hàng</th>
+                                    <th>Tổng Tiền</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Ngày Đặt</th>
+                                    <th>Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="order : ${recentOrders}">
+                                    <td>
+                                        <strong th:text="${order.orderID}">ORD-UUID</strong>
+                                    </td>
+                                    <td>
+                                        <div th:text="${order.user.username}">Username</div>
+                                        <small class="text-muted" th:text="${order.user.email}">Email</small>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${OrderStatusHelper.getStatusBadgeClass(order.status)}"
+                                              th:text="${OrderStatusHelper.getStatusLabel(order.status)}">
+                                            Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small th:text="${#temporals.format(order.createAt, 'dd/MM/yyyy HH:mm')}">Date</small>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/vendor/orders/{id}(id=${order.orderID})}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Xem
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${recentOrders.empty}">
+                                    <td colspan="6" class="text-center py-5">
+                                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Chưa có đơn hàng nào</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Recent Products -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="admin-table">
+                    <div class="table-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clock me-2"></i>
+                            Sản Phẩm Gần Đây
+                        </h5>
+                        <a href="/vendor/products" class="btn btn-sm btn-outline-primary">
+                            Xem Tất Cả <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">Hình</th>
+                                    <th>Tên Sản Phẩm</th>
+                                    <th>Danh Mục</th>
+                                    <th>Thương Hiệu</th>
+                                    <th>Giá</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="product : ${recentProducts}">
+                                    <td>
+                                        <img th:if="${product.thumbnail != null && !product.thumbnail.isEmpty()}" 
+                                             th:src="${product.thumbnail}" 
+                                             alt="Product" 
+                                             class="rounded" 
+                                             style="width: 60px; height: 60px; object-fit: cover;">
+                                        <div th:if="${product.thumbnail == null || product.thumbnail.isEmpty()}" 
+                                             class="bg-light rounded d-flex align-items-center justify-content-center"
+                                             style="width: 60px; height: 60px;">
+                                            <i class="fas fa-image fa-2x text-muted"></i>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong th:text="${product.name}">Product Name</strong>
+                                        </div>
+                                        <small class="text-muted" th:text="${'ID: ' + #strings.abbreviate(product.productID, 20)}">
+                                            ID
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <span class="badge bg-primary" 
+                                                  th:text="${product.subcategory.category.name}">
+                                                Category
+                                            </span>
+                                        </div>
+                                        <small class="text-muted" th:text="${product.subcategory.name}">
+                                            Subcategory
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary" 
+                                              th:text="${product.brand.name}">
+                                            Brand
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div th:if="${product.discount_price != null}">
+                                            <strong class="text-danger"
+                                                    th:text="${#numbers.formatDecimal(product.discount_price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                                0 ₫
+                                            </strong>
+                                            <br>
+                                            <small>
+                                                <del class="text-muted" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</del>
+                                            </small>
+                                        </div>
+                                        <strong th:if="${product.discount_price == null}"
+                                                th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                            0 ₫
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${product.status == 1 ? 'bg-success' : (product.status == 2 ? 'bg-warning' : 'bg-danger')}"
+                                              th:text="${product.status == 1 ? 'Hoạt động' : (product.status == 2 ? 'Hết hàng' : 'Ẩn')}">
+                                            Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a th:href="@{/vendor/specifications/product/{id}(id=${product.productID})}" 
+                                               class="btn btn-sm btn-outline-info"
+                                               title="Thông số kỹ thuật">
+                                                <i class="fas fa-clipboard-list"></i>
+                                            </a>
+                                            <a th:href="@{/vendor/products/edit/{id}(id=${product.productID})}" 
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${recentProducts.empty}">
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Bạn chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên!</p>
+                                        <a href="/vendor/products/new" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Thêm Sản Phẩm
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

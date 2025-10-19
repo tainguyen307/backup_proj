@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xác minh OTP - WomTech.com</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link th:href="@{/css/auth/login.css}" rel="stylesheet">
+  <style>
+    .otp-input { text-align:center; letter-spacing:0.4rem; font-size:1.25rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card login-card">
+        <div class="card-body p-5">
+          <!-- Logo -->
+          <div class="text-center mb-4">
+            <h2 class="text-primary mb-3">
+              <i class="bi bi-laptop me-2"></i>WomTech.com
+            </h2>
+            <h4 class="text-muted">Xác minh OTP</h4>
+          </div>
+
+          <!-- Flash -->
+          <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <div class="alert alert-light border d-flex align-items-center" role="alert">
+            <i class="bi bi-envelope-check me-2"></i>
+            <div>
+              Mã OTP đã được gửi đến: <strong th:text="${email}">your@email.com</strong>.
+              Vui lòng kiểm tra hộp thư (cả Spam/Quảng cáo).
+            </div>
+          </div>
+
+          <!-- Form: OTP -->
+          <form th:action="@{/auth/forgot/verify}" method="post" novalidate>
+            <!-- CSRF nếu bật -->
+            <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/> -->
+
+            <div class="mb-3">
+              <label class="form-label" for="otp">Nhập mã OTP 6 số</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                <input type="text" id="otp" name="otp" maxlength="6" pattern="[0-9]*" inputmode="numeric"
+                       class="form-control otp-input" placeholder="••••••" required>
+              </div>
+              <div class="form-text">
+                Mã hết hạn sau <span id="countdown">15:00</span>. Bạn còn <span th:text="${attemptsLeft ?: 5}">5</span> lần thử.
+              </div>
+            </div>
+
+            <div class="d-grid mb-3">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check2-circle me-2"></i>Tiếp tục
+              </button>
+            </div>
+          </form>
+
+          <!-- Actions -->
+          <div class="d-flex justify-content-between align-items-center">
+            <a th:href="@{/auth/forgot}" class="text-decoration-none">
+              <i class="bi bi-arrow-repeat me-1"></i>Gửi lại OTP
+            </a>
+            <a th:href="@{/auth/login}" class="text-decoration-none text-muted">
+              <i class="bi bi-box-arrow-in-left me-1"></i>Đăng nhập
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Đếm ngược 15 phút (900s). Bạn có thể render số giây còn lại từ server nếu muốn chính xác.
+(function(){
+  var seconds = 900;
+  var el = document.getElementById('countdown');
+  function tick(){
+    var m = Math.floor(seconds/60);
+    var s = seconds%60;
+    el.textContent = (m<10?'0':'')+m+':' + (s<10?'0':'')+s;
+    if (seconds>0) { seconds--; setTimeout(tick, 1000); }
+  }
+  if (el) tick();
+})();
+</script>
+</body>
+</html>

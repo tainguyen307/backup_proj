@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập - WomTech.com</title>
+
+<!-- Bootstrap -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+	rel="stylesheet">
+
+<!-- Custom CSS -->
+<link th:href="@{/css/auth/login.css}" rel="stylesheet">
+
+<!-- JavaScript để force clear cookies -->
+<script>
+	// Force clear cookies khi trang login được load
+	document
+			.addEventListener(
+					'DOMContentLoaded',
+					function() {
+						// Xóa tất cả cookies liên quan đến authentication
+						const cookiesToDelete = [ 'AT', 'RT', 'WOM_REMEMBER',
+								'JSESSIONID' ];
+
+						cookiesToDelete
+								.forEach(function(cookieName) {
+									// Xóa với path "/"
+									document.cookie = cookieName
+											+ '=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict';
+									// Xóa với domain "localhost"
+									document.cookie = cookieName
+											+ '=; Path=/; Max-Age=0; Domain=localhost; HttpOnly';
+									// Xóa với domain ".localhost"
+									document.cookie = cookieName
+											+ '=; Path=/; Max-Age=0; Domain=.localhost; HttpOnly';
+									// Xóa với Expires header
+									document.cookie = cookieName
+											+ '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly';
+								});
+
+						console.log('Authentication cookies cleared');
+					});
+</script>
+</head>
+<body>
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-6 col-lg-4">
+				<div class="card login-card">
+					<div class="card-body p-5">
+						<!-- Logo -->
+						<div class="text-center mb-4">
+							<h2 class="text-primary mb-3">
+								<i class="bi bi-laptop me-2"></i>WomTech.com
+							</h2>
+							<h4 class="text-muted">Đăng nhập</h4>
+						</div>
+
+						<!-- Flash Messages -->
+						<div th:if="${success}"
+							class="alert alert-success alert-dismissible fade show"
+							role="alert">
+							<i class="bi bi-check-circle me-2"></i> <span
+								th:text="${success}"></span>
+							<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+						</div>
+
+						<div th:if="${error}"
+							class="alert alert-danger alert-dismissible fade show"
+							role="alert">
+							<i class="bi bi-exclamation-triangle me-2"></i> <span
+								th:text="${error}"></span>
+							<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+						</div>
+
+						<!-- Login Form -->
+						<form th:action="@{/auth/login}" method="post">
+							<div class="mb-3">
+								<label for="username" class="form-label">Tên đăng nhập</label>
+								<div class="input-group">
+									<span class="input-group-text"><i class="bi bi-person"></i></span>
+									<input type="text" id="username" name="username"
+										class="form-control" required
+										placeholder="Nhập tên đăng nhập của bạn">
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<label for="password" class="form-label">Mật khẩu</label>
+								<div class="input-group">
+									<span class="input-group-text"><i class="bi bi-lock"></i></span>
+									<input type="password" id="password" name="password"
+										class="form-control" required placeholder="Nhập mật khẩu">
+									<button class="btn btn-outline-secondary" type="button"
+										id="togglePassword">
+										<i class="bi bi-eye"></i>
+									</button>
+								</div>
+							</div>
+
+							<!-- Quên mật khẩu -->
+							<div class="text-end mb-3">
+								<a th:href="@{/auth/forgot}" class="small text-decoration-none">Quên
+									mật khẩu?</a>
+							</div>
+
+							<div class="d-grid mb-3">
+								<button type="submit" class="btn btn-primary btn-lg">
+									<i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
+								</button>
+							</div>
+						</form>
+
+
+						<!-- Register Link -->
+						<div class="text-center">
+							<p class="mb-2">Chưa có tài khoản?</p>
+							<a th:href="@{/auth/register}" class="btn btn-outline-primary">
+								<i class="bi bi-person-plus me-2"></i>Đăng ký ngay
+							</a>
+						</div>
+
+						<!-- Back to Home -->
+						<div class="text-center mt-4">
+							<a th:href="@{/}" class="text-decoration-none text-muted"> <i
+								class="bi bi-arrow-left me-1"></i>Quay về trang chủ
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- JS -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script th:src="@{/js/auth/login.js}"></script>
+</body>
+</html>

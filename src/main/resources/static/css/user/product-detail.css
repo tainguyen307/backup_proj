@@ -1,0 +1,117 @@
+/* Main image */
+.main-image {
+    border-radius: 10px;
+    transition: transform 0.3s;
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+}
+
+.main-image:hover {
+    transform: scale(1.05);
+}
+
+/* Thumbnail list */
+.thumbnail-list {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.thumbnail-list img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s, border 0.2s;
+}
+
+.thumbnail-list img:hover {
+    transform: scale(1.1);
+    border: 2px solid #0d6efd;
+}
+
+/* Product info */
+.product-info h2 {
+    font-weight: 700;
+}
+
+.price {
+    font-size: 1.75rem;
+}
+
+.price del {
+    font-size: 1rem;
+    margin-left: 10px;
+}
+
+/* Quantity + buttons */
+.buttons-row .quantity-wrapper,
+.buttons-row .btn-modern,
+.buttons-row form button {
+    min-height: 45px; /* đồng bộ chiều cao */
+}
+
+/* Desktop: Quantity + Add to Cart cùng hàng */
+.quantity-cart-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.quantity-cart-row .quantity-wrapper {
+    flex: 1 1 150px; /* độ rộng tối thiểu 150px, tối đa co flex */
+    max-width: 50%;  /* trên desktop, quantity chiếm ~50% */
+}
+
+.quantity-cart-row .btn-modern {
+    flex: 1 1 auto; /* Add to cart sẽ mở rộng còn lại */
+}
+
+/* Favorite + Chat */
+.favorite-chat-row button {
+    flex: 1 1 50%; /* 2 nút chia đều */
+}
+
+.rating-stars {
+    direction: rtl; /* cho phép chọn sao từ phải qua trái */
+    display: inline-flex;
+    gap: 5px;
+}
+
+.rating-stars input {
+    display: none; /* ẩn radio input */
+}
+
+.rating-stars label {
+    font-size: 2rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+/* Hover effect */
+.rating-stars label:hover,
+.rating-stars label:hover ~ label {
+    color: gold;
+}
+
+/* Khi chọn */
+.rating-stars input:checked ~ label {
+    color: gold;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .quantity-cart-row, .favorite-chat-row {
+        flex-direction: column;
+    }
+    .quantity-cart-row .quantity-wrapper,
+    .quantity-cart-row .btn-modern,
+    .favorite-chat-row button {
+        width: 100%;
+        max-width: 100%;
+    }
+}

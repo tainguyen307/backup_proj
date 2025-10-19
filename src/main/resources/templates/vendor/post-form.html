@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{vendor/layout}">
+<head>
+    <title th:text="${post.postID != null} ? 'Edit Post' : 'Add Post'">Post Form</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="post-form mt-5">
+
+        <h3 th:text="${post.postID != null} ? 'Chỉnh sửa Bài viết' : 'Thêm Bài viết'">Post Form</h3>
+
+        <form th:object="${post}" 
+              th:action="@{/vendor/posts/save}" 
+              method="post" enctype="multipart/form-data">
+
+            <div class="mb-3">
+                <label for="title" class="form-label">Tiêu đề bài viết</label>
+                <input type="text" class="form-control" id="title" placeholder="Nhập tiêu đề"
+                       th:field="*{title}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="content" class="form-label">Nội dung</label>
+                <textarea class="form-control" id="content" rows="6" 
+                          placeholder="Nhập nội dung bài viết"
+                          th:field="*{content}" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="thumbnailFile" class="form-label">Thumbnail</label>
+                <input type="file" class="form-control" id="thumbnailFile" name="thumbnailFile"
+                       accept="image/*">
+                <div th:if="${post.thumbnail != null}" class="mt-2">
+                    <img th:src="@{${post.thumbnail}}" alt="Thumbnail" class="img-thumbnail" style="max-width: 200px;">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Trạng thái</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" th:field="*{status}" id="active" value="1">
+                    <label class="form-check-label" for="active">Hoạt động</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" th:field="*{status}" id="inactive" value="0">
+                    <label class="form-check-label" for="inactive">Không hoạt động</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-submit mt-3" 
+                    th:text="${post.postID != null} ? 'Cập nhật' : 'Thêm mới'">Submit</button>
+        </form>
+
+    </div>
+</div>
+</body>
+</html>

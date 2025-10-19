@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{user/layout}">
+
+<head>
+<meta charset="UTF-8">
+<title>Thanh toán - WOMTech</title>
+
+<th:block layout:fragment="css">
+	<!-- Custom CSS -->
+	<link th:href="@{/css/user/checkout.css}" rel="stylesheet">
+	<!-- Bootstrap Icons -->
+	<link
+		href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+		rel="stylesheet">
+</th:block>
+</head>
+
+<body>
+	<main layout:fragment="content" class="container py-4">
+
+		<h3 class="mb-4 text-primary fw-bold">
+			<i class="bi bi-credit-card me-2"></i>Thanh toán
+		</h3>
+
+		<div class="row g-4">
+			<!-- CỘT TRÁI: Địa chỉ & phương thức thanh toán -->
+			<div class="col-md-7">
+				<div class="card shadow-sm border-0 rounded-3">
+					<div class="card-body">
+
+						<!-- ĐỊA CHỈ -->
+						<h5 class="card-title mb-3 text-secondary">
+							<i class="bi bi-geo-alt me-1 text-primary"></i>Địa chỉ nhận hàng
+						</h5>
+
+						<!-- Dropdown chọn địa chỉ -->
+						<div th:if="${!#lists.isEmpty(addresses)}" class="mb-3">
+							<label for="selectedAddress" class="form-label fw-semibold">
+								Chọn địa chỉ: </label> <select class="form-select" id="selectedAddress"
+								name="selectedAddress">
+								<option value="" selected disabled>-- Chọn địa chỉ --</option>
+								<option th:each="addr : ${addresses}"
+									th:value="${addr.addressID}" th:selected="${addr.isDefault}"
+									th:data-fullname="${addr.fullname}"
+									th:data-phone="${addr.phone}" th:data-street="${addr.street}"
+									th:data-ward="${addr.ward}" th:data-district="${addr.district}"
+									th:data-city="${addr.city}"
+									th:text="${addr.fullname + ' - ' + addr.phone + ' | ' 
+                        + addr.street + ', ' + addr.ward + ', ' 
+                        + addr.district + ', ' + addr.city}">
+								</option>
+							</select>
+						</div>
+
+						<!-- HIỂN THỊ THÔNG TIN ĐỊA CHỈ (CHỈ XEM) -->
+						<div id="addressDisplay" class="border p-3 rounded bg-light">
+							<h6 class="text-secondary mb-3">
+								<i class="bi bi-person-vcard me-1 text-primary"></i> Thông tin
+								địa chỉ
+							</h6>
+
+							<div class="mb-2">
+								<label class="fw-semibold">Họ và tên:</label>
+								<p class="mb-0" id="displayFullname">—</p>
+							</div>
+
+							<div class="mb-2">
+								<label class="fw-semibold">Số điện thoại:</label>
+								<p class="mb-0" id="displayPhone">—</p>
+							</div>
+
+							<div class="mb-2">
+								<label class="fw-semibold">Địa chỉ:</label>
+								<p class="mb-0" id="displayStreet">—</p>
+							</div>
+
+							<div class="mb-2">
+								<label class="fw-semibold">Phường/Xã:</label>
+								<p class="mb-0" id="displayWard">—</p>
+							</div>
+
+							<div class="mb-2">
+								<label class="fw-semibold">Quận/Huyện:</label>
+								<p class="mb-0" id="displayDistrict">—</p>
+							</div>
+
+							<div class="mb-2">
+								<label class="fw-semibold">Tỉnh/Thành phố:</label>
+								<p class="mb-0" id="displayCity">—</p>
+							</div>
+						</div>
+						<div class="d-flex justify-content-end mt-3">
+							<a th:href="@{user/profile?tab=address}"
+								class="btn btn-outline-primary btn-sm"> <i
+								class="bi bi-pencil-square"></i> Chỉnh sửa địa chỉ
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+			<!-- CỘT PHẢI: Đơn hàng -->
+			<div class="col-md-5">
+				<div class="card shadow-sm border-0 rounded-3">
+					<div class="card-body">
+						<h5 class="card-title mb-3 text-secondary">
+							<i class="bi bi-bag-check me-1 text-primary"></i>Đơn hàng của bạn
+						</h5>
+
+						<!-- DANH SÁCH SẢN PHẨM -->
+						<div class="cart-items-container"
+							style="max-height: 300px; overflow-y: auto;">
+							<div th:each="item : ${cart.items}"
+								class="d-flex align-items-center mb-3 border-bottom pb-2">
+								<img th:src="@{${item.product.thumbnail}}" class="rounded"
+									alt="Sản phẩm"
+									style="width: 60px; height: 60px; object-fit: cover;">
+								<div class="ms-3 flex-grow-1">
+									<p class="mb-0 fw-semibold" th:text="${item.product.name}"></p>
+									<small class="text-muted">Số lượng: <span
+										th:text="${item.quantity}"></span>
+									</small>
+								</div>
+								<div class="text-end">
+									<p class="mb-0 fw-bold text-primary"
+										th:text="${#numbers.formatDecimal(item.itemTotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></p>
+								</div>
+							</div>
+						</div>
+
+						<hr class="my-3">
+
+						<!-- MÃ GIẢM GIÁ -->
+						<div class="input-group mb-3">
+							<input type="text" id="voucherCode" name="voucher"
+								class="form-control" placeholder="Nhập mã giảm giá">
+							<button class="btn btn-outline-primary" type="button"
+								id="applyVoucher">
+								<i class="bi bi-percent"></i> Áp dụng
+							</button>
+						</div>
+
+						<!-- PHƯƠNG THỨC THANH TOÁN -->
+						<div class="mt-4">
+							<h6 class="text-secondary fw-semibold mb-2">
+								<i class="bi bi-wallet2 me-1 text-primary"></i>Phương thức thanh
+								toán
+							</h6>
+
+							<div class="form-check mb-2">
+								<input class="form-check-input" type="radio"
+									name="payment_method" id="cod" value="COD" checked> <label
+									class="form-check-label" for="cod"> <i
+									class="bi bi-truck me-1"></i> Thanh toán khi nhận hàng (COD)
+								</label>
+							</div>
+
+							<div class="form-check mb-2">
+								<input class="form-check-input" type="radio"
+									name="payment_method" id="bank" value="BANK"> <label
+									class="form-check-label" for="bank"> <i
+									class="bi bi-bank me-1"></i> Chuyển khoản ngân hàng
+								</label>
+							</div>
+
+							<div class="form-check mb-3">
+								<input class="form-check-input" type="radio"
+									name="payment_method" id="momo" value="MOMO"> <label
+									class="form-check-label" for="momo"> <i
+									class="bi bi-phone-vibrate me-1"></i> Ví MoMo
+								</label>
+							</div>
+						</div>
+
+						<hr class="my-3">
+
+						<!-- TỔNG KẾT GIÁ -->
+						<div class="order-summary mb-3">
+							<div class="d-flex justify-content-between">
+								<span>Tạm tính:</span> <span
+									th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+							</div>
+							<div class="d-flex justify-content-between text-success">
+								<span>Giảm giá:</span> <span
+									th:text="${discount != null ? '-' + #numbers.formatDecimal(discount, 0, 'COMMA', 0, 'POINT') + ' ₫' : '- 0 ₫'}"></span>
+							</div>
+							<div class="d-flex justify-content-between text-muted">
+								<span>Phí vận chuyển:</span> <span
+									th:text="${shippingFee != null ? #numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT') + ' ₫' : 'Miễn phí'}"></span>
+							</div>
+							<hr class="my-2">
+							<div class="d-flex justify-content-between fw-bold">
+								<span>Tổng cộng:</span> <span class="text-danger fs-5"
+									th:text="${#numbers.formatDecimal(totalPrice - (discount != null ? discount : 0) + (shippingFee != null ? shippingFee : 0), 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+							</div>
+						</div>
+
+						<!-- NÚT ĐẶT HÀNG -->
+						<form th:action="@{/checkout/confirm}" method="post"
+							id="checkoutForm">
+							<input type="hidden" name="payment_method" id="selectedPayment">
+							<input type="hidden" name="selectedAddressId"
+								id="selectedAddressId">
+							<input type="hidden"
+								name="voucherCode" id="voucherHidden">
+
+							<button type="submit"
+								class="btn btn-primary w-100 rounded-pill py-2 fw-bold">
+								<i class="bi bi-bag-check-fill me-1"></i>Đặt hàng
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</main>
+
+	<th:block layout:fragment="scripts">
+		<script th:src="@{/js/user/checkout.js}"></script>
+	</th:block>
+
+</body>
+</html>

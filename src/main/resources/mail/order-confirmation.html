@@ -1,0 +1,30 @@
+<h2 style="font-size: 20px; color: #1f2937;">Cảm ơn ${username} đã
+	đặt hàng!</h2>
+
+<p>
+	<b>Mã đơn hàng:</b> ${orderCode}
+</p>
+<p>${deliveryEstimate}</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0"
+	style="border-collapse: collapse; margin: 16px 0; border: 1px solid #e5e7eb;">
+	<thead style="background: #f9fafb;">
+		<tr>
+			<th align="left" style="padding: 8px; border: 1px solid #e5e7eb;">Sản
+				phẩm</th>
+			<th align="left" style="padding: 8px; border: 1px solid #e5e7eb;">SL</th>
+			<th align="left" style="padding: 8px; border: 1px solid #e5e7eb;">Giá</th>
+		</tr>
+	</thead>
+	<tbody>${itemsTable}
+	</tbody>
+</table>
+
+<p style="font-size: 16px; font-weight: 600; margin-top: 12px;">
+	Tổng thanh toán: <span style="color: #2563eb;">${total}</span>
+</p>
+
+<p>
+	Cảm ơn bạn đã mua sắm tại <b>WOMTech</b>! Chúng tôi sẽ sớm giao hàng
+	đến bạn.
+</p>

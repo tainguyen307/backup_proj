@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title th:text="${subcategory.subcategoryID != null ? 'Chỉnh Sửa Danh Mục Con' : 'Thêm Danh Mục Con Mới'}">Subcategory Form</title>
+</head>
+<body>
+    <h1 layout:fragment="page-title" 
+        th:text="${subcategory.subcategoryID != null ? 'Chỉnh Sửa Danh Mục Con' : 'Thêm Danh Mục Con Mới'}">
+        Subcategory Form
+    </h1>
+    
+    <div layout:fragment="content">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin/categories">
+                        <i class="fas fa-th-large me-2"></i>Danh Mục
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a th:href="@{/admin/subcategories/category/{id}(id=${category.categoryID})}"
+                       th:text="${category.name}">
+                        Category
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span th:text="${subcategory.subcategoryID != null ? 'Chỉnh Sửa' : 'Thêm Mới'}">Form</span>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="stat-card">
+                    <form th:action="@{/admin/subcategories/save}" method="post" th:object="${subcategory}">
+                        <input type="hidden" th:field="*{subcategoryID}">
+                        <input type="hidden" th:field="*{category.categoryID}">
+                        
+                        <!-- Parent Category Info -->
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Danh Mục Cha:</strong> 
+                            <span th:text="${category.name}">Category Name</span>
+                        </div>
+                        
+                        <!-- Subcategory Name -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                <i class="fas fa-tag me-2"></i>Tên Danh Mục Con *
+                            </label>
+                            <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                   placeholder="Nhập tên danh mục con..." required>
+                            <small class="text-muted">
+                                Tên danh mục con nên cụ thể và mô tả rõ loại sản phẩm
+                            </small>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-toggle-on me-2"></i>Trạng Thái
+                            </label>
+                            <select class="form-select" id="status" th:field="*{status}" required>
+                                <option value="1">Hoạt động</option>
+                                <option value="0">Ẩn</option>
+                            </select>
+                            <small class="text-muted">Chọn "Ẩn" nếu muốn tạm thời ẩn danh mục con này</small>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/admin/subcategories/category/{id}(id=${category.categoryID})}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                <span th:text="${subcategory.subcategoryID != null ? 'Cập Nhật' : 'Tạo Mới'}">Lưu</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h6 class="mb-3">
+                        <i class="fas fa-info-circle me-2"></i>Hướng Dẫn
+                    </h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Tên danh mục con nên cụ thể
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Mỗi danh mục có thể có nhiều danh mục con
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Danh mục con giúp phân loại sản phẩm chi tiết hơn
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Trạng thái "Ẩn" sẽ ẩn sản phẩm thuộc danh mục này
+                        </li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>Ví Dụ cho <span th:text="${category.name}">Category</span>
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary" th:if="${category.name == 'Laptop'}">Laptop Gaming</span>
+                        <span class="badge bg-primary" th:if="${category.name == 'Laptop'}">Laptop Văn Phòng</span>
+                        <span class="badge bg-primary" th:if="${category.name == 'Laptop'}">Ultrabook</span>
+                        <span class="badge bg-primary" th:if="${category.name == 'Laptop'}">Workstation</span>
+                        
+                        <span class="badge bg-primary" th:if="${category.name == 'Desktop'}">PC Gaming</span>
+                        <span class="badge bg-primary" th:if="${category.name == 'Desktop'}">PC Văn Phòng</span>
+                        <span class="badge bg-primary" th:if="${category.name == 'Desktop'}">Workstation</span>
+                        
+                        <span class="badge bg-primary" th:if="${category.name == 'Phụ Kiện'}">Chuột & Bàn Phím</span>
+                        <span class="badge bg-primary" th:if="${category.name == 'Phụ Kiện'}">Tai Nghe</span>
+                        <span class="badge bg-primary" th:if="${category.name == 'Phụ Kiện'}">Webcam</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

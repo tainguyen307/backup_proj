@@ -1,0 +1,42 @@
+.min-vh-75 { min-height: 75vh; }
+
+.otp-card {
+  max-width: 760px;
+  width: 100%;
+  border-radius: 14px;
+}
+
+.otp-group { user-select: none; }
+
+.otp-input {
+  width: 52px !important;
+  height: 60px !important;
+  flex: 0 0 52px !important;   /* chống bị kéo giãn */
+  display: inline-block;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid #ced4da;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, transform .05s;
+  caret-color: #0d6efd;
+}
+
+.otp-input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 .25rem rgba(13,110,253,.15);
+}
+
+.otp-input.filled { border-color: #198754; }
+
+@media (max-width: 480px) {
+  .otp-input {
+    width: 44px !important;
+    height: 54px !important;
+    flex-basis: 44px !important;
+    font-size: 1.1rem;
+  }
+}

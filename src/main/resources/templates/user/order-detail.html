@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{user/layout}">
+
+<head>
+<meta charset="UTF-8">
+<title>Chi tiết đơn hàng</title>
+<th:block layout:fragment="css">
+	<link th:href="@{/css/user/order-detail.css}" rel="stylesheet">
+</th:block>
+</head>
+
+<body>
+	<th:block layout:fragment="content">
+		<div class="container py-4">
+
+			<!-- Breadcrumb / header -->
+			<div class="d-flex justify-content-between align-items-start mb-4">
+				<div>
+					<h3 class="mb-1">Chi tiết đơn hàng</h3>
+					<small class="text-muted">Mã đơn: <span
+						th:text="${order.orderID}">ORDER123</span></small>
+				</div>
+				<div class="text-end">
+					<div>
+						<span class="badge" th:classappend="${orderStatusBadge}" th:text="${orderStatusLabel}">Trạng thái</span>
+					</div>
+					<small class="text-muted"
+						th:text="${#temporals.format(order.createAt, 'dd/MM/yyyy HH:mm')}">01/01/2025</small>
+				</div>
+			</div>
+
+			<div class="row g-4">
+				<!-- Left: order summary (address, payment, meta) -->
+				<div class="col-lg-5">
+					<div class="card mb-3">
+						<div class="card-header fw-semibold">Thông tin giao hàng</div>
+						<div class="card-body">
+							<p class="mb-1 fw-semibold"
+								th:text="${order.address != null ? order.address.fullname : order.user.username}">Người
+								nhận</p>
+							<p class="mb-1"
+								th:text="${order.address != null ? order.address.phone : ''}">SĐT</p>
+							<p class="text-muted mb-0"
+								th:text="${order.address != null ? (order.address.street + ', ' + order.address.ward + ', ' + order.address.district + ', ' + order.address.city) : ''}">
+								Địa chỉ</p>
+						</div>
+					</div>
+
+					<div class="card mb-3">
+						<div class="card-header fw-semibold">Phương thức & thanh
+							toán</div>
+						<div class="card-body">
+							<p class="mb-2">
+								<strong>Phương thức:</strong> <span
+									th:text="${order.paymentMethod}">COD</span>
+							</p>
+							<p class="mb-0">
+								<strong>Trạng thái thanh toán:</strong> <span
+									th:text="${order.paymentStatus == 1 ? 'Đã thanh toán' : 'Chưa thanh toán'}">Chưa</span>
+							</p>
+							<div
+								th:if="${order.paymentMethod != 'COD' and order.paymentStatus != 1}">
+								<form th:action="@{/order/payment}" method="post" class="m-0">
+									<input type="hidden" name="orderID" th:value="${order.orderID}">
+									<button type="submit"
+										class="btn btn-outline-primary btn-sm w-100">Thanh
+										toán ngay</button>
+								</form>
+							</div>
+						</div>
+					</div>
+
+					<div class="card mb-3">
+						<div class="card-header fw-semibold">Thông tin đơn hàng</div>
+						<div class="card-body small text-muted">
+							<p class="mb-1">
+								Người đặt: <span th:text="${order.user.username}">username</span>
+							</p>
+							<p class="mb-1">
+								Số mặt hàng: <span
+									th:text="${order.items != null ? order.items.size() : 0}">0</span>
+							</p>
+							<p class="mb-1">
+								Số lượng sản phẩm: <span
+									th:text="${totalQuantity != null ? totalQuantity : 0}">0</span>
+							</p>
+							<p class="mb-0">
+								Mã voucher: <span
+									th:text="${order.voucher != null ? order.voucher.code : 'Không'}">NONE</span>
+							</p>
+						</div>
+					</div>
+
+					<div class="d-grid gap-2">
+						<a th:href="@{/user/profile?tab=orders}"
+							class="btn btn-outline-secondary">Quay về danh sách đơn</a>
+					</div>
+				</div>
+
+				<!-- Right: item list and totals -->
+				<div class="col-lg-7">
+					<div class="card">
+						<div class="card-body p-0">
+							<div class="table-responsive">
+								<table class="table align-middle mb-0">
+									<thead class="table-light">
+										<tr>
+											<th style="width: 80px">Ảnh</th>
+											<th>Sản phẩm</th>
+											<th class="text-center" style="width: 110px">Đơn giá</th>
+											<th class="text-center" style="width: 100px">Số lượng</th>
+											<th class="text-end" style="width: 140px">Thành tiền</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="item : ${order.items}">
+											<td><img th:src="@{${item.product.thumbnail}}"
+												alt="thumb"
+												style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px;">
+											</td>
+											<td>
+												<div class="fw-semibold" th:text="${item.product.name}">Tên
+													SP</div>
+											</td>
+											<td class="text-center">
+												<div
+													th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
+													₫</div>
+											</td>
+											<td class="text-center"><span th:text="${item.quantity}">1</span>
+											</td>
+											<td class="text-end fw-semibold"
+												th:text="${#numbers.formatDecimal(item.itemTotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+												0 ₫</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div class="px-4 py-3 border-top">
+								<div class="d-flex justify-content-between mb-2">
+									<div class="text-muted">Tạm tính</div>
+									<div
+										th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
+										₫</div>
+								</div>
+
+								<div th:if="${order.voucher != null}"
+									class="d-flex justify-content-between mb-2">
+									<div class="text-muted">Giảm giá (Voucher)</div>
+									<div
+										th:text="${'-' + #numbers.formatDecimal(order.voucher.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">-0
+										₫</div>
+								</div>
+
+								<div class="d-flex justify-content-between mt-3 pt-2 border-top">
+									<div class="fw-semibold">Tổng phải trả</div>
+									<div class="fw-bold text-danger fs-5"
+										th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+										0 ₫</div>
+								</div>
+
+								<div
+									th:if="${order.status == 1 or order.status == 2}"
+									class="d-flex justify-content-end align-items-center gap-2 mt-3">
+
+									<form th:action="@{/order/cancel}" method="post"
+										class="d-flex align-items-center" id="cancelForm">
+										<input type="hidden" name="orderID"
+											th:value="${order.orderID}">
+
+										<!-- Nút xác nhận (ẩn mặc định) -->
+										<button type="submit" id="confirmCancelBtn"
+											class="btn btn-danger btn-sm me-2 d-none">Xác nhận
+											hủy</button>
+
+										<!-- Nút hủy chính -->
+										<button type="button" id="cancelBtn"
+											class="btn btn-outline-danger btn-sm">Hủy đơn</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Custom JavaScript -->
+		<div layout:fragment="scripts">
+			<script th:src="@{/js/user/order-detail.js}"></script>
+		</div>
+</body>
+</html>

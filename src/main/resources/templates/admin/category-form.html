@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title th:text="${category.categoryID != null ? 'Chỉnh Sửa Danh Mục' : 'Thêm Danh Mục Mới'}">Category Form</title>
+</head>
+<body>
+    <h1 layout:fragment="page-title" th:text="${category.categoryID != null ? 'Chỉnh Sửa Danh Mục' : 'Thêm Danh Mục Mới'}">Category Form</h1>
+    
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="stat-card">
+                    <form th:action="@{/admin/categories/save}" method="post" th:object="${category}">
+                        <input type="hidden" th:field="*{categoryID}">
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                <i class="fas fa-tag me-2"></i>Tên Danh Mục *
+                            </label>
+                            <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                   placeholder="Nhập tên danh mục (VD: Laptop, Desktop, Phụ Kiện...)" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-toggle-on me-2"></i>Trạng Thái
+                            </label>
+                            <select class="form-select" id="status" th:field="*{status}" required>
+                                <option value="1">Hoạt động</option>
+                                <option value="0">Ẩn</option>
+                            </select>
+                            <small class="text-muted">Chọn "Ẩn" nếu muốn tạm thời ẩn danh mục này</small>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin/categories" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                <span th:text="${category.categoryID != null ? 'Cập Nhật' : 'Tạo Mới'}">Lưu</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h6 class="mb-3">
+                        <i class="fas fa-info-circle me-2"></i>Hướng Dẫn
+                    </h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Tên danh mục nên ngắn gọn, dễ hiểu
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Mỗi danh mục có thể có nhiều danh mục con
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Trạng thái "Ẩn" sẽ ẩn toàn bộ danh mục con
+                        </li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>Ví Dụ Danh Mục
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary">Laptop</span>
+                        <span class="badge bg-primary">Desktop</span>
+                        <span class="badge bg-primary">Tablet</span>
+                        <span class="badge bg-primary">Phụ Kiện</span>
+                        <span class="badge bg-primary">Linh Kiện</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{vendor/layout}">
+<head>
+<meta charset="UTF-8" />
+<title>WOMTech – Chat với khách hàng</title>
+
+<!-- CSRF cho AJAX -->
+<meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}" />
+<meta name="_csrf_header"
+	th:content="${_csrf != null ? _csrf.headerName : ''}" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- SockJS + STOMP -->
+<script
+	src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<style>
+body {
+	font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+		sans-serif;
+	margin: 0;
+}
+
+.wrap {
+	display: flex;
+	height: 100vh;
+}
+
+.sidebar {
+	width: 320px;
+	border-right: 1px solid #ddd;
+	display: flex;
+	flex-direction: column;
+}
+
+.sidebar-header {
+	padding: 12px;
+	font-weight: 600;
+	border-bottom: 1px solid #eee;
+}
+
+.chat-list {
+	overflow: auto;
+	flex: 1;
+}
+
+.chat-item {
+	padding: 10px 12px;
+	cursor: pointer;
+	border-bottom: 1px solid #f2f2f2;
+}
+
+.chat-item.active {
+	background: #f7f7f7;
+}
+
+.chat-item .name {
+	font-weight: 600;
+}
+
+.chat-item .preview {
+	font-size: 12px;
+	color: #666;
+	margin-top: 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+.main-header {
+	padding: 12px;
+	border-bottom: 1px solid #eee;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.room-title {
+	font-weight: 600;
+}
+
+.messages {
+	flex: 1;
+	overflow: auto;
+	padding: 12px;
+	background: #fafafa;
+}
+
+.msg {
+	margin: 8px 0;
+	max-width: 70%;
+	padding: 8px 10px;
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: 0 1px 0 rgba(0, 0, 0, .04);
+}
+
+.me {
+	margin-left: auto;
+	background: #e9f5ff;
+}
+
+.meta {
+	font-size: 11px;
+	color: #777;
+	margin-top: 4px;
+}
+
+.composer {
+	display: flex;
+	gap: 8px;
+	padding: 12px;
+	border-top: 1px solid #eee;
+}
+
+.composer input {
+	flex: 1;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	outline: none;
+}
+
+.composer button {
+	padding: 10px 14px;
+	border: 0;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.error-message {
+	padding: 12px;
+	color: #d32f2f;
+	text-align: center;
+}
+</style>
+</head>
+<body layout:fragment="content">
+	<div class="wrap">
+		<aside class="sidebar">
+			<div class="sidebar-header">
+				Chat với khách hàng
+				<button id="btnNewChat" style="float: right;">+ Tạo chat</button>
+			</div>
+			<div id="chatList" class="chat-list"></div>
+		</aside>
+
+		<main class="main">
+			<div class="main-header">
+				<div class="room-title" id="roomTitle">Chưa chọn cuộc chat</div>
+				<div id="roomMeta" style="font-size: 12px; color: #777;"></div>
+			</div>
+			<div id="messages" class="messages"></div>
+			<div class="composer">
+				<input id="msgInput" placeholder="Nhập tin nhắn..." disabled />
+				<button id="btnSend" disabled>Gửi</button>
+			</div>
+		</main>
+	</div>
+
+	<script th:inline="javascript">
+    const SERVER_CURRENT_USER_ID = /*[[${currentVendorId}]]*/ null;
+    const PAGE_CHAT_ID = /*[[${chatId}]]*/ null;
+  </script>
+
+	<script th:inline="javascript">
+  // ===== CSRF & fetch helper =====
+  const CSRF_TOKEN  = document.querySelector('meta[name="_csrf"]')?.content;
+  const CSRF_HEADER = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+  async function fetchJSON(url, options = {}) {
+    options.headers = options.headers || {};
+    if (CSRF_TOKEN && CSRF_HEADER) options.headers[CSRF_HEADER] = CSRF_TOKEN;
+    options.headers['Content-Type'] = 'application/json';
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + url);
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+  const warn = (...a)=>console.warn('[CHAT]', ...a);
+  const info = (...a)=>console.log('[CHAT]', ...a);
+
+  // ===== State =====
+  let stompClient = null;
+  let currentChatID = null;
+  let currentSub = null;
+  let meUserId = SERVER_CURRENT_USER_ID;
+  let lastSentMessage = null; // Lưu tin nhắn vừa gửi để so sánh
+
+  // ===== WebSocket =====
+  function connectWs() {
+    const sock = new SockJS('/vendor/chat-ws');
+    stompClient = Stomp.over(sock);
+    stompClient.debug = null;
+    stompClient.connect({}, () => {
+      info('WS connected');
+      if (currentChatID) subscribeRoom(currentChatID);
+    }, err => warn('WS error', err));
+  }
+
+  function subscribeRoom(chatID) {
+    if (!stompClient || !stompClient.connected) return;
+    if (currentSub) currentSub.unsubscribe();
+    currentSub = stompClient.subscribe('/topic/chat/' + chatID, frame => {
+      try {
+        const m = JSON.parse(frame.body);
+        console.log('WebSocket message:', m); // Debug
+        // Kiểm tra nếu tin nhắn vừa gửi
+        const isMe = meUserId ? (m.senderId === meUserId || m.senderID === meUserId) : 
+                    (lastSentMessage && m.message === lastSentMessage.message && 
+                     Math.abs(new Date().getTime() - (m.sendTime ? new Date(m.sendTime).getTime() : 0)) < 5000);
+        appendMessage(m, isMe);
+        updatePreview(chatID, m.message, m.sendTime);
+        // Xóa lastSentMessage sau khi xử lý
+        if (isMe) lastSentMessage = null;
+      } catch (e) { warn('Bad message payload', e, frame.body); }
+    });
+  }
+
+  function sendWs(chatID, text) {
+    if (!stompClient || !stompClient.connected) { warn('WS not connected'); return; }
+    if (!meUserId) { warn('Cannot send message: meUserId is null'); alert('Vui lòng đăng nhập để gửi tin nhắn'); return; }
+    lastSentMessage = { message: text, timestamp: new Date().getTime() }; // Lưu tin nhắn vừa gửi
+    stompClient.send('/app/chat/send/' + chatID, {}, JSON.stringify({ message: text }));
+  }
+
+  // ===== UI helpers =====
+  const chatListEl   = document.getElementById('chatList');
+  const messagesEl   = document.getElementById('messages');
+  const roomTitleEl  = document.getElementById('roomTitle');
+  const roomMetaEl   = document.getElementById('roomMeta');
+  const msgInputEl   = document.getElementById('msgInput');
+  const btnSendEl    = document.getElementById('btnSend');
+  const btnNewChat   = document.getElementById('btnNewChat');
+
+  function fmtTime(s) {
+    if (!s) return new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }); // Fallback thời gian hiện tại
+    try {
+      const date = new Date(s.includes('T') ? s : parseInt(s));
+      if (isNaN(date.getTime())) return new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      return date.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    } catch (_) {
+      return new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    }
+  }
+
+  function escapeHtml(str) { return (str||'').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+  function clearMessages() { messagesEl.innerHTML=''; }
+
+  function renderChatItem(chat) {
+    const div = document.createElement('div');
+    div.className = 'chat-item';
+    div.dataset.id = chat.chatID;
+    const name = chat.userName ? chat.userName : ('Chat ' + chat.chatID.substring(0,6));
+    div.innerHTML = `
+      <div class="name">${name}</div>
+      <div class="preview">${chat.lastMessage ? chat.lastMessage : 'Chưa có tin nhắn'}</div>
+      <div style="font-size:11px;color:#999;">${chat.lastTime ? fmtTime(chat.lastTime) : ''}</div>
+    `;
+    div.addEventListener('click', () => openChat(chat.chatID, name));
+    return div;
+  }
+
+  function markActive(chatID) {
+    Array.from(chatListEl.children).forEach(el => {
+      el.classList.toggle('active', el.dataset.id === chatID);
+    });
+  }
+
+  function appendMessage(m, isMe) {
+    console.log('appendMessage: sendTime=', m.sendTime, 'senderId=', m.senderId, 'senderID=', m.senderID, 'isMe=', isMe, 'meUserId=', meUserId); // Debug
+    const wrap = document.createElement('div');
+    wrap.className = 'msg' + (isMe ? ' me' : '');
+    wrap.innerHTML = `
+      <div>${escapeHtml(m.message)}</div>
+      <div class="meta">${isMe ? 'Bạn' : (m.senderName || m.senderId || m.senderID || 'Unknown')} • ${fmtTime(m.sendTime)}</div>
+    `;
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function updatePreview(chatID, lastMessage, lastTime) {
+    console.log('updatePreview: chatID=', chatID, 'lastMessage=', lastMessage, 'lastTime=', lastTime); // Debug
+    const item = Array.from(chatListEl.children).find(x => x.dataset.id === chatID);
+    if (item) {
+      item.querySelector('.preview').textContent = lastMessage ?? '';
+      const timeEl = item.querySelector('div[style*="font-size:11px"]');
+      if (timeEl) timeEl.textContent = lastTime ? fmtTime(lastTime) : '';
+      chatListEl.prepend(item);
+    }
+  }
+
+  // ===== Data flows =====
+  async function loadChatList() {
+    try {
+      const data = await fetchJSON('/api/chats/me');
+      chatListEl.innerHTML = '';
+      (data || []).forEach(c => chatListEl.appendChild(renderChatItem(c)));
+    } catch (e) {
+      warn('Skip /api/chats/me:', e.message);
+      messagesEl.innerHTML = '<div class="error-message">Không thể tải danh sách chat: ' + e.message + '</div>';
+    }
+  }
+
+  async function openChat(chatID, title) {
+    console.log('openChat: chatID=', chatID, 'meUserId=', meUserId); // Debug
+    currentChatID = chatID;
+    markActive(chatID);
+    roomTitleEl.textContent = title || ('Chat ' + chatID.substring(0,6));
+    roomMetaEl.textContent = 'Mã phòng: ' + chatID;
+    msgInputEl.disabled = !meUserId;
+    btnSendEl.disabled = !meUserId;
+    clearMessages();
+
+    if (!meUserId) {
+      messagesEl.innerHTML = '<div class="error-message">Vui lòng đăng nhập để sử dụng chat</div>';
+      return;
+    }
+
+    try {
+      const page = await fetchJSON(`/api/chats/${chatID}/messages?page=0&size=30`);
+      const items = (page?.content || []).slice().reverse();
+      console.log('Messages:', items); // Debug
+      items.forEach(m => {
+        const isMe = meUserId ? (m.senderId === meUserId || m.senderID === meUserId) : false;
+        appendMessage(m, isMe);
+      });
+    } catch (e) {
+      warn('Skip history:', e.message);
+      messagesEl.innerHTML = '<div class="error-message">Không thể tải lịch sử tin nhắn: ' + e.message + '</div>';
+    }
+
+    subscribeRoom(chatID);
+  }
+
+  async function createNewChat() {
+    if (!meUserId) {
+      alert('Vui lòng đăng nhập để tạo chat mới');
+      return;
+    }
+    const userID = prompt('Nhập userID để tạo chat mới:');
+    if (!userID) return;
+    try {
+      const c = await fetchJSON('/api/chats?userID=' + encodeURIComponent(userID), { method: 'POST' });
+      chatListEl.prepend(renderChatItem(c));
+      openChat(c.chatID, c.userName || ('Chat ' + c.chatID.substring(0,6)));
+    } catch (e) {
+      warn('Create chat failed:', e.message);
+      alert('Tạo chat thất bại: ' + e.message);
+    }
+  }
+
+  // ===== Events & Init =====
+  btnNewChat.addEventListener('click', createNewChat);
+
+  btnSendEl.addEventListener('click', () => {
+    const text = msgInputEl.value.trim();
+    if (!text || !currentChatID || !meUserId) {
+      if (!meUserId) alert('Vui lòng đăng nhập để gửi tin nhắn');
+      return;
+    }
+    sendWs(currentChatID, text);
+    msgInputEl.value = '';
+  });
+
+  msgInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') btnSendEl.click(); });
+
+  (async function init() {
+    console.log('init: meUserId=', meUserId, 'PAGE_CHAT_ID=', PAGE_CHAT_ID); // Debug
+    if (!meUserId) {
+      roomTitleEl.textContent = 'Lỗi: Vui lòng đăng nhập';
+      messagesEl.innerHTML = '<div class="error-message">Vui lòng đăng nhập để sử dụng chat</div>';
+      msgInputEl.disabled = true;
+      btnSendEl.disabled = true;
+      btnNewChat.disabled = true;
+      return;
+    }
+    connectWs();
+    await loadChatList();
+    if (PAGE_CHAT_ID) {
+      const item = Array.from(chatListEl.children).find(x => x.dataset.id === PAGE_CHAT_ID);
+      const title = item ? item.querySelector('.name')?.textContent : null;
+      try {
+        await openChat(PAGE_CHAT_ID, title);
+      } catch (e) {
+        warn('Open chat fallback (subscribe only):', e.message);
+        currentChatID = PAGE_CHAT_ID;
+        roomTitleEl.textContent = title || ('Chat ' + PAGE_CHAT_ID.substring(0,6));
+        roomMetaEl.textContent = 'Mã phòng: ' + PAGE_CHAT_ID;
+        msgInputEl.disabled = !meUserId;
+        btnSendEl.disabled = !meUserId;
+        subscribeRoom(PAGE_CHAT_ID);
+      }
+    }
+  })();
+  </script>
+</body>
+</html>

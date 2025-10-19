@@ -1,0 +1,280 @@
+:root {
+	--womtech-primary: #667eea;
+	--womtech-secondary: #764ba2;
+	--womtech-accent: #0d6efd;
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		'Helvetica Neue', Arial, sans-serif;
+	line-height: 1.6;
+	color: #333;
+}
+
+/* Hero Section */
+.hero-section {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6B73FF 100%);
+	color: white;
+	padding: 60px 0;
+	position: relative;
+	overflow: hidden;
+}
+
+/* Profile Container with 2:6:2 Layout */
+.profile-container {
+	min-height: 100vh;
+	background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 50%, #f0f8ff 100%);
+	padding: 3rem 0;
+	position: relative;
+}
+
+/* White space on both sides */
+.profile-wrapper {
+	display: grid;
+	grid-template-columns: 2fr 6fr 2fr;
+	max-width: 100%;
+	margin: 0;
+	gap: 0;
+}
+
+.white-space {
+	background: white;
+	min-height: 100vh;
+}
+
+.profile-content {
+	padding: 0 2rem;
+}
+
+/* Profile Sidebar */
+.profile-sidebar {
+	background: white;
+	border: none;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+	border-radius: 24px;
+	overflow: hidden;
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	position: relative;
+}
+
+.profile-sidebar::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #6B73FF 100%);
+}
+
+.avatar-circle {
+	width: 100px;
+	height: 100px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 2rem auto 1rem;
+	box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+	transition: all 0.4s ease;
+}
+
+.avatar-circle:hover {
+	transform: translateY(-8px) scale(1.05);
+}
+
+.profile-nav-item {
+	border: none !important;
+	font-weight: 500;
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	position: relative;
+	overflow: hidden;
+	margin: 0.25rem 0;
+	border-radius: 16px !important;
+	padding: 1rem 1.5rem;
+	color: #6c757d;
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+}
+
+.profile-nav-item::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 4px;
+	height: 100%;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	transform: scaleY(0);
+	transition: transform 0.3s ease;
+}
+
+.profile-nav-item:hover {
+	background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%,
+		rgba(118, 75, 162, 0.08) 100%);
+	transform: translateX(8px);
+	color: #667eea;
+	text-decoration: none;
+}
+
+.profile-nav-item:hover::before {
+	transform: scaleY(1);
+}
+
+.profile-nav-item.active {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white !important;
+	font-weight: 600;
+	box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.profile-nav-item i {
+	width: 20px;
+	text-align: center;
+	margin-right: 1rem;
+}
+
+/* Cards */
+.card {
+	border: none;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+	border-radius: 24px;
+	transition: all 0.4s ease;
+	overflow: hidden;
+}
+
+.card:hover {
+	transform: translateY(-12px) scale(1.02);
+	box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+	border: none;
+	padding: 2rem 2.5rem;
+	font-weight: 600;
+}
+
+.card-body {
+	padding: 2.5rem;
+}
+
+.bg-gradient-primary {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Form Controls */
+.form-label {
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+}
+
+.form-label i {
+	color: #667eea;
+	margin-right: 0.75rem;
+}
+
+.form-control {
+	border: 2px solid #e8ecf4;
+	border-radius: 16px;
+	padding: 1rem 1.25rem;
+	transition: all 0.4s ease;
+	background: #fafbfc;
+}
+
+.form-control:focus {
+	border-color: #667eea;
+	box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+	transform: translateY(-3px);
+	background: white;
+}
+
+/* Button */
+.btn {
+	border-radius: 12px;
+	font-weight: 600;
+	padding: 0.75rem 1.5rem;
+	transition: all 0.3s ease;
+}
+
+.btn-primary {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border: none;
+}
+
+.btn-primary:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Badge */
+.badge {
+	padding: 0.5rem 1rem;
+	font-weight: 600;
+	border-radius: 20px;
+}
+
+/* Alert */
+.alert {
+	border-radius: 16px;
+	border: none;
+	padding: 1.25rem 1.5rem;
+}
+
+.alert-success {
+	background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+	color: #155724;
+}
+
+/* Tab Content */
+.profile-tab-content {
+	display: none;
+	animation: fadeIn 0.5s ease;
+}
+
+.profile-tab-content.active {
+	display: block;
+}
+
+@
+keyframes fadeIn {from { opacity:0;
+	transform: translateY(20px);
+}
+
+to {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+}
+
+/* Address Card */
+.address-card {
+	background: linear-gradient(135deg, #f8fafe 0%, #ffffff 100%);
+	border: 2px solid #e8ecf4 !important;
+	border-radius: 20px !important;
+	transition: all 0.4s ease;
+}
+
+.address-card:hover {
+	border-color: #667eea !important;
+	box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+	transform: translateY(-8px);
+}
+
+/* Responsive */
+@media ( max-width : 768px) {
+	.profile-wrapper {
+		grid-template-columns: 1fr;
+	}
+	.white-space {
+		display: none;
+	}
+	.profile-content {
+		padding: 0 1rem;
+	}
+}

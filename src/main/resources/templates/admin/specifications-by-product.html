@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Thông Số Kỹ Thuật - WomTech Admin</title>
+        <link rel="stylesheet" href="/css/admin/specifications-by-product.css">
+    
+</head>
+<body>
+    <h1 layout:fragment="page-title" th:text="'Thông Số Kỹ Thuật: ' + ${product.name}">Specifications</h1>
+    
+    <div layout:fragment="content">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin/products">
+                        <i class="fas fa-box me-2"></i>Sản Phẩm
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">
+                    Product Name
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Product Info Card -->
+        <div class="stat-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-2">
+                    <img th:if="${product.thumbnail != null && !product.thumbnail.isEmpty()}" 
+                         th:src="${product.thumbnail}" 
+                         alt="Product" 
+                         class="product-detail-thumbnail">
+                    <div th:if="${product.thumbnail == null || product.thumbnail.isEmpty()}" 
+                         class="product-detail-thumbnail-placeholder">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="mb-2">
+                        <i class="fas fa-box me-2 text-primary"></i>
+                        <span th:text="${product.name}">Product Name</span>
+                    </h5>
+                    <p class="text-muted mb-0">
+                        <span class="badge bg-primary me-2" th:text="${product.subcategory.category.name}">Category</span>
+                        <span class="badge bg-secondary me-2" th:text="${product.brand.name}">Brand</span>
+                        <span class="badge" 
+                              th:classappend="${product.status == 1 ? 'bg-success' : 'bg-danger'}"
+                              th:text="${product.status == 1 ? 'Hoạt động' : 'Ẩn'}">
+                            Active
+                        </span>
+                    </p>
+                    <p class="mt-2 mb-0">
+                        <i class="fas fa-clipboard-list me-1 text-info"></i>
+                        <span th:text="${specifications.size()}">0</span> thông số kỹ thuật
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="@{/admin/specifications/new/{productID}(productID=${product.productID})}" 
+                       class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Thêm Thông Số
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Specifications Table -->
+        <div class="admin-table">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Danh Sách Thông Số Kỹ Thuật
+                </h5>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">ID</th>
+                            <th style="width: 30%;">Tên Thông Số</th>
+                            <th style="width: 40%;">Giá Trị</th>
+                            <th style="width: 15%;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="spec : ${specifications}">
+                            <td>
+                                <code th:text="${#strings.abbreviate(spec.specificationID, 12)}">ID</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary spec-name" th:text="${spec.name}">Name</span>
+                            </td>
+                            <td>
+                                <strong th:text="${spec.value}">Value</strong>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a th:href="@{/admin/specifications/edit/{id}(id=${spec.specificationID})}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/admin/specifications/delete/{id}(id=${spec.specificationID})}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       title="Xóa"
+                                       onclick="return confirm('Bạn có chắc muốn xóa thông số này?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${specifications.empty}">
+                            <td colspan="4" class="text-center py-5">
+                                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">
+                                    Chưa có thông số kỹ thuật nào cho sản phẩm "<strong th:text="${product.name}">product</strong>".
+                                </p>
+                                <a th:href="@{/admin/specifications/new/{productID}(productID=${product.productID})}" 
+                                   class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Thêm Thông Số Đầu Tiên
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

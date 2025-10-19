@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Quản Lý Tồn Kho - WomTech Admin</title>
+    <link rel="stylesheet" href="/css/admin/inventory.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/admin/inventory.js"></script>
+</head>
+<body>
+<h1 layout:fragment="page-title">Quản Lý Tồn Kho</h1>
+
+<div layout:fragment="content">
+
+    <!-- Alert Cards -->
+    <div class="row g-4 mb-4 text-center">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-label">Tổng Sản Phẩm</div>
+                <h2 class="stat-value" th:text="${totalCount}">0</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-label">Sắp Hết Hàng</div>
+                <h2 class="stat-value text-warning" th:text="${lowStockCount}">0</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-label">Hết Hàng</div>
+                <h2 class="stat-value text-danger" th:text="${outOfStockCount}">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activeTab == 'all'} ? 'active'" th:href="@{/admin/inventory(tab='all')}">
+                <i class="fas fa-boxes me-1"></i> Tất Cả
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activeTab == 'low-stock'} ? 'active'"
+               th:href="@{/admin/inventory(filter='low-stock')}">
+                <i class="fas fa-exclamation-triangle me-1"></i> Sắp Hết
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${activeTab == 'out-of-stock'} ? 'active'"
+               th:href="@{/admin/inventory(filter='out-of-stock')}">
+                <i class="fas fa-times-circle me-1"></i> Hết Hàng
+            </a>
+        </li>
+    </ul>
+
+    <!-- Inventory Table -->
+    <div class="admin-table">
+        <div class="table-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-boxes me-2"></i>
+                Danh Sách Tồn Kho
+            </h5>
+            <a href="/admin/inventory/new" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Thêm Tồn Kho Mới
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0" id="inventoryTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Sản Phẩm</th>
+                    <th>Vị Trí Kho</th>
+                    <th>Số Lượng</th>
+                    <th>Trạng Thái</th>
+                    <th>Ngày Cập Nhật</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${inventoryItems}">
+                    <td><code th:text="${#strings.abbreviate(item.inventoryID, 12)}">ID</code></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img th:if="${item.product.thumbnail}"
+                                 th:src="${item.product.thumbnail}"
+                                 alt="Product" class="rounded me-3"
+                                 style="width:50px;height:50px;object-fit:cover;">
+                            <div>
+                                <div class="fw-bold" th:text="${item.product.name}">Product Name</div>
+                                <small class="text-muted" th:text="${item.product.brand.name}">Brand</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-secondary" th:text="${item.location.name}">Location</span></td>
+                    <td>
+                        <strong class="fs-5"
+                                th:classappend="${item.quantity <= 0 ? 'text-danger' : (item.quantity <= 10 ? 'text-warning' : 'text-success')}"
+                                th:text="${item.quantity}">0</strong>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${item.status == 1 ? 'bg-success' : 'bg-danger'}"
+                              th:text="${item.status == 1 ? 'Hoạt động' : 'Ngừng'}"></span>
+                    </td>
+                    <td>
+                        <small th:if="${item.updateAt != null}"
+                               th:text="${#temporals.format(item.updateAt, 'dd/MM/yyyy HH:mm')}">Date</small>
+                        <small th:if="${item.updateAt == null}" class="text-muted">Chưa cập nhật</small>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a th:href="@{/admin/inventory/edit/{ID}(ID=${item.inventoryID})}"
+                               class="btn btn-sm btn-outline-primary" title="Sửa Tồn Kho">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-success restock-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#restockModal"
+                                    th:attr="data-inventory-id=${item.inventoryID},
+                                             data-product-name=${item.product.name},
+                                             data-current-quantity=${item.quantity}"
+                                    title="Nhập Hàng">
+                                <i class="fas fa-plus"></i> Nhập
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${inventoryItems == null or inventoryItems.empty}">
+                    <td colspan="7" class="text-center py-5">
+                        <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Không có sản phẩm nào trong danh sách này!</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+<!-- Pagination -->
+            <div th:replace="~{admin/fragments/pagination :: pagination(${page}, '/admin/inventory')}"></div>
+    <!-- Restock Modal -->
+    <div class="modal fade" id="restockModal" tabindex="-1" aria-labelledby="restockModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-box me-2"></i>Nhập Hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="restockForm" method="post">
+                    <div class="modal-body" id="restockModalBody">
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                            <p class="mt-2 text-muted">Đang tải thông tin...</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Nhập Hàng
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

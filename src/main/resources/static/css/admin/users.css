@@ -1,0 +1,257 @@
+/* ============================================
+   USER MANAGEMENT PAGE - ADMIN STYLES
+   ============================================ */
+
+/* === FILTER BAR === */
+.filter-bar {
+	background: #fff;
+	padding: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	margin-bottom: 1.5rem;
+}
+
+.filter-bar .input-group-text {
+	border-right: none;
+	background-color: #fff;
+	border-color: #dee2e6;
+}
+
+.filter-bar .form-control.border-start-0 {
+	border-left: none;
+	padding-left: 0;
+}
+
+.filter-bar .form-control:focus, .filter-bar .form-select:focus {
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.filter-bar .form-select {
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.filter-bar .form-select:disabled {
+	background-color: #f8f9fa;
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+.filter-bar .action-buttons {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.filter-bar .action-buttons .btn {
+	padding: 0.5rem 1rem;
+	min-width: 45px;
+}
+
+/* Active Filters Display */
+#activeFilters {
+	padding: 0.75rem 1rem;
+	background: #f8f9fa;
+	border-radius: 8px;
+	border-left: 3px solid #0d6efd;
+}
+
+#activeFilters .badge {
+	font-weight: 500;
+	padding: 0.4rem 0.7rem;
+	font-size: 0.85rem;
+	border-radius: 6px;
+}
+
+#activeFilters a {
+	color: #dc3545;
+	font-weight: 500;
+	transition: color 0.2s;
+}
+
+#activeFilters a:hover {
+	color: #bb2d3b;
+}
+
+/* === ADMIN TABLE === */
+.admin-table {
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	overflow: hidden;
+}
+
+.table-header {
+	padding: 1.5rem;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: #fff;
+	border-bottom: 3px solid #5a67d8;
+}
+
+.table-header h5 {
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	margin: 0;
+}
+
+.table-header .btn-success {
+	background: #28a745;
+	border: none;
+	font-weight: 500;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	transition: all 0.3s ease;
+}
+
+.table-header .btn-success:hover {
+	background: #218838;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* Filter Count Badge */
+.filter-badge {
+	background: #ffc107;
+	color: #000;
+	padding: 0.3rem 0.6rem;
+	border-radius: 50%;
+	font-size: 0.8rem;
+	font-weight: 700;
+	margin-left: 0.5rem;
+	min-width: 24px;
+	text-align: center;
+	display: inline-block;
+}
+
+/* === TABLE STYLING === */
+.table-responsive {
+	overflow-x: auto;
+}
+
+.admin-table table {
+	margin-bottom: 0;
+}
+
+.admin-table thead {
+	background: #f8f9fa;
+	border-bottom: 2px solid #dee2e6;
+}
+
+.admin-table thead th {
+	font-weight: 600;
+	color: #495057;
+	padding: 1rem;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	white-space: nowrap;
+}
+
+.admin-table tbody tr {
+	transition: all 0.2s ease;
+	border-bottom: 1px solid #f0f0f0;
+	animation: fadeIn 0.3s ease;
+}
+
+.admin-table tbody tr:hover {
+	background-color: #f8f9fa;
+	transform: scale(1.01);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.admin-table tbody td {
+	padding: 1rem;
+	vertical-align: middle;
+	font-size: 0.9rem;
+}
+
+/* === USER AVATAR === */
+.user-avatar {
+	width: 70px;
+	height: 70px;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 2px solid #dee2e6;
+	transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+	transform: scale(1.1);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.user-avatar-placeholder {
+	width: 70px;
+	height: 70px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f0f0f0;
+	border-radius: 50%;
+}
+
+/* === RESPONSIVE === */
+@media ( max-width : 768px) {
+	.admin-table table, .admin-table thead, .admin-table tbody, .admin-table th,
+		.admin-table td, .admin-table tr {
+		display: block;
+	}
+	.admin-table thead {
+		display: none;
+	}
+	.admin-table tbody td {
+		padding-left: 50%;
+		position: relative;
+		text-align: left;
+	}
+	.admin-table tbody td::before {
+		position: absolute;
+		left: 1rem;
+		top: 1rem;
+		width: 45%;
+		font-weight: 600;
+		white-space: nowrap;
+		content: attr(data-label);
+	}
+}
+
+/* === BADGES === */
+.badge {
+	font-weight: 500;
+	padding: 0.4rem 0.7rem;
+	font-size: 0.85rem;
+	border-radius: 6px;
+}
+
+.bg-success {
+	background-color: #28a745 !important;
+	color: #fff;
+}
+
+.bg-warning {
+	background-color: #ffc107 !important;
+	color: #000;
+}
+
+.bg-danger {
+	background-color: #dc3545 !important;
+	color: #fff;
+}
+
+.bg-primary {
+	background-color: #0d6efd !important;
+	color: #fff;
+}
+
+/* === ANIMATION === */
+@keyframes fadeIn { 
+	0% {
+		opacity: 0; 
+		transform: translateY(-5px);
+		} 
+	100% {
+		opacity: 1; 
+		transform: translateY(0);
+		}
+	}

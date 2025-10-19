@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Thông Số Kỹ Thuật - WomTech Admin</title>
+</head>
+<body>
+    <h1 layout:fragment="page-title" 
+        th:text="${specification.specificationID != null ? 'Chỉnh Sửa Thông Số' : 'Thêm Thông Số Mới'}">
+        Thông Số Kỹ Thuật
+    </h1>
+    
+    <div layout:fragment="content">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin/products">
+                        <i class="fas fa-box me-2"></i>Sản Phẩm
+                    </a>
+                </li>
+                <li class="breadcrumb-item" th:if="${product != null}">
+                    <a th:href="@{/admin/specifications/product/{id}(id=${product.productID})}">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        <span th:text="${product.name}">Product</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span th:text="${specification.specificationID != null ? 'Chỉnh sửa' : 'Thêm mới'}">Form</span>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Form Card -->
+        <div class="card form-card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    <span th:text="${specification.specificationID != null ? 'Chỉnh Sửa Thông Số Kỹ Thuật' : 'Thêm Thông Số Kỹ Thuật Mới'}">
+                        Form
+                    </span>
+                </h5>
+            </div>
+            
+            <div class="card-body">
+                <form th:action="@{/admin/specifications/save}" 
+                      th:object="${specification}" 
+                      method="post">
+                    
+                    <!-- Hidden ID -->
+                    <input type="hidden" th:field="*{specificationID}">
+                    
+                    <!-- Product Info (Read-only) -->
+                    <div class="mb-4" th:if="${product != null}">
+                        <label class="form-label">
+                            <i class="fas fa-box text-primary"></i>
+                            Sản Phẩm
+                        </label>
+                        <div class="product-display-box">
+                            <div class="d-flex align-items-center">
+                                <div class="product-mini-thumbnail me-3" th:if="${product.thumbnail != null && !product.thumbnail.isEmpty()}">
+                                    <img th:src="${product.thumbnail}" alt="Product" class="rounded">
+                                </div>
+                                <div class="product-mini-thumbnail placeholder-mini me-3" th:if="${product.thumbnail == null || product.thumbnail.isEmpty()}">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <div>
+                                    <strong th:text="${product.name}">Product Name</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <span class="badge bg-primary me-1" th:text="${product.subcategory.category.name}">Category</span>
+                                        <span class="badge bg-secondary" th:text="${product.brand.name}">Brand</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hidden input for product -->
+                        <input type="hidden" name="productID" th:value="${product.productID}">
+                    </div>
+                    
+                    <!-- Product Selection (only if no product selected) -->
+                    <div class="mb-4" th:if="${product == null}">
+                        <label for="productSelect" class="form-label">
+                            <i class="fas fa-box text-primary"></i>
+                            Sản Phẩm <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" 
+                                id="productSelect" 
+                                name="productID" 
+                                required>
+                            <option value="">-- Chọn sản phẩm --</option>
+                            <option th:each="p : ${products}" 
+                                    th:value="${p.productID}"
+                                    th:text="${p.name}"
+                                    th:selected="${specification.product != null && specification.product.productID == p.productID}">
+                                Product
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Specification Name -->
+                    <div class="mb-4">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-tag text-primary"></i>
+                            Tên Thông Số <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="name" 
+                               th:field="*{name}"
+                               placeholder="Ví dụ: CPU, RAM, Màn hình..."
+                               required>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-lightbulb"></i>
+                            Nhập tên thuộc tính kỹ thuật (VD: CPU, RAM, Ổ cứng, Màn hình...)
+                        </small>
+                    </div>
+                    
+                    <!-- Specification Value -->
+                    <div class="mb-4">
+                        <label for="value" class="form-label">
+                            <i class="fas fa-align-left text-primary"></i>
+                            Giá Trị <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" 
+                                  id="value" 
+                                  th:field="*{value}"
+                                  rows="3"
+                                  placeholder="Ví dụ: Intel Core i7-12700H, 16GB DDR5..."
+                                  required></textarea>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-lightbulb"></i>
+                            Nhập giá trị chi tiết của thông số
+                        </small>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a th:href="${product != null ? '/admin/specifications/product/' + product.productID : '/admin/specifications'}" 
+                           class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            <span th:text="${specification.specificationID != null ? 'Cập Nhật' : 'Thêm Mới'}">
+                                Lưu
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Help Card -->
+        <div class="card mt-4 help-card">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-question-circle text-info me-2"></i>
+                    Hướng dẫn
+                </h6>
+                <ul class="mb-0">
+                    <li><strong>Tên thông số:</strong> Tên thuộc tính kỹ thuật (VD: CPU, RAM, Màn hình, Card đồ họa...)</li>
+                    <li><strong>Giá trị:</strong> Thông tin chi tiết của thông số (VD: Intel Core i7-12700H, 16GB DDR5, 15.6" FHD...)</li>
+                    <li>Các thông số này sẽ hiển thị trong trang chi tiết sản phẩm</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

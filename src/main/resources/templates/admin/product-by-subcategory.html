@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Sản Phẩm Theo Danh Mục Con - WomTech Admin</title>
+        <link rel="stylesheet" href="/css/admin/product-by-subcategory.css">
+    
+</head>
+<body>
+    <h1 layout:fragment="page-title" th:text="'Sản Phẩm: ' + ${subcategory.name}">Sản Phẩm Theo Danh Mục Con</h1>
+    
+    <div layout:fragment="content">
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="/admin/categories">
+                        <i class="fas fa-th-large me-2"></i>Danh Mục
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a th:href="@{/admin/subcategories/category/{id}(id=${category.categoryID})}" 
+                       th:text="${category.name}">
+                        Category
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page" th:text="${subcategory.name}">
+                    Subcategory
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Subcategory Info -->
+        <div class="stat-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">
+                        <i class="fas fa-tag me-2 text-info"></i>
+                        <span th:text="${subcategory.name}">Subcategory Name</span>
+                    </h5>
+                    <p class="text-muted mb-0">
+                        <span class="badge"
+                              th:classappend="${subcategory.status == 1 ? 'bg-success' : 'bg-danger'}"
+                              th:text="${subcategory.status == 1 ? 'Hoạt động' : 'Ẩn'}">
+                            Hoạt động
+                        </span>
+                        <span class="ms-3">
+                            <i class="fas fa-folder me-1"></i>
+                            Danh mục: <strong th:text="${category.name}">Category</strong>
+                        </span>
+                        <span class="ms-3">
+                            <i class="fas fa-box me-1"></i>
+                            <strong th:text="${productCount}">0</strong> sản phẩm
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/admin/products" class="btn btn-primary">
+                        <i class="fas fa-boxes me-2"></i>Quản Lý Sản Phẩm
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="admin-table">
+            <div class="table-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-box-open me-2"></i>
+                    Danh Sách Sản Phẩm
+                </h5>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Hình</th>
+                            <th>Tên Sản Phẩm</th>
+                            <th>Thương Hiệu</th>
+                            <th>Giá Gốc</th>
+                            <th>Giá KM</th>
+                            <th>Trạng Thái</th>
+                            <th>Ngày Tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="product : ${products}">
+                            <td>
+                                <img th:if="${product.thumbnail != null && !product.thumbnail.isEmpty()}" 
+                                     th:src="${product.thumbnail}" 
+                                     alt="Product" 
+                                     class="product-thumbnail">
+                                <div th:if="${product.thumbnail == null || product.thumbnail.isEmpty()}" 
+                                     class="product-thumbnail-placeholder">
+                                    <i class="fas fa-image fa-2x text-muted"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="product-name">
+                                    <strong th:text="${product.name}">Product Name</strong>
+                                </div>
+                                <small class="product-id">
+                                    <code th:text="${#strings.abbreviate(product.productID, 20)}">ID</code>
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary" th:text="${product.brand.name}">Brand</span>
+                            </td>
+                            <td>
+                                <strong class="product-price" 
+                                        th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                    0 ₫
+                                </strong>
+                            </td>
+                            <td>
+                                <div th:if="${product.discount_price != null}" class="discount-info">
+                                    <strong class="discount-price"
+                                            th:text="${#numbers.formatDecimal(product.discount_price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                        0 ₫
+                                    </strong>
+                                    <br>
+                                    <small class="badge bg-danger discount-badge">
+                                        -<span th:text="${#numbers.formatDecimal((1 - product.discount_price.doubleValue() / product.price.doubleValue()) * 100, 0, 0)}">0</span>%
+                                    </small>
+                                </div>
+                                <span th:if="${product.discount_price == null}" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${product.status == 1 ? 'bg-success' : (product.status == 2 ? 'bg-warning text-dark' : 'bg-danger')}"
+                                      th:text="${product.status == 1 ? 'Hoạt động' : (product.status == 2 ? 'Hết hàng' : 'Ẩn')}">
+                                    Status
+                                </span>
+                            </td>
+                            <td>
+                                <small th:if="${product.createAt != null}" 
+                                       th:text="${#temporals.format(product.createAt, 'dd/MM/yyyy')}">
+                                    Date
+                                </small>
+                                <small th:if="${product.createAt == null}" class="text-muted">N/A</small>
+                            </td>
+                            
+                        </tr>
+                        <tr th:if="${products == null || products.empty}">
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-3">
+                                    Chưa có sản phẩm nào trong danh mục "<strong th:text="${subcategory.name}">subcategory</strong>".
+                                </p>
+                                <a href="/admin/products/new" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Thêm Sản Phẩm
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="p-3 bg-light border-top" th:if="${products != null && !products.empty}">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Hiển thị <strong th:text="${productCount}">0</strong> sản phẩm
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a th:href="@{/admin/subcategories/category/{id}(id=${category.categoryID})}" 
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại Danh Mục Con
+                        </a>
+                        <a href="/admin/products" class="btn btn-sm btn-primary ms-2">
+                            <i class="fas fa-boxes me-2"></i>Tất Cả Sản Phẩm
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

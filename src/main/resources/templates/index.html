@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{user/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chủ - WOMTech</title>
+    <link th:href="@{/css/user/index.css}" rel="stylesheet">
+    <link th:href="@{/css/user/products.css}" rel="stylesheet">
+    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/user/favorite.js}"></script>
+    <script th:src="@{/js/user/chat.js}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <!-- HERO -->
+    <section class="hero-with-categories">
+        <div class="container-xxl">
+            <div class="row align-items-stretch">
+                <div class="hero-area">
+                    <div class="hero-content text-center">
+                        <h1>Khám phá thế giới Laptop đỉnh cao</h1>
+                        <p>Hiệu năng vượt trội – Thiết kế tinh tế – Chỉ có tại <strong>WOMTech</strong></p>
+                        <a th:href="@{/products}" class="btn-glow mt-3">Mua ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DANH MỤC NỔI BẬT -->
+    <section class="container py-5">
+        <h2 class="text-center mb-4">Danh mục nổi bật</h2>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6" th:each="cate : ${featuredCategories}">
+                <a th:href="@{/products(category=${cate.categoryID})}"
+                   class="category-card d-flex flex-column align-items-center justify-content-center text-decoration-none">
+                    <div class="category-icon mb-3">
+                        <i th:class="'bi ' +
+                            (${cate.name.equalsIgnoreCase('Laptop')} ? 'bi-laptop' :
+                            (${cate.name.equalsIgnoreCase('PC & Gaming')} ? 'bi-pc' :
+                            (${cate.name.equalsIgnoreCase('Phụ kiện')} ? 'bi-headphones' :
+                            'bi-box-seam')))" 
+                           class="fs-1 text-light"></i>
+                    </div>
+                    <h6 th:text="${cate.name}" class="category-name text-dark fw-semibold mb-0 text-center"></h6>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SẢN PHẨM NỔI BẬT -->
+    <section class="container py-5">
+        <h2 class="text-center mb-4">Sản phẩm nổi bật</h2>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-4 col-sm-6" th:each="p : ${featuredProducts}">
+                <div class="card product-card h-100 border-0 shadow-sm text-center">
+                    <div class="position-relative">
+                        <a th:href="@{/product/{id}(id=${p.productID})}">
+                            <img th:src="${p.thumbnail}" th:alt="${p.name}" class="card-img-top product-image img-fluid">
+                        </a>
+                        <!-- DISCOUNT BADGE -->
+                        <div class="badge bg-danger position-absolute top-0 start-0 m-2"
+                             th:if="${p.discount_price != null and p.discount_price > 0}"
+                             th:text="'-' + ${T(java.lang.Math).round((1 - p.discount_price.doubleValue() / p.price.doubleValue()) * 100)} + '%'">
+                        </div>
+                        <!-- FAVORITE BUTTON -->
+                        <button class="btn btn-light position-absolute top-0 end-0 m-2 favorite-btn"
+                                th:data-id="${p.productID}">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 th:text="${p.name}"></h5>
+                        <p class="price mb-1">
+                            <span class="fw-bold text-primary"
+                                  th:text="${#numbers.formatDecimal((p.discount_price != null and p.discount_price > 0) ? p.discount_price : p.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                            <del class="text-muted small"
+                                 th:if="${p.discount_price != null and p.discount_price > 0}"
+                                 th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></del>
+                        </p>
+                        <a th:href="@{/product/{id}(id=${p.productID})}" class="btn btn-outline-primary w-100 mt-2">
+                        <i class="fas fa-eye me-1"></i>Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SẢN PHẨM THEO DANH MỤC -->
+    <section class="container py-5" th:each="entry : ${productsByCategory}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 th:text="${entry.key.name}" class="fw-bold"></h3>
+            <a th:href="@{/products(category=${entry.key.categoryID})}" class="btn btn-link">Xem tất cả »</a>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-4 col-sm-6" th:each="p : ${entry.value}">
+                <div class="card product-card h-100 border-0 shadow-sm text-center">
+                    <div class="position-relative">
+                        <a th:href="@{/product/{id}(id=${p.productID})}">
+                            <img th:src="${p.thumbnail}" th:alt="${p.name}" class="card-img-top product-image">
+                        </a>
+                        <div class="badge bg-danger position-absolute top-0 start-0 m-2"
+                             th:if="${p.discount_price != null and p.discount_price > 0}"
+                             th:text="'-' + ${T(java.lang.Math).round((1 - p.discount_price.doubleValue() / p.price.doubleValue()) * 100)} + '%'">
+                        </div>
+                        <button class="btn btn-light position-absolute top-0 end-0 m-2 favorite-btn"
+                                th:data-id="${p.productID}">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h6 th:text="${p.name}"></h6>
+                        <p class="price mb-1">
+                            <span class="fw-bold text-primary"
+                                  th:text="${#numbers.formatDecimal((p.discount_price != null and p.discount_price > 0) ? p.discount_price : p.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                            <del class="text-muted small"
+                                 th:if="${p.discount_price != null and p.discount_price > 0}"
+                                 th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></del>
+                        </p>
+                        <a th:href="@{/product/{id}(id=${p.productID})}" class="btn btn-outline-primary w-100 mt-2">
+                        <i class="fas fa-eye me-1"></i>Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BÀI VIẾT MỚI NHẤT -->
+	<section class="container py-5">
+	    <div class="d-flex justify-content-between align-items-center mb-3">
+	        <h3>Bài viết mới nhất</h3>
+	        <a th:href="@{/posts}" class="btn btn-link">Xem tất cả »</a>
+	    </div>
+	
+	    <div class="row g-4">
+	        <div class="col-lg-3 col-md-4 col-sm-6" th:each="post : ${latestPosts}">
+	            <div class="card h-100 shadow-sm">
+	                <a th:href="@{/post/{id}(id=${post.postID})}">
+	                    <img th:src="${post.thumbnail != null ? post.thumbnail : '/images/default-post.jpg'}"
+	                         th:alt="${post.title}" class="card-img-top" loading="lazy">
+	                </a>
+	                <div class="card-body p-2">
+	                    <h6 class="text-center mb-0" th:text="${post.title}"></h6>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</section>
+    
+    <input type="hidden" id="currentUserId" th:value="${#authentication.name}">
+
+	<div id="chat-button" class="chat-btn" onclick="startChat()">
+	    <i class="fas fa-comment-dots fa-lg"></i>
+	</div>
+	
+	<script>
+	function startChat() {
+	    window.location.href = '/user/chat';
+	}
+	</script>
+</div>
+</body>
+</html>
