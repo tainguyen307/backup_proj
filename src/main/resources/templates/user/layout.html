@@ -105,7 +105,7 @@
     </script>
 
 	<!-- Update cart badge -->
-	<script th:if="${session.currentUser != null}">
+	<script th:if="${session.currentUser != null and session.currentUser != null}">
         // Update cart badge on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateCartBadge();
