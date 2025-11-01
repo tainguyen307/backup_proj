@@ -71,54 +71,68 @@
 			</ul>
 		</div>
 
-		<!-- Search and Filter -->
 		<div class="admin-table mb-4">
-			<div class="table-header">
-				<h5 class="mb-0">
-					<i class="fas fa-filter me-2"></i> Tìm Kiếm & Lọc
-				</h5>
-			</div>
-			<div class="p-4">
-				<form method="get" th:action="@{/vendor/orders}">
-					<div class="row g-3">
-						<div class="col-md-6">
-							<input type="text" class="form-control" name="search"
-								placeholder="Tìm theo mã đơn hàng..." th:value="${param.search}">
-						</div>
-						<div class="col-md-4">
-							<select class="form-select" name="status">
-								<option value="">Tất cả trạng thái</option>
-								<option value="1"
-									th:selected="${currentStatus == 'Chờ xác nhận'}">Chờ
-									xác nhận</option>
-								<option value="2"
-									th:selected="${currentStatus == 'Đã xác nhận'}">Đã xác
-									nhận</option>
-								<option value="3"
-									th:selected="${currentStatus == 'Đang chuẩn bị'}">Đang
-									chuẩn bị</option>
-								<option value="4"
-									th:selected="${currentStatus == 'Đã đóng gói'}">Đã
-									đóng gói</option>
-								<option value="5" th:selected="${currentStatus == 'Đang giao'}">Đang
-									giao</option>
-								<option value="6" th:selected="${currentStatus == 'Đã giao'}">Đã
-									giao</option>
-								<option value="0" th:selected="${currentStatus == 'Đã hủy'}">Đã
-									hủy</option>
-								<option value="7" th:selected="${currentStatus == 'Hoàn trả'}">Hoàn
-									trả</option>
-							</select>
-						</div>
-						<div class="col-md-2">
-							<button type="submit" class="btn btn-primary w-100">
-								<i class="fas fa-search me-2"></i>Tìm Kiếm
-							</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
+    <div class="table-header">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2"></i> Tìm Kiếm & Lọc
+        </h5>
+    </div>
+    <div class="p-4">
+        <form method="get" th:action="@{/vendor/orders}">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Mã đơn hàng</label>
+                    <input type="text" class="form-control" name="search"
+                        placeholder="Tìm theo mã đơn hàng..." th:value="${param.search}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Trạng thái</label>
+                    <select class="form-select" name="status">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="1"
+                            th:selected="${currentStatus == 'Chờ xác nhận'}">Chờ
+                            xác nhận</option>
+                        <option value="2"
+                            th:selected="${currentStatus == 'Đã xác nhận'}">Đã xác
+                            nhận</option>
+                        <option value="3"
+                            th:selected="${currentStatus == 'Đang chuẩn bị'}">Đang
+                            chuẩn bị</option>
+                        <option value="4"
+                            th:selected="${currentStatus == 'Đã đóng gói'}">Đã
+                            đóng gói</option>
+                        <option value="5" th:selected="${currentStatus == 'Đang giao'}">Đang
+                            giao</option>
+                        <option value="6" th:selected="${currentStatus == 'Đã giao'}">Đã
+                            giao</option>
+                        <option value="0" th:selected="${currentStatus == 'Đã hủy'}">Đã
+                            hủy</option>
+                        <option value="7" th:selected="${currentStatus == 'Hoàn trả'}">Hoàn
+                            trả</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Từ ngày</label>
+                    <input type="date" class="form-control" name="startDate"
+                        th:value="${param.startDate}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Đến ngày</label>
+                    <input type="date" class="form-control" name="endDate"
+                        th:value="${param.endDate}">
+                </div>
+                <div class="col-md-1 d-flex flex-column justify-content-end">
+                    <button type="submit" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <a th:href="@{/vendor/orders}" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="fas fa-redo me-1"></i> Đặt lại
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 		<!-- Orders Table -->
 		<div class="admin-table">
@@ -208,12 +222,12 @@
 						<li class="page-item"
 							th:classappend="${page.first ? 'disabled' : ''}"><a
 							class="page-link"
-							th:href="@{/vendor/orders(page=0, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search})}">
+							th:href="@{/vendor/orders(page=0, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search}, startDate=${param.startDate}, endDate=${param.endDate})}">
 								Đầu </a></li>
 						<li class="page-item"
 							th:classappend="${page.first ? 'disabled' : ''}"><a
 							class="page-link"
-							th:href="@{/vendor/orders(page=${page.number - 1}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search})}">
+							th:href="@{/vendor/orders(page=${page.number - 1}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search}, startDate=${param.startDate}, endDate=${param.endDate})}">
 								Trước </a></li>
 
 						<li class="page-item"
@@ -221,18 +235,18 @@
 							th:if="${i >= page.number - 2 && i <= page.number + 2}"
 							th:classappend="${i == page.number ? 'active' : ''}"><a
 							class="page-link"
-							th:href="@{/vendor/orders(page=${i}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search})}"
+							th:href="@{/vendor/orders(page=${i}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search}, startDate=${param.startDate}, endDate=${param.endDate})}"
 							th:text="${i + 1}">1</a></li>
 
 						<li class="page-item"
 							th:classappend="${page.last ? 'disabled' : ''}"><a
 							class="page-link"
-							th:href="@{/vendor/orders(page=${page.number + 1}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search})}">
+							th:href="@{/vendor/orders(page=${page.number + 1}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search}, startDate=${param.startDate}, endDate=${param.endDate})}">
 								Sau </a></li>
 						<li class="page-item"
 							th:classappend="${page.last ? 'disabled' : ''}"><a
 							class="page-link"
-							th:href="@{/vendor/orders(page=${page.totalPages - 1}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search})}">
+							th:href="@{/vendor/orders(page=${page.totalPages - 1}, size=${page.size}, status=${currentStatus != 'ALL' ? OrderStatusHelper.getStatusValue(currentStatus) : null}, search=${param.search}, startDate=${param.startDate}, endDate=${param.endDate})}">
 								Cuối </a></li>
 					</ul>
 				</nav>

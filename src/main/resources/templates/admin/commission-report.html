@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Báo Cáo Doanh Thu Sàn</title>
+    <link rel="stylesheet" href="/css/admin/commission-report.css">
+    
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+        <h1 class="mb-3">Báo Cáo Doanh Thu Sàn</h1>
+
+        <form method="get" class="mb-3">
+            <label>Từ ngày:</label>
+            <input type="datetime-local" name="startDate" th:value="${startDate}">
+            <label>Đến ngày:</label>
+            <input type="datetime-local" name="endDate" th:value="${endDate}">
+            <button type="submit" class="btn btn-primary">Lọc</button>
+        </form>
+
+        <h5 class="mb-3">Tổng doanh thu sàn: 
+            <span th:text="${#numbers.formatDecimal(totalCommission, 1, 'COMMA', 2, 'POINT')}"></span> ₫
+        </h5>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Vendor</th>
+                    <th>Tổng Đơn Hàng</th>
+                    <th>Tổng Chiết Khấu</th>
+                    <th>Doanh Thu Sau Chiết Khấu</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="r : ${reports}">
+                    <td th:text="${r[0]}"></td>
+                    <td th:text="${r[1]}"></td>
+                    <td th:text="${#numbers.formatDecimal(r[2], 1, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="${#numbers.formatDecimal(r[3], 1, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

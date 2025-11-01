@@ -74,6 +74,19 @@
     z-index: 1000;
     transition: transform 0.2s;
 }
+
+.chat-main {
+    bottom: 20px;
+    right: 20px;
+    background: #0d6efd;
+}
+
+.chat-zalo {
+    bottom: 90px;
+    right: 20px;
+    background: #0068FF;
+}
+
 .chat-btn:hover {
     transform: scale(1.1);
 }

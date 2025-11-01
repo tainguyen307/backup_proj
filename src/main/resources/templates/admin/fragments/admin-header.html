@@ -2,22 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
     <header th:fragment="adminHeader">
-        <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+        <nav class="navbar admin-navbar navbar-expand-lg navbar-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" th:href="@{/}"> 
-			<img alt="Logo" th:src="@{/img/logo/womtech.png}">
-			WomTech Admin
-		</a>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
-                    <li class="nav-item"><a href="/admin/products" class="nav-link">Sản phẩm</a></li>
-                    <li class="nav-item"><a href="/admin/inventory" class="nav-link">Tồn kho</a></li>
-                    <li class="nav-item"><a href="/admin/brands" class="nav-link">Thương hiệu</a></li>
-                    <li class="nav-item"><a href="/admin/users" class="nav-link">Người dùng</a></li>
-                    <li class="nav-item"><a href="/admin/posts" class="nav-link">Bài viết</a></li>
-                    <li class="nav-item"><a href="/admin/vouchers" class="nav-link">Khuyến mãi toàn sàn</a></li>
-                    <li class="nav-item"><a href="/auth/manual-logout" class="nav-link text-danger">Đăng xuất</a></li>
-                </ul>
+                <a class="navbar-brand" th:href="@{/}">
+                    <img alt="Logo" th:src="@{/img/logo/womtech.png}">
+                    <span>WomTech</span>
+                    <span class="admin-badge">ADMIN</span>
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                        data-bs-target="#adminNavbar" aria-controls="adminNavbar" 
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="adminNavbar">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a href="/admin/dashboard" class="nav-link">
+                                <i class="fas fa-chart-line"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/products" class="nav-link">
+                                <i class="fas fa-box"></i>Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/inventory" class="nav-link">
+                                <i class="fas fa-warehouse"></i>Tồn kho
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/brands" class="nav-link">
+                                <i class="fas fa-tags"></i>Thương hiệu
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/users" class="nav-link">
+                                <i class="fas fa-users"></i>Người dùng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/posts" class="nav-link">
+                                <i class="fas fa-file-alt"></i>Bài viết
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/vouchers" class="nav-link">
+                                <i class="fas fa-ticket-alt"></i>Khuyến mãi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/commission/report" class="nav-link">
+                                <i class="fas fa-dollar-sign"></i>Doanh thu
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/auth/manual-logout" class="nav-link logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </nav>
     </header>

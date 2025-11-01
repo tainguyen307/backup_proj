@@ -68,23 +68,21 @@
 							</div>
 						</div>
 						<!-- Owner User -->
-                        <div class="mb-3">
-                            <label for="ownerUser" class="form-label">
-                                <i class="fas fa-user me-2"></i>Người Sở Hữu / Seller
-                            </label>
-                            <select class="form-select" id="ownerUser" th:field="*{ownerUser.userID}">
-                                <option value="">-- Không chỉ định --</option>
-                                <option th:each="user : ${users}" 
-                                        th:value="${user.userID}"
-                                        th:text="${user.username + ' (' + user.email + ')'}">
-                                    User
-                                </option>
-                            </select>
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Chỉ định người dùng sở hữu/quản lý sản phẩm này (tùy chọn)
-                            </small>
-                        </div>
+						<div class="mb-3">
+							<label for="ownerUser" class="form-label"> <i
+								class="fas fa-user me-2"></i>Người Sở Hữu / Seller
+							</label> <select class="form-select" id="ownerUser"
+								th:field="*{ownerUser.userID}">
+								<option value="">-- Không chỉ định --</option>
+								<option th:each="user : ${users}"
+									th:if="${user.role.rolename == 'VENDOR'}" th:value="${user.userID}"
+									th:text="${user.username + ' (' + user.email + ')'}">
+									User</option>
+							</select> <small class="text-muted"> <i
+								class="fas fa-info-circle me-1"></i> Chỉ định người dùng sở
+								hữu/quản lý sản phẩm này (tùy chọn)
+							</small>
+						</div>
 
 						<div class="row">
 							<!-- Price -->
@@ -225,7 +223,7 @@
 			</div>
 		</div>
 		<!-- Thêm script này TRƯỚC </body> -->
-	<script th:inline="javascript">
+		<script th:inline="javascript">
 	(function() {
 		console.log('=== INLINE SCRIPT LOADED ===');
 		
@@ -310,7 +308,7 @@
 	</script>
 	</div>
 
-	
+
 
 </body>
 </html>

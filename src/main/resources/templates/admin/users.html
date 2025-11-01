@@ -83,6 +83,10 @@
                 Danh Sách Người Dùng
                 <span id="filterCount" class="filter-badge" style="display: none;">0</span>
             </h5>
+            
+             <a href="/admin/users/new" class="btn btn-success">
+		        <i class="fas fa-user-plus me-1"></i> Thêm Người Dùng
+		    </a>
         </div>
 
         <div class="table-responsive">
@@ -114,6 +118,11 @@
                     </td>
                     <td>
                         <div class="btn-group">
+                        	<a th:href="@{/admin/users/edit/{id}(id=${user.userID})}"
+						       class="btn btn-sm btn-outline-primary"
+						       title="Chỉnh sửa">
+						        <i class="fas fa-edit"></i>
+						    </a>
                             <a th:if="${user.status == 1}"
 					           th:href="@{/admin/users/lock/{id}(id=${user.userID})}"
 					           class="btn btn-sm btn-outline-warning"

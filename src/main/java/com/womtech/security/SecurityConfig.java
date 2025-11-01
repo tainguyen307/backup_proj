@@ -30,7 +30,9 @@ public class SecurityConfig {
 						// ✅ ĐẶT TRÊN CÙNG: trang đăng ký shop (chỉ cần đăng nhập)
 						.requestMatchers(HttpMethod.GET, "/vendor-register", "/vendor-register/**").authenticated()
 						.requestMatchers(HttpMethod.POST, "/vendor-register", "/vendor-register/**").authenticated()
-
+						
+						.requestMatchers("/order/vnpay-return").permitAll()
+						
 						// Static
 						.requestMatchers("/css/**", "/js/**", "/img/**", "/images/**", "/static/**", "/webjars/**",
 								"/favicon.ico")

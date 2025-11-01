@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{shipper/layout}">
+<head>
+<title>Hướng Dẫn Nhanh - Shipper Panel</title>
+<style>
+body {
+	background: #fff;
+	color: #111;
+}
+
+.help-card {
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.help-card .header {
+	padding: 16px;
+	border-bottom: 1px solid #eee;
+	background: #fafafa;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.help-card .body {
+	padding: 16px;
+}
+
+.step {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	margin-bottom: 12px;
+}
+
+.step .idx {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	background: #eef2ff;
+	color: #374151;
+}
+
+.kbd {
+	border: 1px solid #e5e7eb;
+	border-bottom-width: 3px;
+	padding: 2px 6px;
+	border-radius: 6px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	background: #fff;
+	font-size: 0.9rem;
+}
+
+.badge-dot {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.badge-dot i {
+	font-size: 8px;
+}
+
+.checklist li {
+	margin-bottom: 8px;
+}
+
+.callout {
+	border-left: 4px solid #0ea5e9;
+	background: #f0f9ff;
+	padding: 12px 14px;
+	border-radius: 8px;
+}
+
+.faq .q {
+	font-weight: 600;
+}
+
+.faq .a {
+	color: #6b7280;
+}
+
+.btn-primary {
+	background: #2563eb;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 6px 12px;
+	text-decoration: none;
+}
+
+.btn-primary:hover {
+	background: #1d4ed8;
+}
+</style>
+</head>
+<body>
+	<h1 layout:fragment="page-title">Hướng dẫn nhanh</h1>
+
+	<div layout:fragment="content" class="container-xxl">
+
+		<!-- Tổng quan nhanh -->
+		<div class="help-card mb-4">
+			<div class="header">
+				<h5 class="mb-0">
+					<i class="fas fa-bolt me-2"></i>Tổng quan
+				</h5>
+				<a href="/shipper/deliveries" class="btn btn-sm btn-primary">
+					Bắt đầu giao ngay <i class="fas fa-arrow-right ms-1"></i>
+				</a>
+			</div>
+			<div class="body">
+				<ul class="list-unstyled checklist">
+					<li>• Quản lý đơn được phân công tại: <code>/shipper/deliveries</code>.
+					</li>
+					<li>• Luồng trạng thái chuẩn: <span class="badge-dot ms-1"><i
+							class="fas fa-circle text-secondary"></i> Xác nhận</span> → <span
+						class="badge-dot"><i class="fas fa-circle text-primary"></i>
+							Đóng gói</span> → <span class="badge-dot"><i
+							class="fas fa-circle text-info"></i> Đang giao</span> → <span
+						class="badge-dot"><i class="fas fa-circle text-success"></i>
+							Giao thành công</span> (hoặc <span class="badge-dot"><i
+							class="fas fa-circle text-danger"></i> Hoàn/huỷ</span>).
+					</li>
+					<li>• Đơn COD: khi chuyển sang <strong>DELIVERED</strong>, hệ
+						thống tự đánh dấu <em>đã thanh toán</em>.
+					</li>
+					<li>• “COD cần thu” ở Dashboard chỉ tính các đơn COD <em>chưa
+							thu</em> và <em>không</em> nằm trong CANCELLED/RETURNED.
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<!-- Quy trình giao hàng -->
+		<div class="help-card mb-4">
+			<div class="header">
+				<h5 class="mb-0">
+					<i class="fas fa-route me-2"></i>Quy trình giao hàng nhanh (5 bước)
+				</h5>
+			</div>
+			<div class="body">
+				<div class="step">
+					<div class="idx">1</div>
+					<div>
+						<strong>Nhận & xem đơn</strong><br>
+						<span class="text-muted">Vào <a href="/shipper/deliveries">Danh
+								sách giao</a> để xem các đơn được phân công.
+						</span>
+					</div>
+				</div>
+				<div class="step">
+					<div class="idx">2</div>
+					<div>
+						<strong>Kiểm tra thông tin nhận hàng</strong><br>
+						<span class="text-muted">Xác minh địa chỉ, SĐT và ghi chú
+							giao hàng.</span>
+					</div>
+				</div>
+				<div class="step">
+					<div class="idx">3</div>
+					<div>
+						<strong>Bắt đầu giao</strong><br>
+						<span class="text-muted">Chuyển trạng thái sang <strong>Đang
+								giao (SHIPPED)</strong> tại trang chi tiết đơn.
+						</span>
+					</div>
+				</div>
+				<div class="step">
+					<div class="idx">4</div>
+					<div>
+						<strong>Hoàn tất giao</strong><br>
+						<span class="text-muted">Chuyển sang <strong>DELIVERED</strong>
+							khi giao thành công hoặc chọn <strong>RETURNED/CANCELLED</strong>
+							nếu thất bại.
+						</span>
+					</div>
+				</div>
+				<div class="step">
+					<div class="idx">5</div>
+					<div>
+						<strong>Xử lý COD</strong><br>
+						<span class="text-muted">Nếu đơn là COD, hệ thống tự cập
+							nhật “đã thanh toán” khi chuyển DELIVERED. Có thể dùng nút <span
+							class="kbd">Xác nhận COD</span> nếu cần.
+						</span>
+					</div>
+				</div>
+				<div class="callout mt-2">
+					<strong>Mẹo:</strong> Dùng bộ lọc ngày để xem tiến độ theo ca/ngày.
+					Xem thống kê & thu nhập tại <a href="/shipper/stats">/shipper/stats</a>.
+				</div>
+			</div>
+		</div>
+
+		<!-- Quy tắc trạng thái -->
+		<div class="help-card mb-4">
+			<div class="header">
+				<h5 class="mb-0">
+					<i class="fas fa-diagram-project me-2"></i>Trạng thái & Quy tắc
+				</h5>
+			</div>
+			<div class="body">
+				<ul class="list-unstyled checklist">
+					<li>• Chỉ chuyển sang <strong>SHIPPED</strong> khi đơn ở <em>PACKED</em>.
+					</li>
+					<li>• Chỉ được kết thúc (<strong>DELIVERED/RETURNED</strong>)
+						khi đơn đang ở <em>SHIPPED</em>.
+					</li>
+					<li>• Đơn <em>DELIVERED/RETURNED/CANCELLED</em> không thể
+						chuyển tiếp.
+					</li>
+					<li>• Đơn COD → khi <strong>DELIVERED</strong> hệ thống tự
+						đánh dấu <em>đã thanh toán</em>.
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<!-- Phím tắt -->
+		<div class="help-card mb-4">
+			<div class="header">
+				<h5 class="mb-0">
+					<i class="fas fa-keyboard me-2"></i>Phím tắt & thao tác nhanh
+				</h5>
+			</div>
+			<div class="body">
+				<div class="row g-3">
+					<div class="col-md-6">
+						<ul class="list-unstyled checklist">
+							<li>• <span class="kbd">/</span> mở tìm kiếm (click ô tìm
+								kiếm trước).
+							</li>
+							<li>• <span class="kbd">Alt</span> + <span class="kbd">S</span>
+								áp dụng bộ lọc.
+							</li>
+							<li>• <span class="kbd">Alt</span> + <span class="kbd">←
+									/ →</span> chuyển trang trước/sau.
+							</li>
+						</ul>
+					</div>
+					<div class="col-md-6">
+						<ul class="list-unstyled checklist">
+							<li>• Nút <strong>Thao tác</strong> trên bảng danh sách
+								giao.
+							</li>
+							<li>• Xem nhanh COD cần thu/đã thu trên Dashboard.</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- FAQ -->
+		<div class="help-card mb-4 faq">
+			<div class="header">
+				<h5 class="mb-0">
+					<i class="fas fa-circle-question me-2"></i>Hỏi đáp nhanh
+				</h5>
+			</div>
+			<div class="body">
+				<div class="mb-3">
+					<div class="q">Tại sao không chuyển được sang “Đang giao”?</div>
+					<div class="a">
+						Vì đơn chưa ở <em>PACKED</em> hoặc đã ở <em>SHIPPED</em>/<em>kết
+							thúc</em>. Kiểm tra quy tắc trên.
+					</div>
+				</div>
+				<div class="mb-3">
+					<div class="q">“COD cần thu” có tính đơn huỷ/hoàn không?</div>
+					<div class="a">Không, hệ thống tự loại bỏ CANCELLED/RETURNED
+						khi tính.</div>
+				</div>
+				<div class="mb-3">
+					<div class="q">Thu nhập theo ngày bị lệch?</div>
+					<div class="a">
+						Biểu đồ hiện dùng ngày tạo đơn (
+						<code>createAt</code>
+						). Nếu có
+						<code>deliveredAt</code>
+						, hãy dùng để chính xác hơn.
+					</div>
+				</div>
+				<div class="mb-1">
+					<div class="q">Không thấy đơn phân công?</div>
+					<div class="a">Làm mới trang, kiểm tra bộ lọc hoặc liên hệ
+						quản trị viên.</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Hỗ trợ -->
+		<div class="help-card mb-5">
+			<div class="header">
+				<h5 class="mb-0">
+					<i class="fas fa-headset me-2"></i>Liên hệ hỗ trợ
+				</h5>
+			</div>
+			<div class="body">
+				<p class="mb-1">Nếu gặp sự cố, vui lòng cung cấp mã đơn, thời
+					gian, và ảnh lỗi (nếu có).</p>
+				<ul class="mb-0">
+					<li>Email: <a href="mailto:support@womtech.local">support@womtech.local</a></li>
+					<li>Trung tâm trợ giúp: <a href="/shipper/help">/shipper/help</a></li>
+				</ul>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

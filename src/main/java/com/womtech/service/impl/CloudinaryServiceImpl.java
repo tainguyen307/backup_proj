@@ -65,6 +65,27 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     }
     
     @Override
+	public String uploadAvatar(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Chưa chọn file để upload!");
+        }
+
+        if (!file.getContentType().startsWith("image/")) {
+            throw new IllegalArgumentException("Chỉ cho phép upload file ảnh!");
+        }
+
+        try {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", "womtech/avatars", // Tự động tạo folder
+                    "resource_type", "image"
+            ));
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary!", e);
+        }
+    }
+    
+    @Override
     public String extractPublicIdFromUrl(String imageUrl) {
         try {
             // Example URL: https://res.cloudinary.com/demo/image/upload/v1234567890/womtech/products/abc-123.jpg

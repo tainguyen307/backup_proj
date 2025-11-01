@@ -2,6 +2,8 @@ package com.womtech.repository;
 
 import com.womtech.entity.Product;
 import com.womtech.entity.Subcategory;
+import com.womtech.entity.User;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -108,5 +110,6 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 	Page<Product> searchMyActiveProducts(@Param("ownerUserId") String ownerUserId, @Param("kw") String keyword,
 			Pageable pageable);
 	
-	
+    List<Product> findByOwnerUser(User ownerUser);
+
 }

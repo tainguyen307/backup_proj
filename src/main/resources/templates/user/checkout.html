@@ -29,7 +29,14 @@
 			<div class="col-md-7">
 				<div class="card shadow-sm border-0 rounded-3">
 					<div class="card-body">
-
+						<!-- THÔNG BÁO LỖI -->
+						<div th:if="${addressError}"
+							class="alert alert-danger d-flex align-items-center mb-3"
+							role="alert">
+							<i class="bi bi-exclamation-triangle-fill me-2"></i> <span
+								th:text="${addressError}">Vui lòng chọn địa chỉ giao
+								hàng.</span>
+						</div>
 						<!-- ĐỊA CHỈ -->
 						<h5 class="card-title mb-3 text-secondary">
 							<i class="bi bi-geo-alt me-1 text-primary"></i>Địa chỉ nhận hàng
@@ -54,7 +61,7 @@
 							</select>
 						</div>
 
-						<!-- HIỂN THỊ THÔNG TIN ĐỊA CHỈ (CHỈ XEM) -->
+						<!-- HIỂN THỊ THÔNG TIN ĐỊA CHỈ -->
 						<div id="addressDisplay" class="border p-3 rounded bg-light">
 							<h6 class="text-secondary mb-3">
 								<i class="bi bi-person-vcard me-1 text-primary"></i> Thông tin
@@ -135,13 +142,43 @@
 						<hr class="my-3">
 
 						<!-- MÃ GIẢM GIÁ -->
-						<div class="input-group mb-3">
-							<input type="text" id="voucherCode" name="voucher"
-								class="form-control" placeholder="Nhập mã giảm giá">
-							<button class="btn btn-outline-primary" type="button"
-								id="applyVoucher">
+						<form th:action="@{/checkout/add-voucher}" method="post"
+							class="input-group mb-3">
+							<input type="text" name="voucherCode" class="form-control"
+								placeholder="Nhập mã giảm giá">
+							<button class="btn btn-outline-primary" type="submit">
 								<i class="bi bi-percent"></i> Áp dụng
 							</button>
+						</form>
+
+						<!-- DANH SÁCH VOUCHER ĐANG ÁP DỤNG -->
+						<div
+							th:if="${cartVouchers != null and !cartVouchers.isEmpty()}">
+							<h6 class="fw-semibold mb-2">Mã giảm giá đã áp dụng:</h6>
+							<ul class="list-group mb-3">
+								<li th:each="cv : ${cartVouchers}"
+									class="list-group-item d-flex justify-content-between align-items-center">
+									<div>
+										<span class="fw-bold text-primary" th:text="${cv.voucher.code}">VOUCHER2025</span>
+										<small class="text-success d-block ms-3"
+											th:text="'-' + ${#numbers.formatDecimal(cv.discountValue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></small>
+									</div>
+									<form th:action="@{/checkout/remove-voucher}" method="post"
+										class="m-0">
+										<input type="hidden" name="voucherCode"
+											th:value="${cv.voucher.code}">
+										<button class="btn btn-sm btn-outline-danger" type="submit">
+											<i class="bi bi-x"></i>
+										</button>
+									</form>
+								</li>
+							</ul>
+						</div>
+
+						<!-- THÔNG BÁO LỖI -->
+						<div th:if="${voucherError}" class="alert alert-warning py-2">
+							<i class="bi bi-exclamation-triangle"></i> <span
+								th:text="${voucherError}"></span>
 						</div>
 
 						<!-- PHƯƠNG THỨC THANH TOÁN -->
@@ -186,7 +223,7 @@
 							</div>
 							<div class="d-flex justify-content-between text-success">
 								<span>Giảm giá:</span> <span
-									th:text="${discount != null ? '-' + #numbers.formatDecimal(discount, 0, 'COMMA', 0, 'POINT') + ' ₫' : '- 0 ₫'}"></span>
+									th:text="${totalDiscountPrice != null ? '-' + #numbers.formatDecimal(totalDiscountPrice, 0, 'COMMA', 0, 'POINT') + ' ₫' : '- 0 ₫'}"></span>
 							</div>
 							<div class="d-flex justify-content-between text-muted">
 								<span>Phí vận chuyển:</span> <span
@@ -195,7 +232,7 @@
 							<hr class="my-2">
 							<div class="d-flex justify-content-between fw-bold">
 								<span>Tổng cộng:</span> <span class="text-danger fs-5"
-									th:text="${#numbers.formatDecimal(totalPrice - (discount != null ? discount : 0) + (shippingFee != null ? shippingFee : 0), 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+									th:text="${#numbers.formatDecimal(finalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
 							</div>
 						</div>
 
@@ -204,8 +241,7 @@
 							id="checkoutForm">
 							<input type="hidden" name="payment_method" id="selectedPayment">
 							<input type="hidden" name="selectedAddressId"
-								id="selectedAddressId">
-							<input type="hidden"
+								id="selectedAddressId"> <input type="hidden"
 								name="voucherCode" id="voucherHidden">
 
 							<button type="submit"

@@ -38,27 +38,27 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
 	@Query("SELECT c.name, SUM(oi.price * oi.quantity) " + "FROM OrderItem oi " + "JOIN oi.product p "
 			+ "LEFT JOIN p.subcategory sc " + "LEFT JOIN sc.category c "
 			+ "WHERE oi.product.ownerUser.userID = :vendorId " + "AND oi.order.createAt BETWEEN :start AND :end "
-			+ "AND oi.status = 6 " + "GROUP BY c.name " + "ORDER BY SUM(oi.price * oi.quantity) DESC")
+			+ "AND oi.order.paymentStatus = 1 " + "GROUP BY c.name " + "ORDER BY SUM(oi.price * oi.quantity) DESC")
 	List<Object[]> findRevenueByCategoryAndVendor(@Param("vendorId") String vendorId,
 			@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
 	// Query cho top sản phẩm bán chạy
 	@Query("SELECT p.name, SUM(oi.quantity) " + "FROM OrderItem oi " + "JOIN oi.product p "
 			+ "WHERE oi.product.ownerUser.userID = :vendorId " + "AND oi.order.createAt BETWEEN :start AND :end "
-			+ "AND oi.status = 6 " + "GROUP BY p.name, p.productID " + "ORDER BY SUM(oi.quantity) DESC")
+			+ "AND oi.order.paymentStatus = 1" + "GROUP BY p.name, p.productID " + "ORDER BY SUM(oi.quantity) DESC")
 	List<Object[]> findTopProductsByVendor(@Param("vendorId") String vendorId, @Param("start") LocalDateTime start,
 			@Param("end") LocalDateTime end, Pageable pageable);
 
 	// Query cho tổng doanh thu
 	@Query("SELECT SUM(oi.price * oi.quantity) " + "FROM OrderItem oi "
 			+ "WHERE oi.product.ownerUser.userID = :vendorId " + "AND oi.order.createAt BETWEEN :start AND :end "
-			+ "AND oi.status = 6")
+			+ "AND oi.order.paymentStatus = 1")
 	BigDecimal calculateTotalRevenueByVendor(@Param("vendorId") String vendorId, @Param("start") LocalDateTime start,
 			@Param("end") LocalDateTime end);
 
 	// Query cho tổng số đơn hàng
 	@Query("SELECT COUNT(DISTINCT oi.order) " + "FROM OrderItem oi " + "WHERE oi.product.ownerUser.userID = :vendorId "
-			+ "AND oi.order.createAt BETWEEN :start AND :end " + "AND oi.status = 6")
+			+ "AND oi.order.createAt BETWEEN :start AND :end " + "AND oi.order.paymentStatus = 1")
 	Long countDistinctOrdersByVendor(@Param("vendorId") String vendorId, @Param("start") LocalDateTime start,
 			@Param("end") LocalDateTime end);
 

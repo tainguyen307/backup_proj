@@ -37,4 +37,12 @@ public class OrderItem {
 	
 	@Transient
 	private BigDecimal itemTotal;
+	
+	 // ✅ Số tiền chiết khấu (sàn thu)
+    @Column(name = "commission_amount", precision = 12, scale = 2)
+    private BigDecimal commissionAmount;
+
+    // ✅ Thành tiền thực nhận của vendor (sau khi trừ chiết khấu)
+    @Column(name = "net_total", precision = 12, scale = 2)
+    private BigDecimal netTotal;
 }

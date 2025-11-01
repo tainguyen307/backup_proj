@@ -176,4 +176,26 @@ public class UserServiceImpl extends BaseServiceImpl<User, String> implements Us
 	public Page<User> searchUsers(String keyword, String role, Integer status, Pageable pageable) {
 		return userRepository.searchUsers(keyword, role, status, pageable);
 	}
+
+	@Override
+	public void deleteUserById(String userId) {
+		 Optional<User> userOpt = userRepository.findById(userId);
+		    if (userOpt.isPresent()) {
+		        userRepository.deleteById(userId);
+		    } else {
+		        throw new RuntimeException("User not found with ID: " + userId);
+		    }
+	}
+
+	@Override
+	public List<User> findByRolename(String rolename) {
+		Role role = roleRepository.findByRolename(rolename).orElseThrow();
+		return userRepository.findByRole(role);
+	}
+	
+	@Override
+    @Transactional
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

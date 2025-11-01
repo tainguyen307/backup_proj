@@ -31,6 +31,8 @@ public class User {
 	private String password;
 	@Column(nullable = false, unique = true, length = 255)
 	private String email;
+    @Column(length = 500)
+    private String avatar;
 
 	@CreationTimestamp
 	@Column(name = "create_at", updatable = false)

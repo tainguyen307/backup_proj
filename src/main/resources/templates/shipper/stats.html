@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{shipper/layout}">
+<head>
+<title>Thống Kê Cá Nhân - Shipper Panel</title>
+<link rel="stylesheet" href="/css/shipper/stats.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.stat-card {
+	border-radius: 12px;
+	border: 1px solid #eee;
+	padding: 16px
+}
+
+.stat-icon {
+	width: 44px;
+	height: 44px;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 8px
+}
+
+.stat-value {
+	font-size: 22px;
+	font-weight: 700
+}
+
+.stat-label {
+	color: #6b7280
+}
+
+.chart-wrap {
+	max-width: 1000px
+}
+</style>
+</head>
+<body>
+	<h1 layout:fragment="page-title">Thống kê cá nhân</h1>
+
+	<div layout:fragment="content">
+
+		<!-- Bộ lọc -->
+		<div class="admin-table mb-4">
+			<div class="table-header">
+				<h5 class="mb-0">
+					<i class="fas fa-calendar-range me-2"></i>Khoảng thời gian
+				</h5>
+			</div>
+			<form class="p-3 row g-3 align-items-end" method="get"
+				action="/shipper/stats">
+				<div class="col-md-3">
+					<label class="form-label mb-1">Từ ngày</label> <input type="date"
+						class="form-control" name="startDate" th:value="${startDate}">
+				</div>
+				<div class="col-md-3">
+					<label class="form-label mb-1">Đến ngày</label> <input type="date"
+						class="form-control" name="endDate" th:value="${endDate}">
+				</div>
+				<div class="col-md-3">
+					<button class="btn btn-primary">
+						<i class="fas fa-filter me-1"></i>Áp dụng
+					</button>
+					<a href="/shipper/stats" class="btn btn-outline-secondary ms-2">
+						<i class="fas fa-rotate-left me-1"></i>Mặc định
+					</a>
+				</div>
+			</form>
+		</div>
+
+		<!-- KPIs -->
+		<div class="row g-4 mb-4">
+			<div class="col-md-3">
+				<div class="stat-card">
+					<div class="stat-icon"
+						style="background: linear-gradient(135deg, #3b82f6, #60a5fa); color: #fff">
+						<i class="fas fa-user-check"></i>
+					</div>
+					<div class="stat-value" th:text="${totals!=null?totals.assigned:0}">0</div>
+					<div class="stat-label">Được phân công</div>
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="stat-card">
+					<div class="stat-icon"
+						style="background: linear-gradient(135deg, #0ea5e9, #38bdf8); color: #fff">
+						<i class="fas fa-truck-fast"></i>
+					</div>
+					<div class="stat-value" th:text="${totals!=null?totals.shipped:0}">0</div>
+					<div class="stat-label">Đang giao</div>
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="stat-card">
+					<div class="stat-icon"
+						style="background: linear-gradient(135deg, #10b981, #34d399); color: #fff">
+						<i class="fas fa-circle-check"></i>
+					</div>
+					<div class="stat-value"
+						th:text="${totals!=null?totals.delivered:0}">0</div>
+					<div class="stat-label">Đã giao</div>
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="stat-card">
+					<div class="stat-icon"
+						style="background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff">
+						<i class="fas fa-rotate-left"></i>
+					</div>
+					<div class="stat-value" th:text="${totals!=null?totals.returned:0}">0</div>
+					<div class="stat-label">Hoàn trả</div>
+				</div>
+			</div>
+
+			<!-- KPI Thu nhập (ước tính) -->
+			<div class="col-md-3">
+				<div class="stat-card">
+					<div class="stat-icon"
+						style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #fff">
+						<i class="fas fa-sack-dollar"></i>
+					</div>
+					<div class="stat-value">
+						<span
+							th:text="${#numbers.formatDecimal(totalIncome, 0, 'POINT', 0, 'POINT')}">0</span>₫
+					</div>
+					<div class="stat-label">Thu nhập (ước tính)</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Biểu đồ -->
+		<div class="row g-4">
+			<div class="col-12">
+				<div class="admin-table">
+					<div class="table-header">
+						<h5 class="mb-0">
+							<i class="fas fa-chart-line me-2"></i>Giao thành công theo ngày
+						</h5>
+					</div>
+					<div class="p-3 chart-wrap">
+						<canvas id="deliveredChart"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="admin-table">
+					<div class="table-header">
+						<h5 class="mb-0">
+							<i class="fas fa-chart-column me-2"></i>Hoàn trả theo ngày
+						</h5>
+					</div>
+					<div class="p-3 chart-wrap">
+						<canvas id="returnedChart"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<!-- Thu nhập theo ngày -->
+			<div class="col-12">
+				<div class="admin-table">
+					<div class="table-header">
+						<h5 class="mb-0">
+							<i class="fas fa-chart-area me-2"></i>Thu nhập theo ngày
+						</h5>
+					</div>
+					<div class="p-3 chart-wrap">
+						<canvas id="incomeChart"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Top khu vực/khách hàng (tùy dữ liệu) -->
+		<div class="row g-4 mt-4" th:if="${topAreas != null}">
+			<div class="col-md-6">
+				<div class="admin-table">
+					<div class="table-header">
+						<h5 class="mb-0">
+							<i class="fas fa-map-pin me-2"></i>Khu vực giao nhiều
+						</h5>
+					</div>
+					<div class="table-responsive">
+						<table class="table mb-0">
+							<thead>
+								<tr>
+									<th>Khu vực</th>
+									<th class="text-end">Số đơn</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="a : ${topAreas}">
+									<td th:text="${a.label}">Quận 1</td>
+									<td class="text-end" th:text="${a.value}">0</td>
+								</tr>
+								<tr th:if="${#lists.isEmpty(topAreas)}">
+									<td colspan="2" class="text-center text-muted">Không có dữ
+										liệu</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6" th:if="${topCustomers != null}">
+				<div class="admin-table">
+					<div class="table-header">
+						<h5 class="mb-0">
+							<i class="fas fa-user-group me-2"></i>Khách hàng nhận nhiều
+						</h5>
+					</div>
+					<div class="table-responsive">
+						<table class="table mb-0">
+							<thead>
+								<tr>
+									<th>Khách hàng</th>
+									<th class="text-end">Số đơn</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="c : ${topCustomers}">
+									<td th:text="${c.label}">Nguyễn Văn A</td>
+									<td class="text-end" th:text="${c.value}">0</td>
+								</tr>
+								<tr th:if="${#lists.isEmpty(topCustomers)}">
+									<td colspan="2" class="text-center text-muted">Không có dữ
+										liệu</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		<script th:inline="javascript">
+    /*<![CDATA[*/
+    const labels    = /*[[${dailyLabels}]]*/ [];
+    const delivered = /*[[${dailyDelivered}]]*/ [];
+    const returned  = /*[[${dailyReturned}]]*/ [];
+    const income    = /*[[${dailyIncome}]]*/ []; // mỗi phần tử = 15000 * deliveredCountInDay
+
+    // Biểu đồ Đã giao (line)
+    new Chart(document.getElementById('deliveredChart'), {
+      type: 'line',
+      data: { labels, datasets: [{ label: 'Đã giao', data: delivered, tension: 0.35 }] },
+      options: {
+        plugins: {
+          tooltip: { callbacks: { label: (ctx) => ' ' + ctx.raw + ' đơn' } }
+        },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+
+    // Biểu đồ Hoàn trả (bar)
+    new Chart(document.getElementById('returnedChart'), {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Hoàn trả', data: returned }] },
+      options: {
+        plugins: {
+          tooltip: { callbacks: { label: (ctx) => ' ' + ctx.raw + ' đơn' } }
+        },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+
+    // Biểu đồ Thu nhập theo ngày (bar)
+    new Chart(document.getElementById('incomeChart'), {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Thu nhập (₫)', data: income }] },
+      options: {
+        parsing: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => Intl.NumberFormat('vi-VN').format(value)
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ' ' + Intl.NumberFormat('vi-VN').format(ctx.raw) + ' ₫'
+            }
+          }
+        }
+      }
+    });
+    /*]]>*/
+  </script>
+
+	</div>
+</body>
+</html>

@@ -34,4 +34,8 @@ public class Cart {
 	@Builder.Default
 	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CartItem> items = new ArrayList<>();
+	
+	@Builder.Default
+	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<CartVoucher> cartVouchers = new ArrayList<>();
 }

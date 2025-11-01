@@ -14,11 +14,13 @@ public interface CartService extends BaseService<Cart, String> {
 
 	void updateQuantity(String cartItemID, int quantity);
 
-	void clearCart(User user);
+	void clearCart(Cart cart);
 
 	void removeItem(String cartItemID);
 
 	BigDecimal totalPrice(Cart cart);
 
 	int totalQuantity(Cart cart);
+
+	BigDecimal totalPriceByOwner(Cart cart, User owner);
 }

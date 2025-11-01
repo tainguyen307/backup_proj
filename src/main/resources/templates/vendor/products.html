@@ -201,6 +201,62 @@
                 </tbody>
             </table>
         </div>
+        <!-- Phân trang -->
+<div class="pagination-container mt-3">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mb-0">
+            <!-- Nút Previous -->
+            <li class="page-item" th:classappend="${page.number == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/vendor/products(
+                        page=${page.number - 1},
+                        size=${page.size},
+                        search=${param.search},
+                        categoryID=${param.categoryID},
+                        subcategoryID=${param.subcategoryID},
+                        brandId=${param.brandId},
+                        status=${param.status}
+                   )}" aria-label="Trước">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- Các trang -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                th:classappend="${i == page.number} ? 'active'">
+                <a class="page-link"
+                   th:text="${i + 1}"
+                   th:href="@{/vendor/products(
+                        page=${i},
+                        size=${page.size},
+                        search=${param.search},
+                        categoryID=${param.categoryID},
+                        subcategoryID=${param.subcategoryID},
+                        brandId=${param.brandId},
+                        status=${param.status}
+                   )}"></a>
+            </li>
+
+            <!-- Nút Next -->
+            <li class="page-item" th:classappend="${page.number + 1 >= page.totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/vendor/products(
+                        page=${page.number + 1},
+                        size=${page.size},
+                        search=${param.search},
+                        categoryID=${param.categoryID},
+                        subcategoryID=${param.subcategoryID},
+                        brandId=${param.brandId},
+                        status=${param.status}
+                   )}" aria-label="Sau">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+        
     </div>
 
     <!-- Script tải danh mục con -->

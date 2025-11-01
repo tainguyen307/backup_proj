@@ -4,17 +4,17 @@
 	layout:decorate="~{vendor/layout}">
 <head>
 <title>Chi Tiết Đơn Hàng - Vendor Panel</title>
-    <link rel="stylesheet" href="/css/vendor/order-detail.css">
-
+<link rel="stylesheet" href="/css/vendor/order-detail.css">
 <style>
-	.item-status-form {
-		display: flex;
-		gap: 8px;
-		align-items: flex-end;
-	}
-	.item-status-select {
-		min-width: 180px;
-	}
+.item-status-form {
+	display: flex;
+	gap: 8px;
+	align-items: flex-end;
+}
+
+.item-status-select {
+	min-width: 180px;
+}
 </style>
 </head>
 <body>
@@ -52,8 +52,7 @@
 								<p>
 									<strong>Trạng thái:</strong> <span class="badge"
 										th:text="${OrderStatusHelper.getStatusLabel(order.status)}"
-										th:classappend="' ' + ${OrderStatusHelper.getStatusBadgeClass(order.status)}">
-									</span>
+										th:classappend="' ' + ${OrderStatusHelper.getStatusBadgeClass(order.status)}"></span>
 								</p>
 								<p>
 									<strong>Thanh toán:</strong> <span
@@ -68,11 +67,10 @@
 								<p>
 									<strong>Trạng thái thanh toán:</strong> <span class="badge"
 										th:text="${OrderStatusHelper.getPaymentStatusLabel(order.paymentStatus)}"
-										th:classappend="' ' + ${OrderStatusHelper.getPaymentBadgeClass(order.paymentStatus)}">
-									</span>
+										th:classappend="' ' + ${OrderStatusHelper.getPaymentBadgeClass(order.paymentStatus)}"></span>
 								</p>
 							</div>
-						</div>				
+						</div>
 					</div>
 				</div>
 			</div>
@@ -86,7 +84,6 @@
 						</h5>
 					</div>
 
-					<!-- Customer Info -->
 					<div class="mb-2">
 						<p class="mb-1">
 							<i class="fas fa-id-badge me-2 text-secondary"></i> <strong>Tài
@@ -100,7 +97,6 @@
 
 					<hr>
 
-					<!-- Shipping Info -->
 					<div class="mt-2">
 						<p class="mb-1">
 							<i class="fas fa-user-tag me-2 text-secondary"></i> <strong>Tên
@@ -118,11 +114,47 @@
 								123 Lê Lợi, Phường 1, Quận 3, TP.HCM </span>
 						</p>
 					</div>
+
+					<!-- Nếu ĐÃ gán shipper -->
+					<div class="mt-3" th:if="${order.shipper != null}">
+						<div class="p-3 border rounded bg-light">
+							<p class="mb-1">
+								<i class="fas fa-truck me-2 text-success"></i> <strong>Shipper:</strong>
+								<span th:text="${order.shipper.username}"></span> <span
+									class="text-muted" th:if="${order.shipper.email != null}">
+									(<span th:text="${order.shipper.email}"></span>)
+								</span>
+							</p>
+							<p class="mb-0" th:if="${order.assignedAt != null}">
+								<i class="far fa-clock me-2 text-secondary"></i> <strong>Gán
+									lúc:</strong> <span
+									th:text="${#temporals.format(order.assignedAt, 'dd/MM/yyyy HH:mm')}"></span>
+							</p>
+						</div>
+
+						<!-- Nút huỷ gán -->
+						<form class="mt-2 d-inline"
+							th:action="@{'/vendor/orders/unassign-shipper/' + ${order.orderID}}"
+							method="post">
+							<button type="submit" class="btn btn-outline-danger btn-sm">
+								<i class="fas fa-times-circle me-1"></i> Huỷ gán shipper
+							</button>
+						</form>
+					</div>
+
+					<!-- Nếu CHƯA gán shipper -->
+					<div class="text-center mt-3" th:if="${order.shipper == null}">
+						<button type="button" class="btn btn-outline-primary"
+							data-bs-toggle="modal" data-bs-target="#assignShipperModal">
+							<i class="fas fa-truck me-2"></i> Chọn shipper cho đơn hàng
+						</button>
+					</div>
+
 				</div>
 			</div>
 		</div>
 
-		<!-- Sản phẩm của vendor với cập nhật trạng thái -->
+		<!-- Sản phẩm của vendor -->
 		<div class="admin-table mb-4">
 			<div class="table-header">
 				<h5>
@@ -140,11 +172,11 @@
 							<th>Số lượng</th>
 							<th>Thành tiền</th>
 							<th>Trạng thái</th>
-							<th>Hành động</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="item : ${vendorItems}">
+							<!-- Hình -->
 							<td><img
 								th:if="${item.product.thumbnail != null && !item.product.thumbnail.isEmpty()}"
 								th:src="${item.product.thumbnail}" alt="item.product"
@@ -156,65 +188,77 @@
 									style="width: 60px; height: 60px;">
 									<i class="fas fa-image fa-2x text-muted"></i>
 								</div></td>
-							<td>
-								<div>
-									<strong th:text="${item.product.name}">item.product
-										Name</strong>
-								</div> 
-							</td>
+
+							<!-- Tên sản phẩm -->
+							<td><strong th:text="${item.product.name}">item.product
+									Name</strong></td>
+
+							<!-- Thương hiệu -->
 							<td><span class="badge bg-secondary"
-								th:text="${item.product.brand.name}"> Brand </span></td>
+								th:text="${item.product.brand.name}">Brand</span></td>
+
+							<!-- Đơn giá -->
 							<td
 								th:text="${#numbers.formatDecimal(item.price,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+
+							<!-- Số lượng -->
 							<td th:text="${item.quantity}"></td>
-							<td
-								th:text="${#numbers.formatDecimal(item.price.multiply(item.quantity),0,'COMMA',0,'POINT')} + ' ₫'"></td>
+
+							<!-- Thành tiền (gộp chiết khấu) -->
 							<td>
-								<span class="badge"
-									th:text="${OrderStatusHelper.getItemStatusLabel(item.status)}"
-									th:classappend="' ' + ${OrderStatusHelper.getItemStatusBadgeClass(item.status)}">
-								</span>
+								<div class="d-flex align-items-center gap-2">
+									<del th:if="${item.netTotal != item.price}"
+										class="text-muted small me-2"
+										th:text="${#numbers.formatDecimal(item.price.multiply(item.quantity),0,'COMMA',0,'POINT')} + ' ₫'">
+									</del>
+
+									<strong class="text-success"
+										th:text="${#numbers.formatDecimal(item.netTotal.multiply(item.quantity),0,'COMMA',0,'POINT')} + ' ₫'"
+										data-bs-toggle="tooltip" data-bs-placement="top"
+										title="Thành tiền sau chiết khấu của sàn"> </strong> <span
+										th:if="${item.netTotal != item.price and item.price > 0}"
+										class="badge bg-success ms-2" data-bs-toggle="tooltip"
+										title="Phần trăm chiết khấu được áp dụng"> <span
+										th:text="${#numbers.formatDecimal((1 - item.netTotal / item.price) * 100, 1, 'COMMA', 0, 'POINT')} + ' %'"></span>
+									</span>
+								</div>
 							</td>
+
+							<!-- Trạng thái (badge + 1 form cập nhật) -->
 							<td>
-								<form th:action="@{'/vendor/orders/update-item-status/' + ${order.orderID} + '/' + ${item.orderItemID}}"
+								<div class="mb-2">
+									<span class="badge"
+										th:text="${OrderStatusHelper.getItemStatusLabel(item.status)}"
+										th:classappend="' ' + ${OrderStatusHelper.getItemStatusBadgeClass(item.status)}"></span>
+								</div>
+
+								<form
+									th:action="@{'/vendor/orders/update-item-status/' + ${order.orderID} + '/' + ${item.orderItemID}}"
 									method="post" class="item-status-form">
-									<input type="hidden" name="vendorId" th:value="${currentUser.userID}" />
-									
-									<select name="newStatus" class="form-select form-select-sm item-status-select" required>
+									<input type="hidden" name="vendorId"
+										th:value="${currentUser.userID}" /> <select name="newStatus"
+										class="form-select form-select-sm item-status-select" required>
 										<option value="">-- Chọn trạng thái --</option>
-										<option 
-											th:value="${OrderStatusHelper.ITEM_STATUS_CANCELLED}"
+										<option th:value="${OrderStatusHelper.ITEM_STATUS_CANCELLED}"
 											th:text="'Hủy'"
-											th:disabled="${item.status == OrderStatusHelper.ITEM_STATUS_CANCELLED}">
-										</option>
-										<option 
-											th:value="${OrderStatusHelper.ITEM_STATUS_CONFIRMED}"
+											th:disabled="${item.status == OrderStatusHelper.ITEM_STATUS_CANCELLED}"></option>
+										<option th:value="${OrderStatusHelper.ITEM_STATUS_CONFIRMED}"
 											th:text="'Xác Nhận'"
-											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_CONFIRMED}">
-										</option>
-										<option 
-											th:value="${OrderStatusHelper.ITEM_STATUS_PREPARING}"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_CONFIRMED}"></option>
+										<option th:value="${OrderStatusHelper.ITEM_STATUS_PREPARING}"
 											th:text="'Chuẩn Bị'"
-											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_PREPARING}">
-										</option>
-										<option 
-											th:value="${OrderStatusHelper.ITEM_STATUS_PACKED}"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_PREPARING}"></option>
+										<option th:value="${OrderStatusHelper.ITEM_STATUS_PACKED}"
 											th:text="'Đóng Gói'"
-											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_PACKED}">
-										</option>
-										<option 
-											th:value="${OrderStatusHelper.ITEM_STATUS_SHIPPED}"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_PACKED}"></option>
+										<option th:value="${OrderStatusHelper.ITEM_STATUS_SHIPPED}"
 											th:text="'Đang Giao'"
-											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_SHIPPED}">
-										</option>
-										<option 
-											th:value="${OrderStatusHelper.ITEM_STATUS_DELIVERED}"
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_SHIPPED}"></option>
+										<option th:value="${OrderStatusHelper.ITEM_STATUS_DELIVERED}"
 											th:text="'Đã Giao'"
-											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_DELIVERED}">
-										</option>
-										
+											th:disabled="${item.status >= OrderStatusHelper.ITEM_STATUS_DELIVERED}"></option>
 									</select>
-									
+
 									<button type="submit" class="btn btn-sm btn-primary">
 										<i class="fas fa-save"></i>
 									</button>
@@ -222,9 +266,10 @@
 							</td>
 						</tr>
 					</tbody>
+
 					<tfoot>
 						<tr>
-							<td colspan="7" class="text-end"><strong>Tổng tiền
+							<td colspan="6" class="text-end"><strong>Tổng tiền
 									của bạn:</strong></td>
 							<td
 								th:text="${#numbers.formatDecimal(vendorSubtotal,0,'COMMA',0,'POINT')} + ' ₫'"></td>
@@ -233,6 +278,54 @@
 				</table>
 			</div>
 		</div>
+
+		<!-- MODAL: Danh sách Shipper -->
+		<div class="modal fade" id="assignShipperModal" tabindex="-1"
+			aria-labelledby="assignShipperModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content border-0 shadow-lg">
+					<div class="modal-header bg-primary text-white">
+						<h5 class="modal-title" id="assignShipperModalLabel">
+							<i class="fas fa-truck me-2"></i>Chọn Shipper Giao Hàng
+						</h5>
+						<button type="button" class="btn-close btn-close-white"
+							data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form
+							th:action="@{'/vendor/orders/assign-shipper/' + ${order.orderID}}"
+							method="post" id="assignShipperForm">
+
+							<div class="mb-3">
+								<label for="shipperSelect" class="form-label fw-semibold">Chọn
+									Shipper:</label> <select class="form-select" id="shipperSelect"
+									name="shipperID" required>
+									<option value="" disabled selected>-- Chọn shipper --</option>
+									<option th:each="s : ${shippers}" th:value="${s.userID}"
+										th:text="${s.username + ' (' + s.email + ')'}"></option>
+								</select>
+							</div>
+
+							<div class="mb-3">
+								<label for="note" class="form-label fw-semibold">Ghi chú
+									cho shipper (nếu có):</label>
+								<textarea class="form-control" id="note" name="note" rows="2"
+									placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."></textarea>
+							</div>
+
+							<div class="text-end">
+								<button type="button" class="btn btn-secondary me-2"
+									data-bs-dismiss="modal">Hủy</button>
+								<button type="submit" class="btn btn-primary">
+									<i class="fas fa-check me-1"></i> Xác nhận chọn shipper
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
 	</div>
 </body>
 </html>

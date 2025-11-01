@@ -13,9 +13,9 @@
         <h3 th:text="${voucher.voucherID != null} ? 'Chỉnh sửa Voucher' : 'Thêm Voucher'">Voucher Form</h3>
 
         <form th:object="${voucher}" 
-              th:action="@{${voucher.voucherID != null} ? '/admin/vouchers/update/' + ${voucher.voucherID} : '/admin/vouchers/save'}" 
+              th:action="@{'/admin/vouchers/save'}" 
               method="post">
-
+			<input type="hidden" th:field="*{voucherID}" th:if="${voucher.voucherID != null}" />
             <div class="mb-3">
                 <label for="code" class="form-label">Mã Voucher</label>
                 <input type="text" class="form-control" id="code" placeholder="Nhập mã voucher"
@@ -23,7 +23,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="discount" class="form-label">Giá trị giảm (%) hoặc tiền</label>
+                <label for="discount" class="form-label">Giá trị giảm (%)</label>
                 <input type="number" class="form-control" id="discount" placeholder="Nhập giá trị"
                        th:field="*{discount}" min="0" step="0.01" required>
             </div>

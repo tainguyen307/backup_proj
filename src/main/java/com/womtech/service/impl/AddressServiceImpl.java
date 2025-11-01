@@ -10,8 +10,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class AddressServiceImpl extends BaseServiceImpl<Address, String> implements AddressService {
 	@Autowired
 	AddressRepository addressRepository;
@@ -21,11 +23,13 @@ public class AddressServiceImpl extends BaseServiceImpl<Address, String> impleme
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Optional<Address> findByUserAndIsDefaultTrue(User user) {
 		return addressRepository.findByUserAndIsDefaultTrue(user);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<Address> findByUser(User user) {
 		return addressRepository.findByUser(user);
 	}

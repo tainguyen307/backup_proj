@@ -154,9 +154,13 @@
     
     <input type="hidden" id="currentUserId" th:value="${#authentication.name}">
 
-	<div id="chat-button" class="chat-btn" onclick="startChat()">
+	<div id="chat-button" class="chat-btn chat-main" onclick="startChat()">
 	    <i class="fas fa-comment-dots fa-lg"></i>
 	</div>
+	
+	<a href="https://zalo.me/0812514389" class="chat-btn chat-zalo" target="_blank">
+	    <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" style="width: 30px;">
+	</a>
 	
 	<script>
 	function startChat() {

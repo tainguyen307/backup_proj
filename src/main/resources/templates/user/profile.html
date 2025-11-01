@@ -15,6 +15,9 @@
 		href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
 		rel="stylesheet">
 </th:block>
+<link rel="stylesheet"
+	href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -81,23 +84,44 @@
 					<div class="col-lg-3 mb-4">
 						<div class="card profile-sidebar">
 							<div class="card-body text-center">
-								<!-- Profile Avatar -->
-								<div class="profile-avatar mb-3">
-									<div class="avatar-circle">
-										<i class="bi bi-person-fill fa-3x text-primary"></i>
+								<div class="mb-3">
+									<div th:if="${user.avatar != null}">
+										<img th:src="${user.avatar}" alt="Ảnh đại diện"
+											class="rounded-circle img-fluid mb-2" width="120">
+									</div>
+									<div th:if="${user.avatar == null}">
+										<div class="avatar-circle">
+											<i class="bi bi-person-fill fa-3x text-primary"></i>
+										</div>
 									</div>
 								</div>
-
-								<h5 class="card-title mb-1"
-									th:text="${defaultAddress != null ? defaultAddress.fullname : user.username}">
-									Tên Người Dùng</h5>
+								<h5 class="card-title mb-1" th:text="${user.username}">Tên
+									Người Dùng</h5>
 
 								<p class="text-muted mb-3" th:text="${user.email}">email@example.com</p>
 
-								<div class="badge bg-primary mb-3">
-									<i class="bi bi-award me-1"></i> <span
-										th:text="${isAdmin} ? 'Quản Trị Viên' : 'Khách Hàng'">Khách
-										Hàng</span>
+								<div class="mb-3">
+									<span class="badge text-white px-3 py-2"
+										th:classappend="
+			${user.role.rolename == 'ADMIN'} ? 'bg-danger' :
+			(${user.role.rolename == 'VENDOR'} ? 'bg-success' :
+			(${user.role.rolename == 'SHIPPER'} ? 'bg-warning text-dark' :
+			'bg-primary'))">
+										<i class="bi bi-award me-1"></i> <span
+										th:text="
+			${user.role.rolename == 'ADMIN'} ? 'Quản Trị Viên' :
+			(${user.role.rolename == 'VENDOR'} ? 'Người Bán Hàng' :
+			(${user.role.rolename == 'SHIPPER'} ? 'Người Giao Hàng' :
+			'Khách Hàng'))"></span>
+
+									</span>
+									<!-- Nút chỉnh sửa ảnh -->
+									<div class="text-center mb-3 mt-3">
+										<button class="btn btn-outline-primary btn-sm"
+											data-bs-toggle="modal" data-bs-target="#editAvatarModal">
+											<i class="bi bi-camera me-1"></i> Thay đổi ảnh đại diện
+										</button>
+									</div>
 								</div>
 							</div>
 
@@ -288,8 +312,7 @@
 
 								<div class="card-body">
 									<!-- Nếu không có đơn hàng -->
-									<div th:if="${orderCount==0}"
-										class="text-center py-5">
+									<div th:if="${orderCount==0}" class="text-center py-5">
 										<i class="bi bi-cart4 display-4 text-muted mb-3"></i>
 										<h5 class="text-muted">Chưa Có Đơn Hàng Nào</h5>
 										<p class="text-muted mb-4">Bạn chưa thực hiện đơn hàng
@@ -416,6 +439,7 @@
 										<i class="bi bi-geo-alt me-2"></i>Địa Chỉ Giao Hàng
 									</h5>
 								</div>
+
 								<div class="card-body">
 
 									<!-- Nút thêm địa chỉ -->
@@ -432,36 +456,59 @@
 											<i class="bi bi-geo-alt me-2 text-primary"></i>Thêm Địa Chỉ
 											Mới
 										</h6>
+
 										<form th:action="@{/user/add-address}" method="post">
 											<div class="row">
 												<div class="mb-2">
 													<label class="form-label">Họ Tên</label> <input type="text"
-														class="form-control" name="fullname" required>
+														class="form-control" name="fullname"
+														pattern="^[A-Za-zÀ-ỹ\s]{2,50}$"
+														title="Họ tên chỉ chứa chữ và khoảng trắng, 2-50 ký tự"
+														required>
 												</div>
 
 												<div class="mb-2">
 													<label class="form-label">Số Điện Thoại</label> <input
-														type="tel" class="form-control" name="phone" required>
+														type="tel" class="form-control" name="phone"
+														pattern="^(0|\+84)[0-9]{9,10}$"
+														title="Số điện thoại hợp lệ, ví dụ 0912345678" required>
 												</div>
 
 												<div class="mb-2">
-													<label class="form-label">Tỉnh/Thành Phố</label> <input
-														type="text" class="form-control" name="city" required>
+													<label class="form-label">Tỉnh/Thành Phố</label> <select
+														class="form-select" id="provinceSelect" name="cityId"
+														required>
+														<option value="">-- Chọn Tỉnh/Thành --</option>
+													</select> <input type="hidden" name="city" id="cityName">
 												</div>
 
 												<div class="mb-2">
-													<label class="form-label">Quận/Huyện</label> <input
-														type="text" class="form-control" name="district" required>
+													<label class="form-label">Quận/Huyện</label> <select
+														class="form-select" id="districtSelect" name="districtId"
+														required>
+														<option value="">-- Chọn Quận/Huyện --</option>
+													</select> <input type="hidden" name="district" id="districtName">
 												</div>
 
 												<div class="mb-2">
-													<label class="form-label">Phường/Xã</label> <input
-														type="text" class="form-control" name="ward" required>
+													<label class="form-label">Phường/Xã</label> <select
+														class="form-select" id="wardSelect" name="wardId" required>
+														<option value="">-- Chọn Phường/Xã --</option>
+													</select> <input type="hidden" name="ward" id="wardName">
 												</div>
 
 												<div class="mb-2">
 													<label class="form-label">Số Nhà, Đường</label> <input
-														type="text" class="form-control" name="street" required>
+														type="text" class="form-control mb-2" name="street"
+														required>
+
+													<!-- Map container -->
+													<div id="map-add"
+														style="height: 300px; border: 1px solid #ccc;"></div>
+
+													<!-- Input ẩn lưu tọa độ -->
+													<input type="hidden" name="latitude" id="latitude-add">
+													<input type="hidden" name="longitude" id="longitude-add">
 												</div>
 											</div>
 
@@ -476,137 +523,152 @@
 									</div>
 
 									<!-- Lặp qua danh sách địa chỉ -->
-									<div class="mb-4" th:each="addr : ${listAddress}">
-										<div class="row">
-											<div
-												class="address-card p-4 border rounded-3 position-relative">
+									<div th:if="${!#lists.isEmpty(listAddress)}"
+										th:each="addr : ${listAddress}" class="mb-4">
+										<div
+											class="address-card p-4 border rounded-3 position-relative">
 
-												<!-- Badge hoặc nút đặt mặc định -->
-												<div class="position-absolute top-0 end-0 m-2">
+											<!-- Badge hoặc nút đặt mặc định -->
+											<div class="position-absolute top-0 end-0 m-2">
+												<span class="badge bg-primary" th:if="${addr.isDefault}">Địa
+													chỉ mặc định</span>
+												<form th:if="${!addr.isDefault}"
+													th:action="@{/user/setdefault-address}" method="post">
+													<input type="hidden" name="addressID"
+														th:value="${addr.addressID}">
+													<button type="submit"
+														class="btn btn-sm btn-outline-secondary">Đặt làm
+														mặc định</button>
+												</form>
+											</div>
 
-													<!-- Badge mặc định -->
-													<span class="badge bg-primary" th:if="${addr.isDefault}">Địa
-														chỉ mặc định</span>
+											<!-- Thông tin địa chỉ -->
+											<div class="address-details"
+												th:id="'view-' + ${addr.addressID}">
+												<p class="mb-2">
+													<i class="bi bi-person me-2"></i> <strong
+														th:text="${addr.fullname}">Họ Tên</strong>
+												</p>
+												<p class="mb-2">
+													<i class="bi bi-telephone me-2"></i> <span
+														th:text="${addr.phone}">Số điện thoại</span>
+												</p>
+												<p class="mb-3">
+													<i class="bi bi-geo-alt me-2"></i> <span
+														th:text="${addr.street + ', ' + addr.ward + ', ' + addr.district + ', ' + addr.city}">Địa
+														chỉ</span>
+												</p>
 
-													<!-- Nút đặt làm mặc định -->
-													<form th:if="${!addr.isDefault}"
-														th:action="@{/user/setdefault-address}" method="post">
+												<div class="d-flex gap-2">
+													<button class="btn btn-sm btn-outline-primary"
+														th:attr="onclick=|showEditForm('${addr.addressID}')|">
+														<i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+													</button>
+
+													<form th:action="@{/user/delete-address}" method="post"
+														onsubmit="return confirm('Bạn có chắc muốn xóa địa chỉ này không?')"
+														class="m-0">
 														<input type="hidden" name="addressID"
 															th:value="${addr.addressID}">
 														<button type="submit"
-															class="btn btn-sm btn-outline-secondary">Đặt làm
-															mặc định</button>
+															class="btn btn-sm btn-outline-danger">
+															<i class="bi bi-trash me-1"></i>Xóa
+														</button>
 													</form>
 												</div>
+											</div>
 
-												<!-- Thông tin địa chỉ -->
-												<div class="address-details"
-													th:id="'view-' + ${addr.addressID}">
-													<p class="mb-2">
-														<i class="bi bi-person me-2"></i><strong
-															th:text="${addr.fullname}">Họ Tên</strong>
-													</p>
-													<p class="mb-2">
-														<i class="bi bi-telephone me-2"></i><span
-															th:text="${addr.phone}">Số điện thoại</span>
-													</p>
-													<p class="mb-3">
-														<i class="bi bi-geo-alt me-2"></i> <span
-															th:text="${addr.street + ', ' + addr.ward + ', ' + addr.district + ', ' + addr.city}">Địa
-															chỉ</span>
-													</p>
+											<!-- Form chỉnh sửa ẩn -->
+											<form th:id="'form-' + ${addr.addressID}"
+												th:action="@{/user/update-address}" method="post"
+												class="edit-form mt-3 d-none">
+												<input type="hidden" name="addressID"
+													th:value="${addr.addressID}">
 
-													<div class="d-flex gap-2">
-														<!-- Nút chỉnh sửa -->
-														<button class="btn btn-sm btn-outline-primary"
-															th:attr="onclick=|showEditForm('${addr.addressID}')|">
-															<i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
-														</button>
+												<!-- ID cho backend -->
+												<input type="hidden" name="cityId" th:value="${addr.cityId}">
+												<input type="hidden" name="districtId"
+													th:value="${addr.districtId}"> <input type="hidden"
+													name="wardId" th:value="${addr.wardId}">
 
-														<!-- Nút xóa địa chỉ -->
-														<form th:action="@{/user/delete-address}" method="post"
-															onsubmit="return confirm('Bạn có chắc muốn xóa địa chỉ này không?')"
-															class="m-0">
-															<input type="hidden" name="addressID"
-																th:value="${addr.addressID}">
-															<button type="submit"
-																class="btn btn-sm btn-outline-danger">
-																<i class="bi bi-trash me-1"></i>Xóa
-															</button>
-														</form>
-													</div>
+												<!-- Ẩn lưu tên thực tế -->
+												<input type="hidden" th:id="'cityName-' + ${addr.addressID}"
+													name="city" th:value="${addr.city}"> <input
+													type="hidden" th:id="'districtName-' + ${addr.addressID}"
+													name="district" th:value="${addr.district}"> <input
+													type="hidden" th:id="'wardName-' + ${addr.addressID}"
+													name="ward" th:value="${addr.ward}">
+
+												<div class="mb-2">
+													<label class="form-label">Họ Tên</label> <input type="text"
+														class="form-control" name="fullname"
+														th:value="${addr.fullname}">
 												</div>
 
-												<!-- Form chỉnh sửa ẩn -->
-												<form th:id="'form-' + ${addr.addressID}"
-													th:action="@{/user/update-address}" method="post"
-													class="edit-form mt-3 d-none">
-													<input type="hidden" name="addressID"
-														th:value="${addr.addressID}">
+												<div class="mb-2">
+													<label class="form-label">Số Điện Thoại</label> <input
+														type="text" class="form-control" name="phone"
+														th:value="${addr.phone}">
+												</div>
 
-													<div class="mb-2">
-														<label class="form-label">Họ Tên</label> <input
-															type="text" class="form-control" name="fullname"
-															th:value="${addr.fullname}">
-													</div>
+												<div class="mb-2">
+													<label class="form-label">Tỉnh/Thành Phố</label> <select
+														class="form-select"
+														th:id="'provinceSelect-' + ${addr.addressID}" required></select>
+												</div>
 
-													<div class="mb-2">
-														<label class="form-label">Số Điện Thoại</label> <input
-															type="text" class="form-control" name="phone"
-															th:value="${addr.phone}">
-													</div>
+												<div class="mb-2">
+													<label class="form-label">Quận/Huyện</label> <select
+														class="form-select"
+														th:id="'districtSelect-' + ${addr.addressID}" required></select>
+												</div>
 
-													<div class="mb-2">
-														<label class="form-label">Thành Phố</label> <input
-															type="text" class="form-control" name="city"
-															th:value="${addr.city}">
-													</div>
+												<div class="mb-2">
+													<label class="form-label">Phường/Xã</label> <select
+														class="form-select"
+														th:id="'wardSelect-' + ${addr.addressID}" required></select>
+												</div>
 
-													<div class="mb-2">
-														<label class="form-label">Quận/Huyện</label> <input
-															type="text" class="form-control" name="district"
-															th:value="${addr.district}">
-													</div>
+												<div class="mb-3">
+													<label class="form-label">Số Nhà, Đường</label> <input
+														type="text" class="form-control" name="street"
+														th:value="${addr.street}" required>
+													<!-- Map container cho edit -->
+													<div th:id="'map-' + ${addr.addressID}"
+														style="height: 300px; border: 1px solid #ccc;"></div>
 
-													<div class="mb-2">
-														<label class="form-label">Phường/Xã</label> <input
-															type="text" class="form-control" name="ward"
-															th:value="${addr.ward}">
-													</div>
+													<!-- Input ẩn lưu tọa độ cho edit -->
+													<input type="hidden" name="latitude"
+														th:id="'latitude-' + ${addr.addressID}"> <input
+														type="hidden" name="longitude"
+														th:id="'longitude-' + ${addr.addressID}">
+												</div>
 
-													<div class="mb-3">
-														<label class="form-label">Số Nhà, Đường</label> <input
-															type="text" class="form-control" name="street"
-															th:value="${addr.street}">
-													</div>
-
-													<!-- Nút hành động -->
-													<div class="d-flex justify-content-end">
-														<button type="button" class="btn btn-secondary me-2"
-															th:attr="onclick=|cancelEdit('${addr.addressID}')|">Hủy
-														</button>
-														<button type="submit" class="btn btn-primary">Lưu</button>
-													</div>
-												</form>
-											</div>
-										</div>
-
-										<!-- Nếu không có địa chỉ nào -->
-										<div th:if="${#lists.isEmpty(listAddress)}"
-											class="text-center py-4">
-											<i class="bi bi-plus-circle display-4 text-muted mb-3"></i>
-											<h6 class="text-muted">Chưa Có Địa Chỉ</h6>
-											<p class="text-muted mb-3">Vui lòng thêm địa chỉ giao
-												hàng để tiện đặt hàng</p>
-											<a href="#profile-info"
-												class="btn btn-primary profile-nav-item" data-tab="info">
-												<i class="bi bi-plus-lg me-2"></i>Thêm Địa Chỉ
-											</a>
+												<div class="d-flex justify-content-end">
+													<button type="button" class="btn btn-secondary me-2"
+														th:attr="onclick=|cancelEdit('${addr.addressID}')|">Hủy</button>
+													<button type="submit" class="btn btn-primary">
+														<i class="bi bi-save me-1"></i>Lưu
+													</button>
+												</div>
+											</form>
 										</div>
 									</div>
 
+									<!-- Nếu không có địa chỉ -->
+									<div th:if="${#lists.isEmpty(listAddress)}"
+										class="text-center py-4">
+										<i class="bi bi-plus-circle display-4 text-muted mb-3"></i>
+										<h6 class="text-muted">Chưa Có Địa Chỉ</h6>
+										<p class="text-muted mb-3">Vui lòng thêm địa chỉ giao hàng
+											để tiện đặt hàng</p>
+										<button class="btn btn-primary"
+											onclick="toggleAddAddressForm()">
+											<i class="bi bi-plus-lg me-2"></i>Thêm Địa Chỉ
+										</button>
+									</div>
 
-									<div class="alert alert-info">
+									<div class="alert alert-info mt-4">
 										<h6 class="alert-heading">
 											<i class="bi bi-info-circle me-2"></i>Lưu Ý Về Địa Chỉ Giao
 											Hàng
@@ -632,6 +694,58 @@
 			</div>
 			<!-- /container -->
 		</section>
+		<!-- Modal chỉnh sửa ảnh đại diện -->
+		<div class="modal fade" id="editAvatarModal" tabindex="-1"
+			aria-labelledby="editAvatarModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+
+					<!-- Header -->
+					<div class="modal-header">
+						<h5 class="modal-title" id="editAvatarModalLabel">
+							<i class="bi bi-camera me-2"></i>Chỉnh sửa ảnh đại diện
+						</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Đóng"></button>
+					</div>
+
+					<!-- Body -->
+					<div class="modal-body">
+						<form id="avatarForm" th:action="@{/user/avatar}" method="post"
+							enctype="multipart/form-data">
+							<div class="text-center mb-3">
+								<div th:if="${user.avatar != null}">
+									<img id="avatarPreview" th:src="${user.avatar}"
+										class="rounded-circle img-fluid" alt="Ảnh đại diện">
+								</div>
+								<div th:if="${user.avatar == null}">
+									<div
+										class="avatar-circle d-inline-flex align-items-center justify-content-center bg-light border rounded-circle"
+										style="width: 150px; height: 150px;">
+										<i class="bi bi-person-fill text-primary"
+											style="font-size: 3rem;"></i>
+									</div>
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<input class="form-control" type="file" id="avatarFile"
+									name="avatar" accept="image/*" required
+									onchange="previewAvatar(event)">
+							</div>
+
+							<div class="text-center">
+								<button type="submit" class="btn btn-primary">
+									<i class="bi bi-upload me-1"></i>Lưu thay đổi
+								</button>
+							</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
 	</div>
 
 	<!-- Custom JavaScript -->

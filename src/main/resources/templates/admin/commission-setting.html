@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <title>Cấu hình Chiết khấu</title>
+    <link rel="stylesheet" href="/css/admin/commission-setting.css">
+
+</head>
+
+<body>
+<div layout:fragment="content">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-percentage"></i> Cấu hình Chiết khấu</h2>
+        <div>
+            <a th:href="@{/admin/commission/report}" class="btn btn-info">
+                <i class="fas fa-chart-line"></i> Xem báo cáo
+            </a>
+            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#resetModal">
+                <i class="fas fa-undo"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Form -->
+    <form th:action="@{/admin/commission/setting/save}" method="post">
+
+        <!-- Global -->
+        <div class="commission-card global-setting">
+            <h4 class="mb-3"><i class="fas fa-globe"></i> Chiết khấu mặc định (Global)</h4>
+            <p class="mb-3">
+                <small><i class="fas fa-info-circle"></i> Áp dụng cho tất cả sản phẩm nếu không có cấu hình riêng</small>
+            </p>
+            <div class="row align-items-center">
+                <div class="col-md-3"><label class="form-label">Tỷ lệ chiết khấu:</label></div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="number" class="form-control rate-input" name="globalRate"
+                               th:value="${globalSetting.rate}" step="0.01" min="0" max="100" required>
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category & Subcategory -->
+        <div class="commission-card">
+            <h4 class="mb-4"><i class="fas fa-layer-group"></i> Cấu hình theo danh mục</h4>
+            <p class="text-muted mb-4">
+                <small><i class="fas fa-info-circle"></i> Ưu tiên: Subcategory > Category > Global</small>
+            </p>
+
+            <div th:each="category : ${categories}" class="mb-4">
+                <div class="category-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-5">
+                            <h5 class="mb-0">
+                                <i class="fas fa-folder"></i>
+                                <span th:text="${category.name}"></span>
+                            </h5>
+                        </div>
+                        <div class="col-md-4"><label class="form-label mb-0">Chiết khấu Category:</label></div>
+                        <div class="col-md-3">
+                            <input type="hidden" name="categoryIds" th:value="${category.categoryID}">
+                            <div class="input-group">
+                                <input type="number" class="form-control rate-input" name="categoryRates"
+                                       th:value="${commissionService.getCategorySetting(category.categoryID).isPresent() ? commissionService.getCategorySetting(category.categoryID).get().rate : ''}"
+                                       step="0.01" min="0" max="100" placeholder="Để trống">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${category.subcategories != null and !category.subcategories.isEmpty()}">
+                    <div th:each="subcategory : ${category.subcategories}" class="subcategory-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-5">
+                                <i class="fas fa-folder-open text-muted"></i>
+                                <span th:text="${subcategory.name}"></span>
+                            </div>
+                            <div class="col-md-4"><label class="form-label mb-0 small">Chiết khấu Subcategory:</label></div>
+                            <div class="col-md-3">
+                                <input type="hidden" name="subcategoryIds" th:value="${subcategory.subcategoryID}">
+                                <div class="input-group">
+                                    <input type="number" class="form-control rate-input" name="subcategoryRates"
+                                           th:value="${commissionService.getSubcategorySetting(subcategory.subcategoryID).isPresent() ? commissionService.getSubcategorySetting(subcategory.subcategoryID).get().rate : ''}"
+                                           step="0.01" min="0" max="100" placeholder="Để trống">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save"></i> Lưu cấu hình
+            </button>
+        </div>
+    </form>
+
+    <!-- Reset Modal -->
+    <div class="modal fade" id="resetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận Reset</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc muốn reset tất cả cấu hình về mặc định?</p>
+                    <p class="text-danger"><strong>Lưu ý:</strong> Tất cả cấu hình hiện tại sẽ bị xóa và chỉ giữ lại Global = 10%</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form th:action="@{/admin/commission/setting/reset}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-warning"><i class="fas fa-undo"></i> Xác nhận Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

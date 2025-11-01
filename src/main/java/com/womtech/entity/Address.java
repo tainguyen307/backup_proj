@@ -37,6 +37,12 @@ public class Address {
 	private String district;
 	@Column(nullable = false, length = 150)
 	private String city;
+	@Column(nullable = false)
+    private String wardId;
+    @Column(nullable = false)
+    private String districtId;
+    @Column(nullable = false)
+    private String cityId;
 
 	@Builder.Default
 	@Column(name = "is_default", nullable = false)

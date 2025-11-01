@@ -25,7 +25,7 @@ public interface UserService extends BaseService<User, String>{
 
     LoginResponse login(LoginRequest request);
     
- // ✅ Thêm mới: trả về danh sách role name (viết hoa) theo userId
+ // Thêm mới: trả về danh sách role name (viết hoa) theo userId
     List<String> getRolesByUserId(String userId);
 
     // (tuỳ chọn) nếu cần dùng theo username sau này
@@ -42,4 +42,9 @@ public interface UserService extends BaseService<User, String>{
     Page<User> searchUsers(String keyword, String role, Integer status, Pageable pageable); // tìm kiếm + phân trang
     void lockUser(String userId);  // khoá user
     void unlockUser(String userId); // mở khoá user
+    void deleteUserById(String userId);
+
+	List<User> findByRolename(String rolename);
+	
+	User save(User user);
 }	

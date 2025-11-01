@@ -1,0 +1,510 @@
+/* ============================================
+   PLATFORM REVENUE REPORT STYLES
+   ============================================ */
+
+/* Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.mt-4 {
+    margin-top: 2rem !important;
+}
+
+/* Page Header */
+h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 4px solid #667eea;
+    position: relative;
+}
+
+h1::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, #764ba2 0%, #f093fb 100%);
+}
+
+/* Filter Form Section */
+form.mb-3 {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: end;
+    border: 1px solid #dee2e6;
+}
+
+form.mb-3 label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+form.mb-3 input[type="datetime-local"] {
+    padding: 12px 15px;
+    border: 2px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    min-width: 250px;
+}
+
+form.mb-3 input[type="datetime-local"]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    outline: none;
+    background-color: #fafbfc;
+}
+
+form.mb-3 input[type="datetime-local"]:hover {
+    border-color: #764ba2;
+}
+
+/* Filter Button */
+form.mb-3 .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+form.mb-3 .btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #654a8e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+}
+
+form.mb-3 .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+}
+
+/* Total Revenue Section */
+h5.mb-3 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+h5.mb-3::before {
+    content: "💰";
+    font-size: 3rem;
+    position: absolute;
+    right: 20px;
+    opacity: 0.2;
+}
+
+h5.mb-3 span {
+    font-weight: 700;
+    font-size: 1.8rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    display: block;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* Table Styles */
+.table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.table thead {
+    background: #4a5fd4;
+}
+
+.table thead th {
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    padding: 18px 15px;
+    border: none;
+    vertical-align: middle;
+    text-align: center;
+     background-color: transparent !important;
+}
+
+.table thead th:first-child {
+    text-align: left;
+    padding-left: 25px;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table tbody td {
+    padding: 18px 15px;
+    vertical-align: middle;
+    color: #495057;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.table tbody td:first-child {
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: left;
+    padding-left: 25px;
+}
+
+.table tbody td:nth-child(2) {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.table tbody td:nth-child(3) {
+    color: #f5576c;
+    font-weight: 600;
+}
+
+.table tbody td:nth-child(4) {
+    color: #11998e;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+/* Table Bordered & Striped */
+.table-bordered {
+    border: none !important;
+}
+
+.table-bordered thead th,
+.table-bordered tbody td {
+    border: none !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(102, 126, 234, 0.03);
+}
+
+/* Responsive Table */
+@media (max-width: 1200px) {
+    .table {
+        font-size: 0.95rem;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 15px 12px;
+    }
+}
+
+@media (max-width: 992px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    h5.mb-3 {
+        font-size: 1.2rem;
+        padding: 20px 25px;
+    }
+    
+    h5.mb-3 span {
+        font-size: 1.5rem;
+    }
+    
+    form.mb-3 {
+        padding: 20px;
+    }
+    
+    form.mb-3 input[type="datetime-local"] {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+        padding-bottom: 15px;
+    }
+    
+    h5.mb-3 {
+        font-size: 1rem;
+        padding: 18px 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    h5.mb-3::before {
+        font-size: 2rem;
+        right: 15px;
+        top: 15px;
+    }
+    
+    h5.mb-3 span {
+        font-size: 1.3rem;
+        margin-top: 5px;
+    }
+    
+    form.mb-3 {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+    }
+    
+    form.mb-3 input[type="datetime-local"] {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    form.mb-3 .btn-primary {
+        width: 100%;
+        padding: 14px 20px;
+    }
+    
+    /* Make table scrollable horizontally */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+    }
+    
+    .table {
+        min-width: 700px;
+        margin-bottom: 0;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 12px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .table tbody td:first-child,
+    .table thead th:first-child {
+        padding-left: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h5.mb-3 {
+        font-size: 0.9rem;
+        padding: 15px;
+    }
+    
+    h5.mb-3 span {
+        font-size: 1.1rem;
+    }
+    
+    form.mb-3 {
+        padding: 15px;
+    }
+    
+    .table {
+        min-width: 600px;
+        font-size: 0.8rem;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 10px 8px;
+    }
+}
+
+/* Scrollbar Styling for Table */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #5568d3 0%, #654a8e 100%);
+}
+
+/* Loading State */
+.table.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.table.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: -20px;
+    margin-top: -20px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.table tbody tr.empty-row td {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Print Styles */
+@media print {
+    form.mb-3 {
+        display: none;
+    }
+    
+    h1 {
+        border-bottom: 2px solid #000;
+    }
+    
+    h1::after {
+        display: none;
+    }
+    
+    h5.mb-3 {
+        background: #f8f9fa;
+        color: #212529;
+        border: 2px solid #667eea;
+        box-shadow: none;
+    }
+    
+    h5.mb-3::before {
+        display: none;
+    }
+    
+    .table {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .table thead th {
+        background: #f8f9fa !important;
+        color: #212529 !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    .table tbody tr:hover {
+        background: transparent;
+        transform: none;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h1, h5.mb-3, form.mb-3, .table {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Accessibility */
+form.mb-3 input[type="datetime-local"]:focus,
+form.mb-3 .btn-primary:focus {
+    outline: 3px solid rgba(102, 126, 234, 0.5);
+    outline-offset: 2px;
+}
+
+/* Tooltips */
+[title] {
+    cursor: help;
+}
+
+/* Number formatting enhancement */
+.table tbody td:nth-child(3),
+.table tbody td:nth-child(4) {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* 🔥 FORCE WHITE TEXT - Override mọi style khác */
+table.table thead th,
+table.table thead th *,
+.table thead th,
+.table thead th * {
+    color: white !important;
+    font-weight: 700 !important;
+}
+
+/* Đảm bảo background hiển thị */
+table.table thead,
+.table thead {
+    background: #4a5fd4 !important; /* Màu solid */
+}

@@ -109,8 +109,8 @@ public class AuthController {
 
 		String at = jwtService.generateAccessToken(res.getUserID(), res.getUsername(), roles);
 		String rt = jwtService.generateRefreshToken(res.getUserID());
-		CookieUtil.add(response, CK_AT, at, ACCESS_TTL_SEC, true, false, "Strict");
-		CookieUtil.add(response, CK_RT, rt, REFRESH_TTL_SEC, true, false, "Strict");
+		CookieUtil.add(response, CK_AT, at, ACCESS_TTL_SEC, true, false, "Lax");
+		CookieUtil.add(response, CK_RT, rt, REFRESH_TTL_SEC, true, false, "Lax");
 
 		if (Boolean.TRUE.equals(rememberMe)) {
 			String token = RememberMeUtil.generateToken(res.getUserID());
@@ -199,7 +199,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/verify-otp")
-	public String doVerifyOtp(@RequestParam("otp") String otp, HttpSession session, RedirectAttributes ra) {
+	public String doVerifyOtp(@RequestParam("otp") String otp, HttpSession session, RedirectAttributes ra, HttpServletResponse response) {
 		RegisterRequest pending = (RegisterRequest) session.getAttribute(SK_REG_PENDING);
 		String code = (String) session.getAttribute(SK_OTP_CODE);
 		Instant expireAt = (Instant) session.getAttribute(SK_OTP_EXPIRE);
@@ -236,6 +236,12 @@ public class AuthController {
 			session.setAttribute("CURRENT_USER_ID", userId);
 			session.setAttribute("CURRENT_USERNAME", username);
 			session.setAttribute("CURRENT_ROLES", userService.getRolesByUserId(userId));
+			// Tạo JWT cookie ngay sau khi verify OTP thành công
+			String at = jwtService.generateAccessToken(userId, username, userService.getRolesByUserId(userId));
+			String rt = jwtService.generateRefreshToken(userId);
+			// Xác định secure dựa vào host
+			CookieUtil.add(response, CK_AT, at, ACCESS_TTL_SEC, true, false, "Lax");
+			CookieUtil.add(response, CK_RT, rt, REFRESH_TTL_SEC, true, false, "Lax");
 		}
 
 		clearOtpSession(session);

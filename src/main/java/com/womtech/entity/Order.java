@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Table(name = "orders", indexes = { @Index(name = "idx_orders_user", columnList = "userID"),
-		@Index(name = "idx_orders_voucher", columnList = "voucherID") })
+@Table(name = "orders", indexes = { @Index(name = "idx_orders_user", columnList = "userID")})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,10 +28,6 @@ public class Order {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "addressID", foreignKey = @ForeignKey(name = "fk_orders_addresses"))
 	private Address address;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "voucherID", foreignKey = @ForeignKey(name = "fk_orders_vouchers"))
-	private Voucher voucher;
 
 	@Builder.Default
 	@Column(name = "total_price", nullable = false, precision = 12, scale = 2)
@@ -55,8 +50,22 @@ public class Order {
 	@Builder.Default
 	@Column(nullable = false)
 	private Integer status = 1;
+	
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipper_id", foreignKey = @ForeignKey(name = "fk_orders_shipper_users"))
+    private User shipper;
 
+    @Column(name = "assigned_at")
+    private LocalDateTime assignedAt;
+
+    @Column(name = "assigned_by_vendor_id", length = 36)
+    private String assignedByVendorId;
+   
 	@Builder.Default
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> items = new ArrayList<>();
+	
+	@Builder.Default
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<OrderVoucher> orderVouchers = new ArrayList<>();
 }

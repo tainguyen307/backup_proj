@@ -4,39 +4,58 @@
       layout:decorate="~{vendor/layout}">
 <head>
     <title th:text="${post.postID != null} ? 'Edit Post' : 'Add Post'">Post Form</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/vendor/post_form.css}">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+	<script th:src="@{/js/vendor/post_form.js}"></script>
 </head>
 <body>
 <div layout:fragment="content">
     <div class="post-form mt-5">
 
-        <h3 th:text="${post.postID != null} ? 'Chỉnh sửa Bài viết' : 'Thêm Bài viết'">Post Form</h3>
+        <h3 th:text="${post.postID != null} ? 'Chỉnh sửa Bài viết' : 'Thêm Bài viết'"></h3>
 
-        <form th:object="${post}" 
-              th:action="@{/vendor/posts/save}" 
+        <form th:object="${post}"
+              th:action="@{/vendor/posts/save}"
               method="post" enctype="multipart/form-data">
+              <input type="hidden" th:field="*{postID}">
 
+            <!-- Tiêu đề -->
             <div class="mb-3">
                 <label for="title" class="form-label">Tiêu đề bài viết</label>
                 <input type="text" class="form-control" id="title" placeholder="Nhập tiêu đề"
                        th:field="*{title}" required>
             </div>
 
+            <!-- QuillJS Editor -->
             <div class="mb-3">
-                <label for="content" class="form-label">Nội dung</label>
-                <textarea class="form-control" id="content" rows="6" 
-                          placeholder="Nhập nội dung bài viết"
-                          th:field="*{content}" required></textarea>
+                <label for="editor" class="form-label">Nội dung</label>
+                <div id="editor" style="height: 300px;"></div>
+                <!-- Trường ẩn để lưu nội dung HTML -->
+                <input type="hidden" th:field="*{content}" id="content">
             </div>
 
+            <!-- Thumbnail -->
             <div class="mb-3">
                 <label for="thumbnailFile" class="form-label">Thumbnail</label>
-                <input type="file" class="form-control" id="thumbnailFile" name="thumbnailFile"
-                       accept="image/*">
+                <input type="file" class="form-control" id="thumbnailFile" name="thumbnailFile" accept="image/*">
                 <div th:if="${post.thumbnail != null}" class="mt-2">
                     <img th:src="@{${post.thumbnail}}" alt="Thumbnail" class="img-thumbnail" style="max-width: 200px;">
                 </div>
             </div>
-
+			
+			<!-- Type -->
+			<div class="mb-3">
+			    <label class="form-label">Loại bài viết</label>
+			    <select class="form-select" th:field="*{type}" required>
+			        <option value="">-- Chọn loại --</option>
+			        <option value="BLOG">Blog</option>
+			        <option value="NEWS">News</option>
+			        <option value="TUTORIAL">Tutorial</option>
+			    </select>
+			</div>
+			
+            <!-- Trạng thái -->
             <div class="mb-3">
                 <label class="form-label">Trạng thái</label>
                 <div class="form-check">
@@ -49,8 +68,8 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-submit mt-3" 
-                    th:text="${post.postID != null} ? 'Cập nhật' : 'Thêm mới'">Submit</button>
+            <button type="submit" class="btn btn-primary btn-submit mt-3"
+                    th:text="${post.postID != null} ? 'Cập nhật' : 'Thêm mới'"></button>
         </form>
 
     </div>

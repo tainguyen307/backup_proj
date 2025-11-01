@@ -1,11 +1,79 @@
 .table img {
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+	border-radius: 6px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+
 #confirmCancelBtn {
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out;
 }
+
 #confirmCancelBtn:not(.d-none) {
-  opacity: 1;
+	opacity: 1;
+}
+
+.tracking-steps {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 10px;
+	align-items: center;
+	justify-content: flex-end;
+	max-width: 100%;
+}
+
+.step {
+	text-align: center;
+	width: 70px;
+	position: relative;
+}
+
+.step .dot {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	margin: 0 auto;
+	background: #cfcfcf;
+}
+
+.step.done .dot {
+	background: #0d6efd;
+}
+
+.step.cancelled .dot {
+	background: #dc3545;
+}
+
+.step .label {
+	font-size: 10px;
+	margin-top: 3px;
+	line-height: 1.1;
+	white-space: nowrap;
+}
+
+.line {
+	height: 3px;
+	width: 40px;
+	background: #cfcfcf;
+}
+
+.line.done {
+	background: #0d6efd;
+}
+
+.line.cancelled {
+	background: #dc3545;
+}
+
+.step .icon {
+    font-size: 13px;
+    margin-top: 2px;
+    color: #7d7d7d;
+}
+
+.step.done .icon {
+    color: #0d6efd;
+}
+
+.step.cancelled .icon {
+    color: #dc3545;
 }

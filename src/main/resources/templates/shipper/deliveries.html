@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shipper/layout}">
+<head>
+  <title>Danh Sách Đơn Được Giao - Shipper Panel</title>
+  <link rel="stylesheet" href="/css/shipper/deliveries.css">
+</head>
+<body>
+<h1 layout:fragment="page-title">Đơn của tôi</h1>
+
+<div layout:fragment="content">
+
+  <!-- Flash -->
+  <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+  <!-- Tabs trạng thái nhanh -->
+  <div class="d-flex gap-2 mb-3 flex-wrap">
+    <a th:href="@{/shipper/deliveries}" class="btn"
+       th:classappend="${param.status == null} ? ' btn-primary' : ' btn-outline-primary'">
+      Tất Cả
+    </a>
+    <a th:href="@{/shipper/deliveries(status=${T(com.womtech.util.OrderStatusHelper).STATUS_CONFIRMED})}" class="btn"
+       th:classappend="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_CONFIRMED.toString()} ? ' btn-primary' : ' btn-outline-primary'">
+      Đã Xác Nhận
+    </a>
+    <a th:href="@{/shipper/deliveries(status=${T(com.womtech.util.OrderStatusHelper).STATUS_PACKED})}" class="btn"
+       th:classappend="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_PACKED.toString()} ? ' btn-primary' : ' btn-outline-primary'">
+      Đã Đóng Gói
+    </a>
+    <a th:href="@{/shipper/deliveries(status=${T(com.womtech.util.OrderStatusHelper).STATUS_SHIPPED})}" class="btn"
+       th:classappend="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_SHIPPED.toString()} ? ' btn-primary' : ' btn-outline-primary'">
+      Đang Giao
+    </a>
+    <a th:href="@{/shipper/deliveries(status=${T(com.womtech.util.OrderStatusHelper).STATUS_DELIVERED})}" class="btn"
+       th:classappend="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_DELIVERED.toString()} ? ' btn-primary' : ' btn-outline-primary'">
+      Đã Giao
+    </a>
+    <a th:href="@{/shipper/deliveries(status=${T(com.womtech.util.OrderStatusHelper).STATUS_RETURNED})}" class="btn"
+       th:classappend="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_RETURNED.toString()} ? ' btn-primary' : ' btn-outline-primary'">
+      Hoàn Trả
+    </a>
+    <a th:href="@{/shipper/deliveries(status=${T(com.womtech.util.OrderStatusHelper).STATUS_CANCELLED})}" class="btn"
+       th:classappend="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_CANCELLED.toString()} ? ' btn-primary' : ' btn-outline-primary'">
+      Đã Huỷ
+    </a>
+  </div>
+
+  <!-- Tìm kiếm -->
+  <div class="admin-table mb-4">
+    <div class="table-header">
+      <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Tìm Kiếm & Lọc</h5>
+    </div>
+    <form class="p-3 row g-3 align-items-end" method="get" action="/shipper/deliveries">
+      <div class="col-md-4">
+        <label class="form-label mb-1">Mã đơn / Username / SĐT</label>
+        <input type="text" class="form-control" name="search" th:value="${search}" placeholder="Nhập để tìm...">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label mb-1">Trạng thái</label>
+        <select name="status" class="form-select">
+          <option th:value="${null}" th:selected="${param.status == null}">Tất cả</option>
+          <option th:value="${T(com.womtech.util.OrderStatusHelper).STATUS_CONFIRMED}"
+                  th:selected="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_CONFIRMED.toString()}">Đã xác nhận</option>
+          <option th:value="${T(com.womtech.util.OrderStatusHelper).STATUS_PACKED}"
+                  th:selected="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_PACKED.toString()}">Đã đóng gói</option>
+          <option th:value="${T(com.womtech.util.OrderStatusHelper).STATUS_SHIPPED}"
+                  th:selected="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_SHIPPED.toString()}">Đang giao</option>
+          <option th:value="${T(com.womtech.util.OrderStatusHelper).STATUS_DELIVERED}"
+                  th:selected="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_DELIVERED.toString()}">Đã giao</option>
+          <option th:value="${T(com.womtech.util.OrderStatusHelper).STATUS_RETURNED}"
+                  th:selected="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_RETURNED.toString()}">Hoàn trả</option>
+          <option th:value="${T(com.womtech.util.OrderStatusHelper).STATUS_CANCELLED}"
+                  th:selected="${param.status != null and param.status[0] == T(com.womtech.util.OrderStatusHelper).STATUS_CANCELLED.toString()}">Đã huỷ</option>
+        </select>
+      </div>
+      <div class="col-md-5 d-flex gap-2">
+        <button class="btn btn-primary"><i class="fas fa-search me-1"></i>Tìm</button>
+        <a href="/shipper/deliveries" class="btn btn-outline-secondary">
+          <i class="fas fa-rotate-left me-1"></i>Đặt lại
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Danh sách -->
+  <div class="admin-table">
+    <div class="table-header">
+      <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh Sách Đơn</h5>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead>
+        <tr>
+          <th>Mã đơn</th>
+          <th>Khách hàng</th>
+          <th>Điện thoại</th>
+          <th>Địa chỉ</th>
+          <th>Trạng thái</th>
+          <th>Phân công</th>
+          <th class="text-end">Thao tác</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="o : ${orders}">
+          <td><strong th:text="${o.orderID}">ORD-001</strong></td>
+          <td th:text="${o.user != null ? o.user.username : '---'}">Tên KH</td>
+          <td th:text="${o.address != null ? o.address.phone : '---'}">SĐT</td>
+          <td th:text="${o.address != null ? (o.address.street + ', ' + o.address.ward + ', ' + o.address.district + ', ' + o.address.city) : '---'}">Địa chỉ</td>
+          <td>
+            <span class="badge"
+                  th:text="${OrderStatusHelper.getStatusLabel(o.status)}"
+                  th:classappend="' ' + ${OrderStatusHelper.getStatusBadgeClass(o.status)}"></span>
+          </td>
+          <td>
+            <div th:if="${o.shipper != null}">
+              <div><i class="fas fa-user me-1"></i><span th:text="${o.shipper.username}">shipper</span></div>
+              <small class="text-muted"
+                     th:text="${o.assignedAt != null ? #temporals.format(o.assignedAt, 'dd/MM/yyyy HH:mm') : '--/--'}">--/--</small>
+            </div>
+            <div th:if="${o.shipper == null}">
+              <span class="text-muted">Chưa gán</span>
+            </div>
+          </td>
+          <td class="text-end">
+            <!-- TODO: bổ sung trang chi tiết sau -->
+            <a th:href="@{'/shipper/deliveries/' + ${o.orderID}}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-eye me-1"></i> Chi tiết
+            </a>
+          </td>
+        </tr>
+
+        <tr th:if="${orders==null or #lists.isEmpty(orders)}">
+          <td colspan="7" class="text-center py-5">
+            <i class="fas fa-truck-moving fa-3x text-muted mb-3"></i>
+            <div class="text-muted">Không có đơn phù hợp.</div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Phân trang -->
+    <div class="p-3 d-flex justify-content-between align-items-center" th:if="${page != null}">
+      <div>
+        Trang <span th:text="${page.number + 1}">1</span>/<span th:text="${page.totalPages}">1</span>
+      </div>
+      <div class="btn-group">
+        <a class="btn btn-outline-secondary btn-sm"
+           th:classappend="${page.first}? ' disabled'"
+           th:href="@{/shipper/deliveries(page=${page.number - 1}, search=${search}, status=${param.status != null ? param.status[0] : null})}">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+        <a class="btn btn-outline-secondary btn-sm"
+           th:classappend="${page.last}? ' disabled'"
+           th:href="@{/shipper/deliveries(page=${page.number + 1}, search=${search}, status=${param.status != null ? param.status[0] : null})}">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

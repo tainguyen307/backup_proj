@@ -97,7 +97,8 @@ public class CartController {
 		}
 		User user = userOpt.get();
 		
-		cartService.clearCart(user);
+		Cart cart = cartService.findByUser(user);
+		cartService.clearCart(cart);
 		
 		return "redirect:/cart";
 	}

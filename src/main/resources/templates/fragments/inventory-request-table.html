@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="requestTable(requests)">
+    <div th:if="${#lists.isEmpty(requests)}">
+        <p class="text-muted">Chưa có yêu cầu nào.</p>
+    </div>
+    <div th:unless="${#lists.isEmpty(requests)}" class="table-responsive">
+        <table class="table table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Người gửi</th> <!-- cột mới -->
+            <th>Trạng thái</th>
+            <th>Ghi chú</th>
+            <th>Ngày tạo</th>
+            <th>Thao tác</th> <!-- cột nút -->
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="request : ${requests}">
+            <td th:text="${request.id}">1</td>
+            <td><strong th:text="${request.product.name}">Tên sản phẩm</strong></td>
+            <td><span class="badge bg-info" th:text="${request.quantity}">100</span></td>
+                    <td><span th:text="${request.user.username}">Vendor Name</span></td> <!-- hiển thị tên user -->
+            
+            <td>
+    <span th:switch="${request.status}">
+        <span th:case="${T(com.womtech.entity.InventoryRequest.RequestStatus).PENDING}" 
+              class="badge bg-warning text-dark">
+            <i class="fas fa-clock"></i> Chờ duyệt
+        </span>
+        <span th:case="${T(com.womtech.entity.InventoryRequest.RequestStatus).APPROVED}" 
+              class="badge bg-success">
+            <i class="fas fa-check"></i> Đã duyệt
+        </span>
+        <span th:case="${T(com.womtech.entity.InventoryRequest.RequestStatus).REJECTED}" 
+              class="badge bg-danger">
+            <i class="fas fa-times"></i> Từ chối
+        </span>
+        <span th:case="*">--</span>
+    </span>
+</td>
+
+            <td>
+                <span th:if="${request.note != null and !#strings.isEmpty(request.note)}" 
+                      th:text="${#strings.abbreviate(request.note, 50)}"
+                      th:title="${request.note}">Ghi chú</span>
+                <span th:unless="${request.note != null and !#strings.isEmpty(request.note)}" class="text-muted">--</span>
+            </td>
+            <td>
+                <small th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</small>
+            </td>
+            <td>
+                <span th:if="${request.status == T(com.womtech.entity.InventoryRequest.RequestStatus).PENDING}">
+                    <button class="btn btn-success btn-sm me-1" 
+                            th:onclick="'showApproveModal(' + ${request.id} + ')'">
+                        <i class="fas fa-check"></i> Duyệt
+                    </button>
+                    <button class="btn btn-danger btn-sm" 
+                            th:onclick="'showRejectModal(' + ${request.id} + ')'">
+                        <i class="fas fa-times"></i> Từ chối
+                    </button>
+                </span>
+                <span th:unless="${request.status == T(com.womtech.entity.InventoryRequest.RequestStatus).PENDING}" class="text-muted">
+                    --
+                </span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+    </div>
+</div>
+</body>
+</html>

@@ -83,7 +83,7 @@
                 <tr th:each="voucher : ${vouchers}">
                     <td th:text="${voucher.voucherID}">VOUCHER01</td>
                     <td th:text="${voucher.code}">Tên voucher</td>
-                    <td th:text="${voucher.discount != null ? voucher.discount + '%' : ''}">10%</td>
+                    <td th:text="${voucher.discount != null ? voucher.discount + '%' : '0%'}">10%</td>
                     <td th:text="${voucher.min_price != null ? voucher.min_price + ' ₫' : '-'}">-</td>
                     <td th:text="${voucher.expire_date != null ? voucher.expire_date.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm')) : '-'}">-</td>
                     <td>
@@ -109,6 +109,17 @@
             </table>
         </div>
     </div>
+	<div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+	    <i class="fas fa-exclamation-circle me-2"></i>
+	    <span th:text="${error}"></span>
+	    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+	
+	<div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+	    <i class="fas fa-check-circle me-2"></i>
+	    <span th:text="${success}"></span>
+	    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
 
     <!-- Phân trang -->
     <div th:replace="~{vendor/fragments/pagination :: pagination(${page}, '/vendor/vouchers')}"></div>

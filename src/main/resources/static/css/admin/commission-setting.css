@@ -1,0 +1,442 @@
+/* ============================================
+   COMMISSION SETTING STYLES
+   ============================================ */
+
+/* Commission Card Base */
+.commission-card {
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.commission-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Global Setting Card */
+.global-setting {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.global-setting h4 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.global-setting small {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.global-setting .form-label {
+    color: white;
+    font-weight: 500;
+}
+
+.global-setting .input-group-text {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.global-setting .form-control {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.global-setting .form-control:focus {
+    border-color: white;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}
+
+/* Category Header */
+.category-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 18px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.category-header:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-left-color: #764ba2;
+}
+
+.category-header h5 {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0;
+}
+
+.category-header i.fa-folder {
+    color: #667eea;
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* Subcategory Item */
+.subcategory-item {
+    padding: 15px 20px;
+    border-left: 3px solid #e9ecef;
+    margin-bottom: 12px;
+    margin-left: 30px;
+    background: #fafbfc;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.subcategory-item:hover {
+    background: #f1f3f5;
+    border-left-color: #667eea;
+    padding-left: 25px;
+}
+
+.subcategory-item i.fa-folder-open {
+    color: #95a5a6;
+    margin-right: 8px;
+}
+
+/* Rate Input */
+.rate-input {
+    width: 120px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.rate-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+/* Input Group */
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Form Labels */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0;
+}
+
+.form-label.mb-0.small {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Alert Messages */
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+}
+
+.alert i {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #654a8e 100%);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    border: none;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    border: none;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+    color: #212529;
+}
+
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
+/* Header */
+h2 {
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+h2 i {
+    color: #667eea;
+    margin-right: 10px;
+}
+
+h4 {
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom: none;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 20px;
+}
+
+/* Info Text */
+.text-muted {
+    color: #6c757d !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: 500;
+}
+
+/* Helper Classes */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.text-end {
+    text-align: right !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .commission-card {
+        padding: 20px;
+    }
+    
+    .category-header {
+        padding: 15px;
+    }
+    
+    .subcategory-item {
+        margin-left: 15px;
+        padding: 12px 15px;
+    }
+    
+    .rate-input {
+        width: 100px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-lg {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .col-md-3, .col-md-4, .col-md-5 {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .commission-card {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .global-setting {
+        padding: 20px;
+    }
+    
+    .category-header {
+        padding: 12px;
+    }
+    
+    .subcategory-item {
+        margin-left: 10px;
+        padding: 10px;
+    }
+    
+    .rate-input {
+        width: 80px;
+        font-size: 0.9rem;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .d-flex.justify-content-between > div {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    .d-flex.justify-content-between > div .btn {
+        flex: 1;
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .btn, .modal, .alert {
+        display: none;
+    }
+    
+    .commission-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+    }
+    
+    .global-setting {
+        background: #f8f9fa;
+        color: #212529;
+        border: 2px solid #667eea;
+    }
+}
+
+/* Accessibility */
+.form-control:focus,
+.btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+/* Loading State */
+.btn.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tooltip Styles */
+[data-bs-toggle="tooltip"] {
+    cursor: help;
+}
+
+/* Placeholder styling */
+::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+:-ms-input-placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+::-ms-input-placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}

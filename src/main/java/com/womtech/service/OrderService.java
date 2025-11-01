@@ -44,11 +44,19 @@ public interface OrderService extends BaseService<Order, String> {
     // Phương thức cho top sản phẩm
     Map<String, Object> getTopProductsData(String vendorId, LocalDateTime start, LocalDateTime end);
     
-    Order createOrder(User user, Address address, String payment_method, String voucherCode);
 	List<Order> findByUser(User user);
 	int totalQuantity(Order order);
-	BigDecimal totalPrice(Order order);
-	BigDecimal totalPrice(Cart cart, String voucherCode);
 	Page<Order> findByUser(User user, Pageable pageable);
 	Page<Order> findByUserAndStatus(User user, int status, Pageable pageable);
+	Order createOrderFromCart(Cart cart, Address address, String payment_method, BigDecimal finalPrice);
+	BigDecimal totalPrice(Order order);
+	
+	void assignShipper(String orderId, String shipperId, String vendorId);
+	void unassignShipper(String orderId, String vendorId);
+
+	List<Order> getOrdersByShipper(String shipperId);
+	List<Order> getOrdersByShipperAndStatus(String shipperId, Integer status);
+
+	List<Order> getUnassignedOrdersByVendor(String vendorId);
+	List<Order> getOrdersByVendorAndShipper(String vendorId, String shipperId);
 }

@@ -103,6 +103,64 @@
     color: gold;
 }
 
+/* Custom QuillJS editor */
+.review-editor {
+    position: relative;
+}
+
+#editor {
+    min-height: 180px;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+/* Placeholder style */
+#editor .ql-editor::before {
+    font-size: 1rem;
+    color: #6c757d;
+    opacity: 0.8;
+}
+
+#editor .ql-editor:focus::before {
+	display:none;
+}
+
+/* Nội dung vùng nhập */
+#editor .ql-editor {
+    padding: 8px 10px 45px 10px; /* thêm space cho nút ảnh */
+    line-height: 1.6;
+}
+
+/* Nút upload ảnh */
+#uploadImageBtn {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    z-index: 5;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#uploadImageBtn:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #editor {
+        min-height: 150px;
+    }
+    #uploadImageBtn {
+        bottom: 8px;
+        right: 10px;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .quantity-cart-row, .favorite-chat-row {

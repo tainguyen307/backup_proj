@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{vendor/layout}">
+<head>
+<title>Danh sách yêu cầu nhập kho</title>
+    <link rel="stylesheet" href="/css/vendor/inventory-request-list.css">
+
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="container mt-4">
+			<!-- Alert thành công -->
+			<div th:if="${param.success}"
+				class="alert alert-success alert-dismissible fade show" role="alert">
+				<i class="fas fa-check-circle"></i> Yêu cầu nhập kho đã được gửi
+				thành công!
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+
+			<div class="card">
+				<div
+					class="card-header d-flex justify-content-between align-items-center">
+					<h4 class="mb-0">Danh sách yêu cầu nhập kho</h4>
+					<a th:href="@{/vendor/inventory-requests/create}"
+						class="btn btn-primary"> <i class="fas fa-plus"></i> Tạo yêu
+						cầu mới
+					</a>
+				</div>
+				<div class="card-body">
+					<!-- Kiểm tra có dữ liệu không -->
+					<div th:if="${#lists.isEmpty(requests)}" class="text-center py-5">
+						<i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+						<p class="text-muted">Chưa có yêu cầu nhập kho nào</p>
+						<a th:href="@{/vendor/inventory-requests/create}"
+							class="btn btn-primary"> Tạo yêu cầu đầu tiên </a>
+					</div>
+
+					<!-- Bảng danh sách -->
+					<div th:unless="${#lists.isEmpty(requests)}"
+						class="table-responsive">
+						<table class="table table-hover">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Sản phẩm</th>
+									<th>Số lượng</th>
+									<th>Trạng thái</th>
+									<th>Ghi chú</th>
+									<th>Ngày tạo</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="request : ${requests}">
+									<td th:text="${request.id}">1</td>
+									<td><strong th:text="${request.product.name}">Tên
+											sản phẩm</strong></td>
+									<td><span class="badge bg-info"
+										th:text="${request.quantity}">100</span></td>
+									<td><span th:switch="${request.status.name()}"
+										class="badge"> <span th:case="'PENDING'"
+											class="badge bg-warning text-dark"> <i
+												class="fas fa-clock"></i> Chờ duyệt
+										</span> <span th:case="'APPROVED'" class="badge bg-success"> <i
+												class="fas fa-check"></i> Đã duyệt
+										</span> <span th:case="'REJECTED'" class="badge bg-danger"> <i
+												class="fas fa-times"></i> Từ chối
+										</span>
+									</span></td>
+									<td><span
+										th:if="${request.note != null and !#strings.isEmpty(request.note)}"
+										th:text="${#strings.abbreviate(request.note, 50)}"
+										th:title="${request.note}"> Ghi chú </span> <span
+										th:unless="${request.note != null and !#strings.isEmpty(request.note)}"
+										class="text-muted"> -- </span></td>
+									<td><small
+										th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}">
+											01/01/2024 10:00 </small></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

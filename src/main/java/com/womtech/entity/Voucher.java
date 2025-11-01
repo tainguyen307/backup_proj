@@ -27,7 +27,7 @@ public class Voucher {
 	private String code;
 
 	@Builder.Default
-	@Column(nullable = false, precision = 12, scale = 2)
+	@Column(nullable = false, precision = 5, scale = 2)
 	private BigDecimal discount = BigDecimal.ZERO;
 
 	@Column(precision = 12, scale = 2)
@@ -39,6 +39,10 @@ public class Voucher {
 	private Integer status = 1;
 
 	@Builder.Default
-	@OneToMany(mappedBy = "voucher")
-	private List<Order> orders = new ArrayList<>();
+	@OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<OrderVoucher> orderVouchers = new ArrayList<>();
+	
+	@Builder.Default
+	@OneToMany(mappedBy = "voucher", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<CartVoucher> cartVouchers = new ArrayList<>();
 }

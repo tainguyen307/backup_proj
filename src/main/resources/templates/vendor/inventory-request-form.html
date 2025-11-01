@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{vendor/layout}">
+<head>
+    <title>Tạo yêu cầu nhập kho</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/vendor/inventory-request-form.css">
+    
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+
+        <!-- 🔔 THÔNG BÁO THÀNH CÔNG / LỖI -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-1"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-1"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Tạo yêu cầu nhập kho</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <form th:action="@{/vendor/inventory-requests/create}" method="post">
+
+                            <!-- CHỌN SẢN PHẨM -->
+                            <div class="mb-3">
+                                <label for="product" class="form-label">Sản phẩm <span class="text-danger">*</span></label>
+                                <select id="product" 
+                                        name="productId"
+                                        class="form-select" 
+                                        required>
+                                    <option value="">-- Chọn sản phẩm --</option>
+                                    <option th:each="product : ${products}" 
+                                            th:value="${product.productID}" 
+                                            th:text="${product.name + ' (Tồn kho: ' + product.inventories + ')'}">
+                                    </option>
+                                </select>
+                                <small class="form-text text-muted">
+                                    Chọn sản phẩm bạn muốn nhập thêm vào kho.
+                                </small>
+                            </div>
+
+                            <!-- SỐ LƯỢNG -->
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Số lượng <span class="text-danger">*</span></label>
+                                <input type="number" 
+                                       id="quantity" 
+                                       name="quantity"
+                                       class="form-control" 
+                                       min="1" 
+                                       required
+                                       placeholder="Nhập số lượng cần nhập kho">
+                                <small class="form-text text-muted">
+                                    Số lượng phải lớn hơn 0.
+                                </small>
+                            </div>
+
+                            <!-- GHI CHÚ -->
+                            <div class="mb-3">
+                                <label for="note" class="form-label">Ghi chú</label>
+                                <textarea id="note" 
+                                          name="note"
+                                          class="form-control" 
+                                          rows="4"
+                                          placeholder="Nhập ghi chú hoặc lý do nhập kho (không bắt buộc)"></textarea>
+                            </div>
+
+                            <!-- BUTTONS -->
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/vendor/inventory-requests}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Quay lại
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Gửi yêu cầu
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional: Auto redirect sau 3s nếu có success -->
+<script th:if="${success}">
+    setTimeout(() => {
+        window.location.href = '/vendor/inventory-requests';
+    }, 2500); // quay lại sau 2.5 giây
+</script>
+
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

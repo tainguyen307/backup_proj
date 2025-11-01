@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<header th:fragment="shipperHeader">
+		<nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+			<div class="container-fluid">
+				<a class="navbar-brand" href="#" onclick="return false;"> <img
+					alt="Logo" th:src="@{/img/logo/womtech.png}"> WomTech Shipper
+				</a>
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item"><a href="/shipper/dashboard"
+						class="nav-link">Dashboard</a></li>
+					<li class="nav-item"><a href="/shipper/deliveries"
+						class="nav-link">Đơn được giao</a></li>
+					<li class="nav-item"><a href="/shipper/stats" class="nav-link">Thống
+							kê</a></li>
+					<li class="nav-item"><a href="/auth/manual-logout"
+						class="nav-link text-danger">Đăng xuất</a></li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+</body>
+</html>

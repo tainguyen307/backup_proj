@@ -14,4 +14,5 @@ public interface CloudinaryService {
 		boolean deleteImage(String imageUrl);
 		String extractPublicIdFromUrl(String imageUrl);
 		String generateThumbnailUrl(String imageUrl, int width, int height);
+		String uploadAvatar(MultipartFile file);
 }

@@ -12,6 +12,4 @@ public interface CartItemService extends BaseService<CartItem, String> {
 	Optional<CartItem> findByCartAndProduct(Cart cart, Product product);
 
 	List<CartItem> findByCart(Cart cart);
-
-	void deleteByCart(Cart cart);
 }

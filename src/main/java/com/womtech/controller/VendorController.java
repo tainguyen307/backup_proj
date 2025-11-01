@@ -8,7 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +54,12 @@ public class VendorController {
 
 	@Autowired
 	private OrderService orderService;
-	
+
 	@Autowired
 	private VoucherService voucherService;
-	
+
 	@Autowired
-    private PostService postService;
+	private PostService postService;
 
 	// Helper method to get current user
 	private User getCurrentUser(Authentication authentication) {
@@ -392,18 +397,16 @@ public class VendorController {
 	// ========== ORDER MANAGEMENT ==========
 	@GetMapping("/orders")
 	public String listOrders(@RequestParam(required = false) Integer status,
-			@RequestParam(required = false) String search, @RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size, Authentication authentication, Model model) {
+			@RequestParam(required = false) String search,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+			Authentication authentication, Model model) {
 
 		User currentUser = getCurrentUser(authentication);
 
 		// Get orders that contain vendor's products
 		List<Order> allOrders;
-		if (status != null) {
-			allOrders = orderService.getOrdersByVendorIdAndStatus(currentUser.getUserID(), status);
-		} else {
-			allOrders = orderService.getOrdersByVendorId(currentUser.getUserID());
-		}
 		if (status != null) {
 			allOrders = orderService.getOrdersByVendorIdAndStatus(currentUser.getUserID(), status);
 			System.out.println("Số lượng đơn hàng với trạng thái " + status + ": " + allOrders.size());
@@ -423,6 +426,32 @@ public class VendorController {
 									&& o.getAddress().getPhone().toLowerCase().contains(searchLower)))
 					.collect(Collectors.toList());
 			System.out.println("Số lượng đơn hàng sau tìm kiếm: " + allOrders.size());
+		}
+
+		// Apply date filter (filter by createAt)
+		if (startDate != null || endDate != null) {
+			LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+			LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(LocalTime.MAX) : null;
+
+			allOrders = allOrders.stream().filter(o -> {
+				LocalDateTime orderDate = o.getCreateAt();
+				if (orderDate == null)
+					return false;
+
+				// Check start date
+				if (startDateTime != null && orderDate.isBefore(startDateTime)) {
+					return false;
+				}
+
+				// Check end date
+				if (endDateTime != null && orderDate.isAfter(endDateTime)) {
+					return false;
+				}
+
+				return true;
+			}).collect(Collectors.toList());
+
+			System.out.println("Số lượng đơn hàng sau lọc theo ngày: " + allOrders.size());
 		}
 
 		// Manual pagination
@@ -487,9 +516,12 @@ public class VendorController {
 		model.addAttribute("OrderStatusHelper", OrderStatusHelper.class);
 		model.addAttribute("currentUser", currentUser);
 
+		List<User> shippers = userService.findByRolename("SHIPPER");
+		model.addAttribute("shippers", shippers);
+
 		return "vendor/order-detail";
 	}
-	
+
 	@PostMapping("/orders/cancel")
 	public String cancelOrder(@RequestParam String orderId, Authentication authentication,
 			RedirectAttributes redirectAttributes) {
@@ -522,6 +554,50 @@ public class VendorController {
 			redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
 		}
 
+		return "redirect:/vendor/orders/" + orderId;
+	}
+
+	@PostMapping("/orders/assign-shipper/{orderId}")
+	public String assignOrderToShipper(@PathVariable String orderId,
+	                                   @RequestParam("shipperID") String shipperId,
+	                                   Principal principal,
+	                                   RedirectAttributes ra) {
+	    try {
+	        User vendor = requireCurrentVendor(principal);
+	        orderService.assignShipper(orderId, shipperId, vendor.getUserID());
+	        ra.addFlashAttribute("success", "Đã gán đơn hàng cho shipper thành công.");
+	    } catch (Exception e) {
+	        // 🔧 thêm 2 dòng này:
+	        e.printStackTrace(); // => in stack trace vào console
+	        ra.addFlashAttribute("error", e.getMessage());
+	    }
+	    return "redirect:/vendor/orders/" + orderId;
+	}
+
+	@PostMapping("/orders/unassign-shipper/{orderId}")
+	public String unassignOrderFromShipper(@PathVariable String orderId,
+	                                       Principal principal,
+	                                       RedirectAttributes ra) {
+	    try {
+	        User vendor = requireCurrentVendor(principal);
+	        orderService.unassignShipper(orderId, vendor.getUserID());
+	        ra.addFlashAttribute("success", "Đã huỷ gán shipper cho đơn hàng.");
+	    } catch (Exception e) {
+	        // 🔧 tương tự:
+	        e.printStackTrace();
+	        ra.addFlashAttribute("error", e.getMessage());
+	    }
+	    return "redirect:/vendor/orders/" + orderId;
+	}
+
+
+	@GetMapping("/orders/assign-shipper/{orderId}")
+	public String fallbackGetAssign(@PathVariable String orderId) {
+		return "redirect:/vendor/orders/" + orderId;
+	}
+
+	@GetMapping("/orders/unassign-shipper/{orderId}")
+	public String fallbackGetUnassign(@PathVariable String orderId) {
 		return "redirect:/vendor/orders/" + orderId;
 	}
 
@@ -589,23 +665,21 @@ public class VendorController {
 		model.addAttribute("categoryValues", categoryData.get("values"));
 		model.addAttribute("topProductLabels", topProductsData.get("labels"));
 		model.addAttribute("topProductValues", topProductsData.get("values"));
-		
+
 		// Tạo danh sách màu sắc
-		String[] categoryColorsArray = {
-		    "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6",
-		    "#06b6d4", "#84cc16", "#f97316", "#ec4899", "#6366f1"
-		};
+		String[] categoryColorsArray = { "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#84cc16",
+				"#f97316", "#ec4899", "#6366f1" };
 
 		List<String> categoryColors = new ArrayList<>();
 		List<?> categoryLabels = (List<?>) categoryData.get("labels");
 		for (int i = 0; i < categoryLabels.size(); i++) {
-		    categoryColors.add(categoryColorsArray[i % categoryColorsArray.length]);
+			categoryColors.add(categoryColorsArray[i % categoryColorsArray.length]);
 		}
 
 		List<String> productColors = new ArrayList<>();
 		List<?> topProductLabels = (List<?>) topProductsData.get("labels");
 		for (int i = 0; i < topProductLabels.size(); i++) {
-		    productColors.add(categoryColorsArray[i % categoryColorsArray.length]);
+			productColors.add(categoryColorsArray[i % categoryColorsArray.length]);
 		}
 
 		// Thêm vào model
@@ -621,152 +695,161 @@ public class VendorController {
 	public List<Subcategory> getSubcategoriesByCategory(@PathVariable String categoryID) {
 		return subcategoryService.getSubcategoriesByCategoryId(categoryID);
 	}
-	
-	@GetMapping("/vouchers")
-	public String listVouchers(
-	        @RequestParam(value = "code", required = false) String code,
-	        @RequestParam(value = "status", required = false) Integer status,
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size,
-	        Model model,
-	        Principal principal) {
 
-	    // Lấy vendor đang đăng nhập
+	@GetMapping("/vouchers")
+	public String listVouchers(@RequestParam(value = "code", required = false) String code,
+			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model,
+			Principal principal) {
+
+		// Lấy vendor đang đăng nhập
 		Optional<User> optUser = userService.findById(principal.getName());
 		if (optUser.isEmpty()) {
-		    throw new RuntimeException("User not found for id: " + principal.getName());
+			throw new RuntimeException("User not found for id: " + principal.getName());
 		}
 		User currentUser = optUser.get();
-	    String ownerId = null;
+		String ownerId = null;
 
-	    // Nếu là vendor thì chỉ xem voucher của chính mình
-	    if (currentUser.getRole().getRolename().equals("VENDOR")) {
-	        ownerId = currentUser.getUserID();
-	    }
+		// Nếu là vendor thì chỉ xem voucher của chính mình
+		if (currentUser.getRole().getRolename().equals("VENDOR")) {
+			ownerId = currentUser.getUserID();
+		}
 
-	    Page<Voucher> vouchers = voucherService.search(code, status, ownerId, PageRequest.of(page, size));
+		Page<Voucher> vouchers = voucherService.search(code, status, ownerId, PageRequest.of(page, size));
 
-	    model.addAttribute("vouchers", vouchers.getContent());
-	    model.addAttribute("page", vouchers);
-	    model.addAttribute("code", code);
-	    model.addAttribute("status", status);
+		model.addAttribute("vouchers", vouchers.getContent());
+		model.addAttribute("page", vouchers);
+		model.addAttribute("code", code);
+		model.addAttribute("status", status);
 
-	    return "vendor/vouchers";
+		return "vendor/vouchers";
 	}
-	
+
 	@GetMapping("/vouchers/new")
 	public String newVoucherForm(Model model) {
-	    model.addAttribute("voucher", new Voucher());
-	    model.addAttribute("users", userService.getAllUsers());
-	    return "vendor/voucher-form";
+		model.addAttribute("voucher", new Voucher());
+		model.addAttribute("users", userService.getAllUsers());
+		return "vendor/voucher-form";
 	}
 
 	@GetMapping("/vouchers/edit/{id}")
 	public String editVoucherForm(@PathVariable String id, Model model) {
-	    Voucher voucher = voucherService.findById(id)
-	            .orElseThrow(() -> new RuntimeException("Voucher not found"));
-	    model.addAttribute("voucher", voucher);
-	    model.addAttribute("users", userService.getAllUsers());
-	    return "vendor/voucher-form";
+		Voucher voucher = voucherService.findById(id).orElseThrow(() -> new RuntimeException("Voucher not found"));
+		model.addAttribute("voucher", voucher);
+		model.addAttribute("users", userService.getAllUsers());
+		return "vendor/voucher-form";
 	}
 
 	@PostMapping("/vouchers/save")
 	public String saveVoucher(@ModelAttribute Voucher voucher, RedirectAttributes redirectAttributes) {
-	    try {
-	        if (voucher.getVoucherID() == null) {
-	            voucherService.create(voucher);
-	        } else {
-	            voucherService.update(voucher);
-	        }
-	        redirectAttributes.addFlashAttribute("success", "Voucher đã được lưu thành công!");
-	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("error", "Lỗi khi lưu voucher: " + e.getMessage());
-	    }
-	    return "redirect:/vendor/vouchers";
+		try {
+			String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+			User owner = userService.findById(userId)
+					.orElseThrow(() -> new IllegalStateException("Không tìm thấy vendor đăng nhập"));
+			voucher.setOwner(owner);
+
+			if (voucher.getExpire_date() != null && voucher.getExpire_date().isBefore(LocalDateTime.now())) {
+				redirectAttributes.addFlashAttribute("error", "Ngày hết hạn phải sau ngày hiện tại!");
+				return "redirect:/admin/vouchers";
+			}
+
+			if (voucher.getVoucherID() == null || voucher.getVoucherID().isBlank()) {
+				// Thêm mới
+				voucherService.create(voucher);
+			} else {
+				// Cập nhật
+				voucherService.update(voucher);
+			}
+
+			redirectAttributes.addFlashAttribute("success", "Voucher đã được lưu thành công!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Lỗi khi lưu voucher: " + e.getMessage());
+		}
+		return "redirect:/vendor/vouchers";
 	}
 
 	@GetMapping("/vouchers/delete/{id}")
 	public String deleteVoucher(@PathVariable String id, RedirectAttributes redirectAttributes) {
-	    try {
-	        voucherService.delete(id);
-	        redirectAttributes.addFlashAttribute("success", "Voucher đã được xóa thành công!");
-	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa voucher: " + e.getMessage());
-	    }
-	    return "redirect:/vendor/vouchers";
+		try {
+			voucherService.delete(id);
+			redirectAttributes.addFlashAttribute("success", "Voucher đã được xóa thành công!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa voucher: " + e.getMessage());
+		}
+		return "redirect:/vendor/vouchers";
 	}
 
 	@GetMapping("/vouchers/enable/{id}")
 	public String enableVoucher(@PathVariable String id, RedirectAttributes redirectAttributes) {
-	    voucherService.enableVoucher(id);
-	    redirectAttributes.addFlashAttribute("success", "Voucher đã được kích hoạt!");
-	    return "redirect:/vendor/vouchers";
+		voucherService.enableVoucher(id);
+		redirectAttributes.addFlashAttribute("success", "Voucher đã được kích hoạt!");
+		return "redirect:/vendor/vouchers";
 	}
 
 	@GetMapping("/vouchers/disable/{id}")
 	public String disableVoucher(@PathVariable String id, RedirectAttributes redirectAttributes) {
-	    voucherService.disableVoucher(id);
-	    redirectAttributes.addFlashAttribute("success", "Voucher đã bị vô hiệu hóa!");
-	    return "redirect:/vendor/vouchers";
+		voucherService.disableVoucher(id);
+		redirectAttributes.addFlashAttribute("success", "Voucher đã bị vô hiệu hóa!");
+		return "redirect:/vendor/vouchers";
 	}
+
 	// ========== POST MANAGEMENT ==========
 	@GetMapping("/posts")
-	public String listPosts(
-	        @RequestParam(value = "title", required = false) String title,
-	        @RequestParam(value = "status", required = false) Integer status,
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size,
-	        Authentication authentication,
-	        Model model) {
+	public String listPosts(@RequestParam(value = "title", required = false) String title,
+			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+			Authentication authentication, Model model) {
 
-	    Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
+		Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
 
-	    User currentUser = getCurrentUser(authentication);
-	    String role = currentUser.getRole().getRolename();
+		User currentUser = getCurrentUser(authentication);
+		String role = currentUser.getRole().getRolename();
 
-	    Page<Post> posts = postService.search(currentUser.getUserID(), role, title, status, pageable);
+		Page<Post> posts = postService.search(currentUser.getUserID(), role, title, status, pageable);
 
-	    model.addAttribute("posts", posts.getContent());
-	    model.addAttribute("page", posts);
-	    model.addAttribute("title", title);
-	    model.addAttribute("status", status);
+		model.addAttribute("posts", posts.getContent());
+		model.addAttribute("page", posts);
+		model.addAttribute("title", title);
+		model.addAttribute("status", status);
 
-	    return "vendor/posts";
+		return "vendor/posts";
 	}
 
 	@GetMapping("/posts/new")
 	public String newPostForm(Model model, Principal principal) {
-	    Post post = new Post();
-	    post.setUser(userService.findById(principal.getName()).orElse(null)); // Gán vendor hiện tại
-	    model.addAttribute("post", post);
-	    return "vendor/post-form";
+		Post post = new Post();
+		post.setUser(userService.findById(principal.getName()).orElse(null)); // Gán vendor hiện tại
+		model.addAttribute("post", post);
+		return "vendor/post-form";
 	}
 
 	@GetMapping("/posts/edit/{id}")
 	public String editPostForm(@PathVariable String id, Principal principal, Model model) {
-	    Post post = postService.findById(id)
-	            .orElseThrow(() -> new RuntimeException("Post not found"));
+		Post post = postService.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
 
-	    // Kiểm tra quyền: vendor chỉ được edit bài của mình
-	    if (!post.getUser().getUserID().equals(principal.getName())) {
-	        throw new RuntimeException("Không có quyền chỉnh sửa bài viết này");
-	    }
+		// Kiểm tra quyền: vendor chỉ được edit bài của mình
+		if (!post.getUser().getUserID().equals(principal.getName())) {
+			throw new RuntimeException("Không có quyền chỉnh sửa bài viết này");
+		}
 
-	    model.addAttribute("post", post);
-	    return "vendor/post-form";
+		model.addAttribute("post", post);
+		return "vendor/post-form";
 	}
 
 	@PostMapping("/posts/save")
 	public String savePost(
 	        @ModelAttribute Post post,
-	        @RequestParam(value = "thumbnailFile", required = false) MultipartFile thumbnailFile,
+	        @RequestParam(value = "thumbnailFile", required = false) MultipartFile thumbnailFile, 
 	        Principal principal,
 	        RedirectAttributes redirectAttributes) {
-	    try {
-	        // Gán vendor hiện tại
-	        post.setUser(userService.findById(principal.getName()).orElse(null));
 
-	        // Xử lý upload thumbnail
+	    try {
+	        // --- Set user chắc chắn tồn tại ---
+	        User currentUser = userService.findById(principal.getName())
+	                .orElseThrow(() -> new RuntimeException("Người dùng đăng nhập không tồn tại"));
+	        post.setUser(currentUser);
+
+	        // --- Upload thumbnail nếu có ---
 	        if (thumbnailFile != null && !thumbnailFile.isEmpty()) {
 	            if (post.getPostID() != null && post.getThumbnail() != null) {
 	                cloudinaryService.deleteImage(post.getThumbnail());
@@ -775,46 +858,65 @@ public class VendorController {
 	            post.setThumbnail(thumbnailUrl);
 	        }
 
-	        if (post.getPostID() == null) {
+	        if (post.getPostID() == null || post.getPostID().isEmpty()) {
+	            // --- Tạo mới bài viết ---
+	        	post.setPostID(null);
+	            post.setCreateAt(LocalDateTime.now());
+	            post.setUpdateAt(LocalDateTime.now());
 	            postService.create(post);
 	            redirectAttributes.addFlashAttribute("success", "Bài viết đã được tạo thành công!");
 	        } else {
-	            // Kiểm tra quyền: chỉ update bài của mình
-	            Post existingPost = postService.findById(post.getPostID())
-	                    .orElseThrow(() -> new RuntimeException("Post not found"));
-	            if (!existingPost.getUser().getUserID().equals(principal.getName())) {
-	                throw new RuntimeException("Không có quyền cập nhật bài viết này");
-	            }
-	            postService.update(post);
+	            // --- Cập nhật bài viết ---
+	            Post existing = postService.findById(post.getPostID())
+	                    .orElseThrow(() -> new RuntimeException("Bài viết không tồn tại"));
+
+	            existing.setTitle(post.getTitle());
+	            existing.setType(post.getType());
+	            existing.setContent(post.getContent());
+	            existing.setThumbnail(post.getThumbnail());
+	            existing.setStatus(post.getStatus());
+	            existing.setUpdateAt(LocalDateTime.now());
+
+	            postService.update(existing);
 	            redirectAttributes.addFlashAttribute("success", "Bài viết đã được cập nhật!");
 	        }
+
 	    } catch (Exception e) {
 	        redirectAttributes.addFlashAttribute("error", "Lỗi khi lưu bài viết: " + e.getMessage());
+	        e.printStackTrace();
 	    }
+
 	    return "redirect:/vendor/posts";
 	}
 
 	@GetMapping("/posts/delete/{id}")
 	public String deletePost(@PathVariable String id, Principal principal, RedirectAttributes redirectAttributes) {
-	    try {
-	        Post post = postService.findById(id)
-	                .orElseThrow(() -> new RuntimeException("Post not found"));
+		try {
+			Post post = postService.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
 
-	        // Kiểm tra quyền: chỉ xóa bài của mình
-	        if (!post.getUser().getUserID().equals(principal.getName())) {
-	            throw new RuntimeException("Không có quyền xóa bài viết này");
-	        }
+			// Kiểm tra quyền: chỉ xóa bài của mình
+			if (!post.getUser().getUserID().equals(principal.getName())) {
+				throw new RuntimeException("Không có quyền xóa bài viết này");
+			}
 
-	        // Xóa thumbnail nếu có
-	        if (post.getThumbnail() != null) {
-	            cloudinaryService.deleteImage(post.getThumbnail());
-	        }
+			// Xóa thumbnail nếu có
+			if (post.getThumbnail() != null) {
+				cloudinaryService.deleteImage(post.getThumbnail());
+			}
 
-	        postService.delete(id);
-	        redirectAttributes.addFlashAttribute("success", "Bài viết đã được xóa!");
-	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa bài viết: " + e.getMessage());
-	    }
-	    return "redirect:/vendor/posts";
+			postService.delete(id);
+			redirectAttributes.addFlashAttribute("success", "Bài viết đã được xóa!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa bài viết: " + e.getMessage());
+		}
+		return "redirect:/vendor/posts";
+	}
+
+	private User requireCurrentVendor(Principal principal) {
+		if (principal == null)
+			throw new IllegalStateException("Chưa đăng nhập.");
+		String id = principal.getName(); // 599acc9d-... (ID)
+		return userService.findById(id)
+				.orElseThrow(() -> new IllegalStateException("Không tìm thấy tài khoản đăng nhập."));
 	}
 }

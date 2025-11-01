@@ -19,12 +19,17 @@ import com.womtech.entity.Address;
 import com.womtech.entity.Order;
 import com.womtech.entity.User;
 import com.womtech.service.AddressService;
+import com.womtech.service.CloudinaryService;
+import com.womtech.service.GhnService;
 import com.womtech.service.OrderService;
 import com.womtech.service.UserService;
+import com.womtech.util.AuthUtils;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/user")
@@ -34,19 +39,16 @@ public class ProfileController {
 	private final UserService userService;
 	private final AddressService addressService;
 	private final OrderService orderService;
+	private final AuthUtils authUtils;
+	private final CloudinaryService cloudinaryService;
+	private final GhnService ghnService;
 
 	@GetMapping("/profile")
 	public String showProfilePage(HttpSession session, Model model, Principal principal,
 								  @RequestParam(defaultValue = "0") int page,
 								  @RequestParam(defaultValue = "5") int size,
 								  @RequestParam(required = false) Integer status) {
-		// Chỉ dựa vào JWT authentication (Principal), không fallback về session
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
-			return "redirect:/auth/login";
-		}
-
-		String userId = principal.getName();
-		Optional<User> userOpt = userService.findById(userId);
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
 		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
@@ -94,15 +96,11 @@ public class ProfileController {
 	@PostMapping("/update")
 	public String updateProfile(HttpSession session, Principal principal, @RequestParam String email,
 			@RequestParam String username) {
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
-
-		String userId = principal.getName();
-		var userOpt = userService.findById(userId);
-		if (userOpt.isEmpty())
-			return "redirect:/auth/login";
-		var user = userOpt.get();
+		User user = userOpt.get();
 
 		user.setEmail(email);
 		user.setUsername(username);
@@ -115,15 +113,11 @@ public class ProfileController {
 	public String updateDefaultAddress(HttpSession session, Principal principal,
 									   @ModelAttribute("defaultAddress") Address defaultAddress,
 									   @ModelAttribute("user") User currentUser) {
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
-
-		String userId = principal.getName();
-		var userOpt = userService.findById(userId);
-		if (userOpt.isEmpty())
-			return "redirect:/auth/login";
-		var user = userOpt.get();
+		User user = userOpt.get();
 		
 		if (!user.getUserID().equals(currentUser.getUserID()))
 			throw new AccessDeniedException("Không có quyền truy cập");
@@ -151,8 +145,8 @@ public class ProfileController {
 		}
 		
 		// Đổi mail
-//		user.setEmail(currentUser.getEmail());
-//		userService.save(user);
+		user.setEmail(currentUser.getEmail());
+		userService.save(user);
 		
 		return "redirect:/user/profile";
 	}
@@ -160,84 +154,96 @@ public class ProfileController {
 
 	@PostMapping("/add-address")
 	public String addAddress(HttpSession session, Principal principal,
-							 @RequestParam String fullname,
-							 @RequestParam String phone,
-							 @RequestParam String street,
-							 @RequestParam String ward,
-							 @RequestParam String district,
-							 @RequestParam String city) {
-
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+	                         @RequestParam String fullname,
+	                         @RequestParam String phone,
+	                         @RequestParam String street,
+	                         @RequestParam String ward,
+	                         @RequestParam String district,
+	                         @RequestParam String city,
+	                         @RequestParam String cityId,
+	                         @RequestParam String districtId,
+	                         @RequestParam String wardId) {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
+		User user = userOpt.get();
 
-		String userId = principal.getName();
-		var userOpt = userService.findById(userId);
-		if (userOpt.isEmpty())
-			return "redirect:/auth/login";
-		var user = userOpt.get();
-		
-		Address address = Address.builder().user(user).fullname(fullname).phone(phone).street(street).ward(ward)
-				.district(district).city(city).createAt(LocalDateTime.now()).updateAt(LocalDateTime.now()).build();
-		addressService.save(address);
-		
-		if (addressService.findByUserAndIsDefaultTrue(user).isEmpty())
-			addressService.setDefaultAddress(address);
-		
-		return "redirect:/user/profile?tab=address";
+	    Address address = Address.builder()
+	            .user(user)
+	            .fullname(fullname)
+	            .phone(phone)
+	            .street(street)
+	            .ward(ward)
+	            .wardId(wardId)
+	            .district(district)
+	            .districtId(districtId)
+	            .city(city)
+	            .cityId(cityId)
+	            .createAt(LocalDateTime.now())
+	            .updateAt(LocalDateTime.now())
+	            .build();
+
+	    addressService.save(address);
+
+	    // Nếu chưa có địa chỉ mặc định thì set luôn
+	    if (addressService.findByUserAndIsDefaultTrue(user).isEmpty())
+	        addressService.setDefaultAddress(address);
+
+	    return "redirect:/user/profile?tab=address";
 	}
 
 	@PostMapping("/update-address")
 	public String updateAddress(HttpSession session, Principal principal,
-								@RequestParam String addressID,
-								@RequestParam String fullname,
-								@RequestParam String phone,
-								@RequestParam String street,
-								@RequestParam String ward,
-								@RequestParam String district,
-								@RequestParam String city) throws Exception {
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+	                            @RequestParam String addressID,
+	                            @RequestParam String fullname,
+	                            @RequestParam String phone,
+	                            @RequestParam String street,
+	                            @RequestParam String ward,
+	                            @RequestParam String district,
+	                            @RequestParam String city,
+	                            @RequestParam String cityId,
+	                            @RequestParam String districtId,
+	                            @RequestParam String wardId) throws Exception {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
+		User user = userOpt.get();
 
-		String userId = principal.getName();
-		var userOpt = userService.findById(userId);
-		if (userOpt.isEmpty())
-			return "redirect:/auth/login";
-		var user = userOpt.get();
+	    Optional<Address> addressDbOpt = addressService.findById(addressID);
 
-		Optional<Address> addressDbOpt = addressService.findById(addressID);
-		
-		if (addressDbOpt.isEmpty()) {
-			throw new Exception("Không tìm thấy ID địa chỉ");
-		} else {
-			Address addressDb = addressDbOpt.get();
-			if (!addressDb.getUser().equals(user))
-				throw new AccessDeniedException("Không có quyền truy cập");
-			addressDb.setFullname(fullname);
-			addressDb.setPhone(phone);
-			addressDb.setStreet(street);
-			addressDb.setWard(ward);
-			addressDb.setDistrict(district);
-			addressDb.setCity(city);
-			addressDb.setUpdateAt(LocalDateTime.now());
-		    addressService.save(addressDb);
-		}
-		return "redirect:/user/profile?tab=address";
+	    if (addressDbOpt.isEmpty()) {
+	        throw new Exception("Không tìm thấy ID địa chỉ");
+	    } else {
+	        Address addressDb = addressDbOpt.get();
+	        if (!addressDb.getUser().equals(user))
+	            throw new AccessDeniedException("Không có quyền truy cập");
+
+	        addressDb.setFullname(fullname);
+	        addressDb.setPhone(phone);
+	        addressDb.setStreet(street);
+	        addressDb.setWard(ward);
+	        addressDb.setWardId(wardId);
+	        addressDb.setDistrict(district);
+	        addressDb.setDistrictId(districtId);
+	        addressDb.setCity(city);
+	        addressDb.setCityId(cityId);
+	        addressDb.setUpdateAt(LocalDateTime.now());
+
+	        addressService.save(addressDb);
+	    }
+	    return "redirect:/user/profile?tab=address";
 	}
 	
 	@PostMapping("/setdefault-address")
 	public String setDefault(HttpSession session, Principal principal,
 							 @RequestParam String addressID) throws Exception {
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
-
-		String userId = principal.getName();
-		var userOpt = userService.findById(userId);
-		if (userOpt.isEmpty())
-			return "redirect:/auth/login";
-		var user = userOpt.get();
+		User user = userOpt.get();
 		
 		Optional<Address> addressDbOpt = addressService.findById(addressID);
 		
@@ -256,15 +262,11 @@ public class ProfileController {
 	@PostMapping("/delete-address")
 	public String deleteAddress(HttpSession session, Principal principal,
 							 @RequestParam String addressID) throws Exception {
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
-
-		String userId = principal.getName();
-		var userOpt = userService.findById(userId);
-		if (userOpt.isEmpty())
-			return "redirect:/auth/login";
-		var user = userOpt.get();
+		User user = userOpt.get();
 		
 		Optional<Address> addressDbOpt = addressService.findById(addressID);
 		
@@ -290,15 +292,11 @@ public class ProfileController {
 	@PostMapping("/change-password")
 	public String changePassword(HttpSession session, Principal principal, @RequestParam String currentPassword,
 			@RequestParam String newPassword, @RequestParam String confirmPassword) {
-		if (principal == null || principal.getName() == null || principal.getName().isBlank()) {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
 			return "redirect:/auth/login";
 		}
-
-		String userId = principal.getName();
-		var userOpt = userService.findById(userId);
-		if (userOpt.isEmpty())
-			return "redirect:/auth/login";
-		var user = userOpt.get();
+		User user = userOpt.get();
 
 		if (!newPassword.equals(confirmPassword)) {
 			return "redirect:/user/profile?err=pwd_mismatch";
@@ -310,6 +308,35 @@ public class ProfileController {
 		userService.save(user);
 
 		return "redirect:/user/profile?ok=pwd_changed";
+	}
+	
+	@PostMapping("/avatar")
+	public String uploadAvatar(HttpSession session, Principal principal,
+							   @RequestParam("avatar") MultipartFile file,
+							   RedirectAttributes redirectAttributes) {
+		Optional<User> userOpt = authUtils.getCurrentUser(principal);
+		if (userOpt.isEmpty()) {
+			return "redirect:/auth/login";
+		}
+		User user = userOpt.get();
+	    try {
+
+	        // Xóa avatar cũ nếu có
+	        if (user.getAvatar() != null) {
+	            cloudinaryService.deleteImage(user.getAvatar());
+	        }
+
+	        // Upload ảnh mới
+	        String avatarUrl = cloudinaryService.uploadAvatar(file);
+	        user.setAvatar(avatarUrl);
+	        userService.save(user);
+
+	        redirectAttributes.addFlashAttribute("success", "Cập nhật ảnh đại diện thành công!");
+	    } catch (Exception e) {
+	        redirectAttributes.addFlashAttribute("error", e.getMessage());
+	    }
+
+	    return "redirect:/user/profile";
 	}
 
 }

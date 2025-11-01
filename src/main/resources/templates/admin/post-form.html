@@ -4,6 +4,10 @@
       layout:decorate="~{admin/layout}">
 <head>
     <title th:text="${post.postID != null} ? 'Edit Post' : 'Add Post'">Post Form</title>
+	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+	<link rel="stylesheet" th:href="@{/css/admin/post_form.css}">
+	<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+	<script th:src="@{/js/admin/post_form.js}"></script>
 </head>
 <body>
 <div layout:fragment="content">
@@ -14,6 +18,7 @@
         <form th:object="${post}" 
               th:action="@{/admin/posts/save}" 
               method="post" enctype="multipart/form-data">
+              <input type="hidden" th:field="*{postID}">
 
             <div class="mb-3">
                 <label for="title" class="form-label">Tiêu đề bài viết</label>
@@ -22,10 +27,9 @@
             </div>
 
             <div class="mb-3">
-                <label for="content" class="form-label">Nội dung</label>
-                <textarea class="form-control" id="content" rows="6" 
-                          placeholder="Nhập nội dung bài viết"
-                          th:field="*{content}" required></textarea>
+                <label for="editor" class="form-label">Nội dung</label>
+                <div id="editor" style="height: 300px"></div>
+                <input type="hidden" id="content" th:field="*{content}">
             </div>
 
             <div class="mb-3">
@@ -36,6 +40,16 @@
                     <img th:src="@{${post.thumbnail}}" alt="Thumbnail" class="img-thumbnail" style="max-width: 200px;">
                 </div>
             </div>
+
+			<div class="mb-3">
+			    <label class="form-label">Loại bài viết</label>
+			    <select class="form-select" th:field="*{type}" required>
+			        <option value="">-- Chọn loại --</option>
+			        <option value="BLOG">Blog</option>
+			        <option value="NEWS">News</option>
+			        <option value="TUTORIAL">Tutorial</option>
+			    </select>
+			</div>
 
             <div class="mb-3">
                 <label class="form-label">Trạng thái</label>

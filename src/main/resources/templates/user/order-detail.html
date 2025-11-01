@@ -23,12 +23,95 @@
 						th:text="${order.orderID}">ORDER123</span></small>
 				</div>
 				<div class="text-end">
-					<div>
-						<span class="badge" th:classappend="${orderStatusBadge}" th:text="${orderStatusLabel}">Trạng thái</span>
+
+					<!-- Nếu ĐÃ HỦY -->
+					<div th:if="${order.status == 0}" class="text-danger fw-bold">
+						Đơn hàng đã hủy</div>
+
+					<!-- Nếu không phải hủy → hiển thị timeline -->
+					<div th:if="${order.status != 0}" class="tracking-steps">
+
+						<!-- 1. Chờ xác nhận -->
+						<div class="step" th:classappend="${order.status >= 1} ? ' done'">
+							<div class="dot"></div>
+							<div class="icon">
+								<i class="bi bi-hourglass-split"></i>
+							</div>
+							<div class="label">Chờ xác nhận</div>
+						</div>
+						<div class="line" th:classappend="${order.status >= 2} ? ' done'"></div>
+
+						<!-- 2. Đã xác nhận -->
+						<div class="step" th:classappend="${order.status >= 2} ? ' done'">
+							<div class="dot"></div>
+							<div class="icon">
+								<i class="bi bi-check2-circle"></i>
+							</div>
+							<div class="label">Đã xác nhận</div>
+						</div>
+						<div class="line" th:classappend="${order.status >= 3} ? ' done'"></div>
+
+						<!-- 3. Đang chuẩn bị -->
+						<div class="step" th:classappend="${order.status >= 3} ? ' done'">
+							<div class="dot"></div>
+							<div class="icon">
+								<i class="bi bi-tools"></i>
+							</div>
+							<div class="label">Chuẩn bị</div>
+						</div>
+						<div class="line" th:classappend="${order.status >= 4} ? ' done'"></div>
+
+						<!-- 4. Đóng gói -->
+						<div class="step" th:classappend="${order.status >= 4} ? ' done'">
+							<div class="dot"></div>
+							<div class="icon">
+								<i class="bi bi-box-seam"></i>
+							</div>
+							<div class="label">Đóng gói</div>
+						</div>
+						<div class="line" th:classappend="${order.status >= 5} ? ' done'"></div>
+
+						<!-- 5. Đang giao -->
+						<div class="step" th:classappend="${order.status >= 5} ? ' done'">
+							<div class="dot"></div>
+							<div class="icon">
+								<i class="bi bi-truck"></i>
+							</div>
+							<div class="label">Đang giao</div>
+						</div>
+						<div class="line" th:classappend="${order.status >= 6} ? ' done'"></div>
+
+						<!-- 6. Đã giao -->
+						<div class="step" th:classappend="${order.status >= 6} ? ' done'">
+							<div class="dot"></div>
+							<div class="icon">
+								<i class="bi bi-check-all"></i>
+							</div>
+							<div class="label">Đã giao</div>
+						</div>
+
+						<!-- 7. Hoàn trả (nếu có) -->
+						<div class="line" th:if="${order.status >= 7}"
+							th:classappend="' done'"></div>
+						<div class="step" th:if="${order.status >= 7}"
+							th:classappend="' done'">
+							<div class="dot"></div>
+							<div class="icon">
+								<i class="bi bi-arrow-counterclockwise"></i>
+							</div>
+							<div class="label">Hoàn trả</div>
+						</div>
+
+
 					</div>
-					<small class="text-muted"
-						th:text="${#temporals.format(order.createAt, 'dd/MM/yyyy HH:mm')}">01/01/2025</small>
+
+					<!-- Hiển thị ngày tạo -->
+					<small class="text-muted d-block mt-1"
+						th:text="${#temporals.format(order.createAt, 'dd/MM/yyyy HH:mm')}">
+					</small>
+
 				</div>
+
 			</div>
 
 			<div class="row g-4">
@@ -49,7 +132,7 @@
 					</div>
 
 					<div class="card mb-3">
-						<div class="card-header fw-semibold">Phương thức & thanh
+						<div class="card-header fw-semibold">Phương thức và thanh
 							toán</div>
 						<div class="card-body">
 							<p class="mb-2">
@@ -58,7 +141,8 @@
 							</p>
 							<p class="mb-0">
 								<strong>Trạng thái thanh toán:</strong> <span
-									th:text="${order.paymentStatus == 1 ? 'Đã thanh toán' : 'Chưa thanh toán'}">Chưa</span>
+									th:text="${order.paymentStatus == 0 ? 'Chưa thanh toán' : (order.paymentStatus == 1 ? 'Đã thanh toán' : 'Thanh toán thất bại')}">
+									Chưa thanh toán </span>
 							</p>
 							<div
 								th:if="${order.paymentMethod != 'COD' and order.paymentStatus != 1}">
@@ -86,10 +170,6 @@
 								Số lượng sản phẩm: <span
 									th:text="${totalQuantity != null ? totalQuantity : 0}">0</span>
 							</p>
-							<p class="mb-0">
-								Mã voucher: <span
-									th:text="${order.voucher != null ? order.voucher.code : 'Không'}">NONE</span>
-							</p>
 						</div>
 					</div>
 
@@ -116,14 +196,15 @@
 									</thead>
 									<tbody>
 										<tr th:each="item : ${order.items}">
-											<td><img th:src="@{${item.product.thumbnail}}"
-												alt="thumb"
-												style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px;">
-											</td>
-											<td>
-												<div class="fw-semibold" th:text="${item.product.name}">Tên
-													SP</div>
-											</td>
+											<td><a
+												th:href="@{/product/{id}(id=${item.product.productID})}">
+													<img th:src="@{${item.product.thumbnail}}" alt="thumb"
+													style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px;">
+											</a></td>
+											<td><a
+												class="fw-semibold text-decoration-none text-dark"
+												th:href="@{/product/{id}(id=${item.product.productID})}"
+												th:text="${item.product.name}"> Tên SP </a></td>
 											<td class="text-center">
 												<div
 													th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
@@ -140,30 +221,56 @@
 							</div>
 
 							<div class="px-4 py-3 border-top">
-								<div class="d-flex justify-content-between mb-2">
-									<div class="text-muted">Tạm tính</div>
-									<div
-										th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
-										₫</div>
-								</div>
-
-								<div th:if="${order.voucher != null}"
-									class="d-flex justify-content-between mb-2">
-									<div class="text-muted">Giảm giá (Voucher)</div>
-									<div
-										th:text="${'-' + #numbers.formatDecimal(order.voucher.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">-0
-										₫</div>
-								</div>
-
-								<div class="d-flex justify-content-between mt-3 pt-2 border-top">
-									<div class="fw-semibold">Tổng phải trả</div>
-									<div class="fw-bold text-danger fs-5"
-										th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
-										0 ₫</div>
-								</div>
-
+								<!-- DANH SÁCH VOUCHER -->
 								<div
-									th:if="${order.status == 1 or order.status == 2}"
+									th:if="${orderVouchers != null and !orderVouchers.isEmpty()}"
+									class="mb-3">
+									<h6 class="fw-semibold mb-2 text-secondary">
+										<i class="bi bi-percent me-1 text-primary"></i>Mã giảm giá đã
+										áp dụng:
+									</h6>
+									<div th:each="ov : ${orderVouchers}"
+										class="d-flex justify-content-between align-items-center mb-1">
+										<span class="fw-bold text-primary"
+											th:text="${ov.voucher.code}">VOUCHER2025</span> <span
+											class="text-success"
+											th:text="'- ' + ${#numbers.formatDecimal(ov.discountValue, 0, 'COMMA', 0, 'POINT')} + ' ₫'">-
+											20.000 ₫</span>
+									</div>
+									<hr class="my-2">
+								</div>
+
+								<!-- TỔNG KẾT GIÁ -->
+								<div class="order-summary">
+									<div class="d-flex justify-content-between">
+										<span>Giá gốc:</span> <span
+											th:text="${#numbers.formatDecimal(originalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
+											₫</span>
+									</div>
+
+									<div th:if="${totalDiscountPrice}"
+										class="d-flex justify-content-between text-success">
+										<span>Giảm giá:</span> <span
+											th:text="${'-' + #numbers.formatDecimal(totalDiscountPrice, 0, 'COMMA', 0, 'POINT') + ' ₫'}">-
+											0 ₫</span>
+									</div>
+
+									<div class="d-flex justify-content-between text-muted">
+										<span>Phí vận chuyển:</span> <span
+											th:text="${shippingFee != null ? #numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT') + ' ₫' : 'Miễn phí'}">Miễn
+											phí</span>
+									</div>
+
+									<hr class="my-2">
+
+									<div class="d-flex justify-content-between fw-bold">
+										<span>Tổng cộng:</span> <span class="text-danger fs-5"
+											th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
+											₫</span>
+									</div>
+								</div>
+
+								<div th:if="${order.status == 1 or order.status == 2}"
 									class="d-flex justify-content-end align-items-center gap-2 mt-3">
 
 									<form th:action="@{/order/cancel}" method="post"
